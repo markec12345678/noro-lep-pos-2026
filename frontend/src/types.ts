@@ -195,3 +195,107 @@ export interface MenuModifierSelection {
   /** Price delta at the time of selection (can be 0). */
   price: number;
 }
+
+/* ------------------------------------------------------------------ */
+/* Inventory / Stock                                                  */
+/* ------------------------------------------------------------------ */
+
+/** Measurement unit for an inventory item. */
+export type InventoryUnit = "kg" | "g" | "l" | "ml" | "pc" | "box";
+
+/**
+ * A single stock-kept ingredient or supply.
+ * Example: "Mozzarella 1kg block", "Coca-Cola can 330ml", "Pizza box 32cm".
+ *
+ * Stored as a Cockpit CMS collection named `inventoryitem`.
+ */
+export interface InventoryItem extends BaseEntity {
+  name: string;
+  /** SKU / internal code, optional. */
+  sku?: string;
+  unit: InventoryUnit;
+  /** Current quantity in stock (in the given unit). */
+  quantity: number;
+  /** Low-stock threshold — triggers an alert when quantity falls below. */
+  threshold: number;
+  /** Last known purchase cost per unit (for food cost reporting). */
+  cost: number;
+  /** Supplier name, optional. */
+  supplier?: string;
+}
+
+/**
+ * A recipe line — how much of an inventory item is consumed by one
+ * serving of a menu item.
+ *
+ * Stored as a Cockpit CMS collection named `recipeitem`.
+ * When an order item is completed, we look up all recipe items for the
+ * menu and decrement the linked inventory items.
+ */
+export interface RecipeItem extends BaseEntity {
+  /** Link to the menu this recipe belongs to (contentItemLink, single). */
+  menu: LinkModelType;
+  /** Link to the inventory item consumed (contentItemLink, single). */
+  inventoryItem: LinkModelType;
+  /** Quantity consumed per single serving (in inventoryItem.unit). */
+  quantity: number;
+}
+
+/**
+ * Type of stock movement. Stored on every transaction row so we have a
+ * full audit trail (who/when/why for each unit change).
+ */
+export enum StockTransactionType {
+  Restock = "restock",
+  Decrement = "decrement",
+  Adjustment = "adjustment",
+  Waste = "waste",
+}
+
+/**
+ * Audit log entry for a stock movement.
+ * Stored as a Cockpit CMS collection named `stocktransaction`.
+ */
+export interface StockTransaction extends BaseEntity {
+  /** Link to the inventory item affected. */
+  inventoryItem: LinkModelType;
+  type: StockTransactionType;
+  /** Signed delta (positive for restock, negative for decrement). */
+  delta: number;
+  /** Resulting quantity after the change (snapshot). */
+  balanceAfter: number;
+  /** Free-text reason (e.g. "Order #1234", "Weekly delivery", "Spillage"). */
+  reason: string;
+  /** User who performed the change. */
+  user?: string;
+}
+
+/* ------------------------------------------------------------------ */
+/* Cash Drawer                                                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A cash drawer session, opened at the start of a shift and closed at
+ * the end. The expected cash is computed from completed order totals
+ * (filter payment_method = cash); the difference is over/short.
+ *
+ * Stored as a Cockpit CMS collection named `cashdrawersession`.
+ */
+export interface CashDrawerSession extends BaseEntity {
+  /** User ID/name of the cashier who opened the session. */
+  user: string;
+  openedAt: number;
+  closedAt?: number;
+  /** Cash counted into the drawer at session start. */
+  openingFloat: number;
+  /** Cash counted at session close (manual count). */
+  closingCount?: number;
+  /** Expected cash based on order sales during the session. */
+  expectedCash?: number;
+  /** closingCount - expectedCash (positive = over, negative = short). */
+  difference?: number;
+  /** Optional notes (e.g. explanation of a difference). */
+  notes?: string;
+  /** True while the session is open. */
+  isOpen: boolean;
+}

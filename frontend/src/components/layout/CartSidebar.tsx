@@ -19,6 +19,7 @@ import {
 } from "@/services/orderItemsService";
 import { useUpdateTable } from "@/services/tableService";
 import { useFetchOrder, useUpdateOrder } from "@/services/orderService";
+import { useDecrementStockForOrderItem } from "@/services/inventoryService";
 import PrintOrderDetails from "../custom/orders/PrintOrderDetails";
 import {
   computeGrandTotal,
@@ -46,6 +47,7 @@ const CartSidebar = ({
   const clearOrderItems = useClearOrderItems();
   const updateOrderMut = useUpdateOrder();
   const updateTableMut = useUpdateTable();
+  const decrementStock = useDecrementStockForOrderItem();
   const navigate = useNavigate();
 
   if (isLoading) return <p>Loading...</p>;
@@ -120,6 +122,35 @@ const CartSidebar = ({
         status: TableStatus.Available,
         order: null,
       });
+
+      // 4. Decrement inventory based on each item's recipe (best-effort,
+      //    non-blocking — failures are logged but don't fail checkout)
+      const userName = JSON.parse(localStorage.getItem("user") || "{}")?.name;
+      const completedItems = orderItems.filter(
+        (oi) => oi.status !== OrderItemStatus.Cancelled,
+      );
+      try {
+        const stockPromises = completedItems
+          .filter((oi) => oi.menu?._id)
+          .map((oi) =>
+            decrementStock.mutateAsync({
+              menuId: oi.menu._id,
+              menuName: oi.menu.name ?? "Unknown",
+              quantity: oi.quantity ?? 1,
+              user: userName,
+            }),
+          );
+        const results = await Promise.allSettled(stockPromises);
+        const failures = results.filter((r) => r.status === "rejected");
+        if (failures.length > 0) {
+          console.warn(
+            `${failures.length} stock decrement(s) failed (non-blocking)`,
+          );
+        }
+      } catch (err) {
+        // Stock errors should NOT roll back checkout — order is already paid.
+        console.error("Inventory decrement failed:", err);
+      }
 
       toast.success("Checkout successful!", {
         duration: 3000,

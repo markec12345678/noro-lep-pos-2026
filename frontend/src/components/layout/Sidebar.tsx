@@ -6,10 +6,15 @@ import {
   ClipboardList,
   ChefHatIcon,
   PieChart,
+  Package,
+  Wallet,
+  Wifi,
+  WifiOff,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
 import { canAccess } from "@/middleware";
+import { useSocket } from "@/hooks/useSocket";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -28,12 +33,15 @@ const menuItems: MenuItem[] = [
   { name: "Tables", icon: Table, path: "/" },
   { name: "Kitchen", icon: ChefHatIcon, path: "/kitchen" },
   { name: "Orders", icon: ClipboardList, path: "/orders" },
+  { name: "Inventory", icon: Package, path: "/inventory" },
+  { name: "Cash Drawer", icon: Wallet, path: "/cash-drawer" },
   { name: "Reports", icon: PieChart, path: "/reports" },
 ];
 
 const Sidebar = ({ collapsed, setCollapsed }: SidebarProps) => {
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const { isConnected } = useSocket();
   const sidebarVariants = {
     expanded: { width: 240 },
     collapsed: { width: 80 },
@@ -154,9 +162,19 @@ const Sidebar = ({ collapsed, setCollapsed }: SidebarProps) => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
-                className="text-xs text-gray-500 text-center"
+                className="text-xs text-gray-500 space-y-1"
               >
-                TGI POS v1.0
+                <div className="flex items-center justify-center gap-1.5">
+                  {isConnected ? (
+                    <Wifi className="h-3 w-3 text-green-500" />
+                  ) : (
+                    <WifiOff className="h-3 w-3 text-amber-500" />
+                  )}
+                  <span className={isConnected ? "text-green-600" : "text-amber-600"}>
+                    {isConnected ? "Realtime connected" : "Offline mode"}
+                  </span>
+                </div>
+                <div className="text-center">Noro Lep POS v2.0</div>
               </motion.div>
             ) : (
               <motion.div

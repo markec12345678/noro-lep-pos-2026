@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { OrderItem } from "@/types";
 import { fetcher } from "@/lib/helper";
+import { emitPosEvent } from "@/hooks/useSocket";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -49,13 +50,20 @@ export const useCreateOrderItem = () => {
         method: "POST",
         body: JSON.stringify({ data: orderItem }),
       }),
-    onSuccess: (_, variables) => {
+    onSuccess: (data, variables) => {
       if (variables.order) {
         queryClient.invalidateQueries({
           queryKey: ["orderItems", variables.order?._id],
         });
       }
       queryClient.invalidateQueries({ queryKey: ["kitchenOrderItems"] });
+      // Realtime: notify all clients (kitchen display, other POS tabs)
+      emitPosEvent("orderitem:created", {
+        orderItemId: data?._id,
+        orderId: variables.order?._id,
+        menuName: variables.menu?.name,
+        status: variables.status,
+      });
     },
   });
 };
@@ -68,9 +76,18 @@ export const useUpdateOrderItem = () => {
         method: "POST",
         body: JSON.stringify({ data: orderItem }),
       }),
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["kitchenOrderItems"] });
       queryClient.invalidateQueries({ queryKey: ["orderItems"] });
+      // Realtime: broadcast status change so kitchen/orders/POS all refresh
+      emitPosEvent("orderitem:status_changed", {
+        orderItemId: variables?._id ?? data?._id,
+        status: variables?.status,
+        orderId:
+          variables?.order && typeof variables.order === "object"
+            ? (variables.order as { _id?: string })?._id
+            : undefined,
+      });
     },
   });
 };

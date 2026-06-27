@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Table } from "@/types";
 import { fetcher } from "@/lib/helper";
+import { emitPosEvent } from "@/hooks/useSocket";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -49,6 +50,15 @@ export const useUpdateTable = () => {
           queryKey: ["table", variables._id],
         });
       }
+      // Realtime: notify all clients that a table's status changed
+      emitPosEvent("table:status_changed", {
+        tableId: variables?._id ?? data?._id,
+        status: variables?.status,
+        orderId:
+          variables?.order && typeof variables.order === "object"
+            ? (variables.order as { _id?: string })?._id
+            : null,
+      });
     },
   });
 };

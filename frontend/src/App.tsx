@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
 import LoadingSpinner from "./components/ui/loader";
+import { useRealtimeSync } from "./hooks/useRealtimeSync";
 import Reports from "./pages/Reports";
 
 // Lazy load pages
@@ -17,6 +18,8 @@ const Orders = lazy(() => import("@/pages/Orders"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const Kitchen = lazy(() => import("@/pages/Kitchen"));
 const Login = lazy(() => import("@/pages/Login"));
+const Inventory = lazy(() => import("@/pages/Inventory"));
+const CashDrawer = lazy(() => import("@/pages/CashDrawer"));
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -25,40 +28,66 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
+/**
+ * Inner component that mounts the realtime hook inside QueryClientProvider.
+ * (Hooks must be called inside the provider.)
+ */
+const AppInner = () => {
+  // Subscribe to WebSocket events → invalidates React Query caches
+  useRealtimeSync();
+
+  return (
+    <BrowserRouter>
+      <Suspense fallback={<LoadingSpinner />}>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Tables />} />
+            <Route path="tables/:tableId" element={<POS />} />
+            <Route path="menus" element={<FoodMenus />} />
+            <Route path="categories" element={<Categories />} />
+            <Route path="kitchen" element={<Kitchen />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="inventory" element={<Inventory />} />
+            <Route path="cash-drawer" element={<CashDrawer />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
+  );
+};
+
 const App = () => {
-  const queryClient = useMemo(() => new QueryClient(), []);
+  const queryClient = useMemo(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            // Re-fetch on window focus so switching tabs pulls fresh data
+            refetchOnWindowFocus: true,
+            // Keep data fresh for 30s before considering stale
+            staleTime: 30_000,
+          },
+        },
+      }),
+    [],
+  );
 
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        {/* Keep the original Toaster for backward compatibility */}
         <CustomToaster />
-        {/* Add the Sonner Toaster for toast.error/success from sonner */}
         <SonnerToaster />
-        <BrowserRouter>
-          <Suspense fallback={<LoadingSpinner />}>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<Tables />} />
-                <Route path="tables/:tableId" element={<POS />} />
-                <Route path="menus" element={<FoodMenus />} />
-                <Route path="categories" element={<Categories />} />
-                <Route path="kitchen" element={<Kitchen />} />
-                <Route path="orders" element={<Orders />} />
-                <Route path="reports" element={<Reports />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
+        <AppInner />
       </TooltipProvider>
     </QueryClientProvider>
   );

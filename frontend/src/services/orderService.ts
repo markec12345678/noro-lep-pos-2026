@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Order } from "@/types";
 import { fetcher } from "@/lib/helper";
+import { emitPosEvent } from "@/hooks/useSocket";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -39,7 +40,16 @@ export const useCreateOrder = () => {
         method: "POST",
         body: JSON.stringify({ data: order }),
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["orders"] }),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      emitPosEvent("order:created", {
+        orderId: data?._id,
+        tableId:
+          variables?.table && typeof variables.table === "object"
+            ? (variables.table as { _id?: string })?._id
+            : undefined,
+      });
+    },
   });
 };
 
@@ -58,6 +68,12 @@ export const useUpdateOrder = () => {
           queryKey: ["order", variables._id],
         });
       }
+      // Realtime: broadcast order status change (e.g. completed checkout)
+      emitPosEvent("order:status_changed", {
+        orderId: variables?._id ?? data?._id,
+        status: variables?.status,
+        total: variables?.total_amount,
+      });
     },
   });
 };

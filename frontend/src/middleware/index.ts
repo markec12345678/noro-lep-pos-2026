@@ -12,10 +12,19 @@ export const waiterRestrictedRoutes = [
   "/categories",
   "/orders",
   "/reports",
+  "/inventory",
+  "/cash-drawer",
 ];
 
 // Chefs can use Kitchen + Tables, but cannot see orders management or reports.
-export const chefRestrictedRoutes = ["/orders", "/reports"];
+export const chefRestrictedRoutes = [
+  "/orders",
+  "/reports",
+  "/inventory",
+  "/cash-drawer",
+  "/menus",
+  "/categories",
+];
 
 /**
  * Returns TRUE if the given role is RESTRICTED from accessing the pathname.
