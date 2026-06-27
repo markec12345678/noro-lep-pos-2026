@@ -10,6 +10,7 @@ import {
   Wallet,
   Wifi,
   WifiOff,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
@@ -36,6 +37,7 @@ const menuItems: MenuItem[] = [
   { name: "Inventory", icon: Package, path: "/inventory" },
   { name: "Cash Drawer", icon: Wallet, path: "/cash-drawer" },
   { name: "Reports", icon: PieChart, path: "/reports" },
+  { name: "FURS Settings", icon: Shield, path: "/fiscal" },
 ];
 
 const Sidebar = ({ collapsed, setCollapsed }: SidebarProps) => {

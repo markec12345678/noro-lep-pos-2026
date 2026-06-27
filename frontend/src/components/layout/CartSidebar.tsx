@@ -20,6 +20,10 @@ import {
 import { useUpdateTable } from "@/services/tableService";
 import { useFetchOrder, useUpdateOrder } from "@/services/orderService";
 import { useDecrementStockForOrderItem } from "@/services/inventoryService";
+import {
+  useFetchFiscalConfig,
+  useIssueFiscalInvoice,
+} from "@/services/fiscalService";
 import PrintOrderDetails from "../custom/orders/PrintOrderDetails";
 import {
   computeGrandTotal,
@@ -48,6 +52,8 @@ const CartSidebar = ({
   const updateOrderMut = useUpdateOrder();
   const updateTableMut = useUpdateTable();
   const decrementStock = useDecrementStockForOrderItem();
+  const { data: fiscalConfigs } = useFetchFiscalConfig();
+  const issueFiscalInvoice = useIssueFiscalInvoice();
   const navigate = useNavigate();
 
   if (isLoading) return <p>Loading...</p>;
@@ -150,6 +156,40 @@ const CartSidebar = ({
       } catch (err) {
         // Stock errors should NOT roll back checkout — order is already paid.
         console.error("Inventory decrement failed:", err);
+      }
+
+      // 5. Issue fiscal invoice (FURS — ZOI + EOR + QR)
+      // Best-effort: if no fiscal config exists, skip silently.
+      // If FURS submission fails, the invoice is still stored as "pending"
+      // and must be retried within 48 hours per Slovenian law.
+      const fiscalConfig = fiscalConfigs?.[0];
+      if (fiscalConfig?._id && table?.order?._id) {
+        try {
+          const result = await issueFiscalInvoice.mutateAsync({
+            orderId: table.order._id,
+            totalAmount: grandTotal,
+            taxesByRate: taxBreakdown,
+            paymentMethod: "cash", // TODO: derive from selected payment method
+            config: fiscalConfig,
+          });
+          if (result.status === "submitted" && result.eor) {
+            toast.success(
+              `Fiscal invoice issued (EOR: ${result.eor.slice(0, 8)}...)`,
+              { duration: 3000 },
+            );
+          } else if (result.status === "failed") {
+            toast.warning(
+              `Fiscal invoice stored but FURS submission failed — will retry`,
+              { duration: 5000 },
+            );
+          }
+        } catch (err) {
+          console.error("Fiscal invoice issuance failed:", err);
+          toast.error(
+            `Fiscal invoice failed: ${err instanceof Error ? err.message : "Unknown"}. Order is still complete; issue invoice manually.`,
+            { duration: 5000 },
+          );
+        }
       }
 
       toast.success("Checkout successful!", {

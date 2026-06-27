@@ -14,6 +14,7 @@ export const waiterRestrictedRoutes = [
   "/reports",
   "/inventory",
   "/cash-drawer",
+  "/fiscal",
 ];
 
 // Chefs can use Kitchen + Tables, but cannot see orders management or reports.
@@ -22,6 +23,7 @@ export const chefRestrictedRoutes = [
   "/reports",
   "/inventory",
   "/cash-drawer",
+  "/fiscal",
   "/menus",
   "/categories",
 ];

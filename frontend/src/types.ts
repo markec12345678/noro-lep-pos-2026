@@ -299,3 +299,87 @@ export interface CashDrawerSession extends BaseEntity {
   /** True while the session is open. */
   isOpen: boolean;
 }
+
+/* ------------------------------------------------------------------ */
+/* Fiscal (FURS) — Slovenian davčna blagajna                          */
+/* ------------------------------------------------------------------ */
+
+/**
+ * FURS configuration for the POS installation.
+ *
+ * Stored in Cockpit CMS as a singleton collection `fiscalconfig`.
+ * One record per location — covers the standard single-location case.
+ * For multi-location, scope by locationId (future enhancement).
+ */
+export interface FiscalConfig extends BaseEntity {
+  /** Slovenian tax number (davčna številka), 8 digits. */
+  taxNumber: string;
+  /** FURS-issued business premise ID (e.g. "PRE"). */
+  businessUnit: string;
+  /** FURS-issued electronic device ID (e.g. "PRE1"). */
+  electronicDevice: string;
+  /** Sequential invoice number of the LAST issued invoice. */
+  lastInvoiceNumber: number;
+  /** Control sequence (always 1 for the standard algorithm). */
+  controlSeq: number;
+  /** When true, the FURS mini-service runs in test mode (mock EOR). */
+  testMode: boolean;
+  /** Restaurant name printed on the receipt header. */
+  restaurantName: string;
+  /** Restaurant address printed on the receipt header. */
+  restaurantAddress: string;
+  /** Optional: operator's tax number (for the operator field). */
+  operatorTaxNumber?: string;
+}
+
+/**
+ * A fiscal invoice record — one per completed order.
+ *
+ * Stored in Cockpit CMS collection `fiscalinvoice`. Acts as the audit
+ * trail required by FURS: every invoice must have a unique sequential
+ * number, ZOI, and (after submission) EOR.
+ *
+ * If FURS is unreachable, the invoice is stored with status "pending"
+ * and submitted later (within 48 hours per Slovenian law).
+ */
+export interface FiscalInvoice extends BaseEntity {
+  /** Link to the order this invoice belongs to. */
+  order: LinkModelType;
+  /** Sequential invoice number (per electronic device). */
+  invoiceNumber: string;
+  /** FURS business unit ID snapshot. */
+  businessUnit: string;
+  /** FURS electronic device ID snapshot. */
+  electronicDevice: string;
+  /** ZOI — protective mark of invoice issuer (26 chars, base32). */
+  zoi: string;
+  /** EOR — unique invoice identifier returned by FURS (36 chars). */
+  eor?: string;
+  /** QR code PNG data URL for the receipt. */
+  qrCode?: string;
+  /** Issue date/time in FURS format (YYYY-MM-DDTHH:MM:SS). */
+  issueDateTime: string;
+  /** Unix timestamp (seconds) of when the invoice was issued. */
+  issuedAt: number;
+  /** Total amount including tax. */
+  totalAmount: number;
+  /** Tax breakdown snapshot. */
+  taxesByRate: Array<{
+    rate: number;
+    base: number;
+    tax: number;
+    total: number;
+  }>;
+  /** Payment method used. */
+  paymentMethod: "cash" | "card" | "other";
+  /** Customer's tax number (for B2B invoices, optional). */
+  customerTaxNumber?: string;
+  /** Submission status. */
+  status: "pending" | "submitted" | "failed";
+  /** When the invoice was successfully submitted to FURS. */
+  submittedAt?: number;
+  /** Error message if submission failed. */
+  errorMessage?: string;
+  /** Number of submission attempts. */
+  attempts: number;
+}

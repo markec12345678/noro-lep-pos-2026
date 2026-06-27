@@ -20,6 +20,7 @@ const Kitchen = lazy(() => import("@/pages/Kitchen"));
 const Login = lazy(() => import("@/pages/Login"));
 const Inventory = lazy(() => import("@/pages/Inventory"));
 const CashDrawer = lazy(() => import("@/pages/CashDrawer"));
+const FiscalSettings = lazy(() => import("@/pages/FiscalSettings"));
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -58,6 +59,7 @@ const AppInner = () => {
             <Route path="reports" element={<Reports />} />
             <Route path="inventory" element={<Inventory />} />
             <Route path="cash-drawer" element={<CashDrawer />} />
+            <Route path="fiscal" element={<FiscalSettings />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
