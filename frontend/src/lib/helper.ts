@@ -1,6 +1,10 @@
 import {
   DEFAULT_TAX_CONFIG,
   ImageType,
+  Menu,
+  MenuModifierSelection,
+  ModifierGroup,
+  ModifierOption,
   OrderItem,
   OrderItemStatus,
   TaxBreakdownEntry,
@@ -97,6 +101,80 @@ export const computeSubtotal = (items: OrderItem[]): number =>
 
 export const computeTotalTax = (breakdown: TaxBreakdownEntry[]): number =>
   round2(breakdown.reduce((sum, e) => sum + e.tax, 0));
+
+/* ------------------------------------------------------------------ */
+/* Modifier helpers                                                   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Sum the price deltas of all selected modifier options.
+ * Returns 0 when no modifiers are selected.
+ */
+export const sumModifierPrice = (
+  selections: MenuModifierSelection[] | undefined,
+): number => {
+  if (!selections || selections.length === 0) return 0;
+  return round2(
+    selections.reduce((sum, s) => sum + (s.price ?? 0), 0),
+  );
+};
+
+/**
+ * Compute the effective unit price for a menu item given a set of selected
+ * modifier options: base menu price + sum of modifier price deltas.
+ *
+ * This is the price that should be stored on `OrderItem.price` when an item
+ * is added to the cart, so that downstream tax / total calculations stay
+ * consistent without needing to re-resolve modifier lookups.
+ */
+export const computeItemUnitPrice = (
+  menu: Pick<Menu, "price">,
+  selections: MenuModifierSelection[] | undefined,
+): number => {
+  const base = menu?.price ?? 0;
+  return round2(base + sumModifierPrice(selections));
+};
+
+/**
+ * Convert a set of selected ModifierOption objects (with group context)
+ * into the snapshot shape stored on the OrderItem.
+ *
+ * Snapshots are important: if a manager later renames "Extra Cheese" to
+ * "Double Cheese" or changes its price from €1.50 to €2.00, historical
+ * orders keep the original name and price they were sold at.
+ */
+export const snapshotSelections = (
+  options: Array<{
+    option: ModifierOption;
+    group: ModifierGroup;
+  }>,
+): MenuModifierSelection[] =>
+  options.map(({ option, group }) => ({
+    groupId: group._id ?? "",
+    groupName: group.name,
+    optionId: option._id ?? "",
+    optionName: option.name,
+    price: option.price ?? 0,
+  }));
+
+/**
+ * Human-readable summary of selected modifiers for receipts and cart UI.
+ * Example: "Large, +Cheese, +Ham"
+ */
+export const formatModifierSummary = (
+  selections: MenuModifierSelection[] | undefined,
+): string => {
+  if (!selections || selections.length === 0) return "";
+  return selections.map((s) => s.optionName).join(", ");
+};
+
+/**
+ * Total line price for an order item: unit_price * quantity.
+ * The `price` field on OrderItem already includes modifier deltas
+ * (captured at add-to-cart time), so this is a straight multiply.
+ */
+export const computeOrderItemLineTotal = (item: OrderItem): number =>
+  round2((item.price ?? 0) * (item.quantity ?? 0));
 
 /**
  * Authenticated fetcher used by React Query.

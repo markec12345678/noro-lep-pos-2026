@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, ShoppingCart } from "lucide-react";
+import { Search, Filter, ShoppingCart, SlidersHorizontal } from "lucide-react";
 import {
   Menu,
   Order,
@@ -10,6 +10,7 @@ import {
   OrderType,
   Table,
   TableStatus,
+  MenuModifierSelection,
 } from "@/types";
 import { useParams } from "react-router-dom";
 import CartSidebar from "@/components/layout/CartSidebar";
@@ -24,45 +25,44 @@ import { useFetchCategories } from "@/services/categoryService";
 import { getImageUrl } from "@/lib/helper";
 import { FadeInUp } from "@/components/motions/FadeInUp";
 import { toast } from "sonner";
+import MenuItemSelectionModal from "@/components/custom/menu-modifiers/MenuItemSelectionModal";
 
 const POS = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [orderId, setOrderId] = useState("");
+  const [orderId, setOrderId] = useState<string>("");
   const { tableId } = useParams();
   const [cartCollapsed, setCartCollapsed] = useState(false);
-  const [subcategories, setSubcategories] = useState([]);
+
+  // Modal state: when set, the selection modal is open for this menu
+  const [selectionModalMenu, setSelectionModalMenu] = useState<Menu | null>(
+    null,
+  );
 
   const { data: table } = useFetchTable(tableId);
-  const {
-    data: orderItems,
-    isLoading,
-    error,
-  } = useFetchOrderItems(table?.order?._id);
+  const { data: orderItems } = useFetchOrderItems(table?.order?._id);
   const { data: menus } = useFetchMenus();
   const { mutateAsync: createOrder } = useCreateOrder();
   const { mutate: updateTable } = useUpdateTable();
-  const { mutate: addOrderItem } = useCreateOrderItem();
+  const { mutateAsync: addOrderItem } = useCreateOrderItem();
   const { data: categories } = useFetchCategories();
 
   useEffect(() => {
-    if (table) {
-      setOrderId(table?.order?._id);
+    if (table?.order?._id) {
+      setOrderId(table.order._id);
     }
   }, [table]);
 
   const filteredItems = menus
     ? menus.filter((item) => {
-        // Match Category
         const matchesCategory =
           !selectedCategory ||
           item.category?.some((cat) => cat._id === selectedCategory);
 
-        // Match Search
         const matchesSearch =
           !searchQuery ||
           [item.name, item.description].some((text) =>
-            text.toLowerCase().includes(searchQuery.toLowerCase()),
+            (text ?? "").toLowerCase().includes(searchQuery.toLowerCase()),
           );
 
         return matchesCategory && matchesSearch;
@@ -82,8 +82,7 @@ const POS = () => {
     };
 
     try {
-      const createdOrder = await createOrder(order);
-      return createdOrder;
+      return await createOrder(order);
     } catch (error) {
       console.error("Error creating order:", error);
       throw error;
@@ -101,48 +100,125 @@ const POS = () => {
     });
   };
 
-  const addNewOrderItem = async (item: OrderItem, orderId) => {
-    const menu = {
-      _model: "menu",
-      _id: item._id,
-      ...item,
-    };
-
-    const orderItem = {
+  /**
+   * Persist a new order item to the backend.
+   * Accepts the full payload from the selection modal (or a default
+   * payload when the menu has no modifiers and the modal was skipped).
+   */
+  const addNewOrderItem = async (
+    menu: Menu,
+    targetOrderId: string,
+    payload: {
+      quantity: number;
+      specialInstruction: string;
+      selectedModifiers: MenuModifierSelection[];
+      unitPrice: number;
+    },
+  ) => {
+    const orderItem: Partial<OrderItem> = {
       order: {
         _model: "order",
-        _id: orderId,
+        _id: targetOrderId,
       },
-      menu,
+      menu: {
+        _model: "menu",
+        _id: menu._id,
+        // Include the menu snapshot so the kitchen / receipts can render
+        // name + image without an extra round-trip.
+        name: menu.name,
+        price: menu.price,
+        image: menu.image,
+        tax_rate: menu.tax_rate,
+        category: menu.category,
+      },
       status: OrderItemStatus.New,
-      price: item.price,
-      quantity: 1,
-      special_instruction: "",
+      price: payload.unitPrice,
+      base_price: menu.price,
+      quantity: payload.quantity,
+      special_instruction: payload.specialInstruction,
+      selectedModifiers: payload.selectedModifiers,
+      tax_rate: menu.tax_rate,
     };
 
     await addOrderItem(orderItem);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const addToCart = async (item: any) => {
-    if (cartCollapsed) {
-      setCartCollapsed(false);
-    }
+  /**
+   * Click handler for a menu item in the grid.
+   *
+   * - If the menu has modifier groups attached, open the selection modal
+   *   and let the waiter pick options / quantity / instructions.
+   * - Otherwise, add directly to the cart with sensible defaults
+   *   (qty 1, no instructions, no modifiers, unit price = base price).
+   */
+  const handleItemClick = (item: Menu) => {
+    if (cartCollapsed) setCartCollapsed(false);
 
-    // if it's NOT the 1st time
-    if (orderItems.length > 0 && orderId) {
-      addNewOrderItem(item, orderId);
+    const hasModifiers =
+      Array.isArray(item.modifierGroups) && item.modifierGroups.length > 0;
+
+    if (hasModifiers) {
+      setSelectionModalMenu(item);
       return;
     }
 
-    // Step 1
-    const order = await createNewOrder(table);
-    if (!order) return;
+    // Direct add for items without modifiers
+    void addToCart(item, {
+      quantity: 1,
+      specialInstruction: "",
+      selectedModifiers: [],
+      unitPrice: item.price,
+    });
+  };
 
-    // Step 2
-    updateTableStatus(table, order);
-    addNewOrderItem(item, order?._id);
-    setOrderId(order?._id); // save order id
+  /**
+   * Core add-to-cart routine. Ensures an order exists for the table
+   * before adding the order item.
+   */
+  const addToCart = async (
+    item: Menu,
+    payload: {
+      quantity: number;
+      specialInstruction: string;
+      selectedModifiers: MenuModifierSelection[];
+      unitPrice: number;
+    },
+  ) => {
+    try {
+      // If an order already exists for this table, just append the item
+      if (orderItems && orderItems.length > 0 && orderId) {
+        await addNewOrderItem(item, orderId, payload);
+        toast.success(`Added ${item.name} × ${payload.quantity}`);
+        return;
+      }
+
+      // First item on the table: create the order, link it to the table, then add the item
+      const order = await createNewOrder(table!);
+      if (!order?._id) {
+        toast.error("Failed to create order");
+        return;
+      }
+      await updateTableStatus(table!, order);
+      await addNewOrderItem(item, order._id, payload);
+      setOrderId(order._id);
+      toast.success(`Added ${item.name} × ${payload.quantity}`);
+    } catch (error) {
+      console.error("addToCart failed:", error);
+      toast.error(
+        `Could not add ${item.name}: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+    }
+  };
+
+  // Handler passed to the selection modal
+  const handleModalAdd = async (payload: {
+    quantity: number;
+    specialInstruction: string;
+    selectedModifiers: MenuModifierSelection[];
+    unitPrice: number;
+  }) => {
+    if (!selectionModalMenu) return;
+    await addToCart(selectionModalMenu, payload);
   };
 
   return (
@@ -172,10 +248,12 @@ const POS = () => {
               className="p-2 rounded-full hover:bg-gray-100 relative btn-hover flex gap-2"
               aria-label="Open cart"
             >
-              <ShoppingCart className="h-5 w-5" />{" "}
-              <span className="bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                {orderItems.length}
-              </span>
+              <ShoppingCart className="h-5 w-5" />
+              {orderItems && orderItems.length > 0 && (
+                <span className="bg-secondary text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                  {orderItems.length}
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -198,34 +276,7 @@ const POS = () => {
               <motion.button
                 key={category._id}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setSelectedCategory(category._id)}
-                className={`flex items-center px-4 py-2 rounded-lg whitespace-nowrap transition-all duration-200 ${
-                  selectedCategory === category._id
-                    ? "bg-secondary text-white shadow-sm"
-                    : "bg-white text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <div className="h-6 w-6 rounded-full overflow-hidden mr-2">
-                  <img
-                    src={getImageUrl(category.image)}
-                    alt={category.name}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                {category.name}
-              </motion.button>
-            ))}
-        </div>
-
-        {/* Sub Category */}
-        <div className="sub-categories flex space-x-2 overflow-x-auto pb-4 -mx-1 px-1">
-          {selectedCategory &&
-            subcategories &&
-            subcategories.map((category) => (
-              <motion.button
-                key={category._id}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setSelectedCategory(category._id)}
+                onClick={() => setSelectedCategory(category._id!)}
                 className={`flex items-center px-4 py-2 rounded-lg whitespace-nowrap transition-all duration-200 ${
                   selectedCategory === category._id
                     ? "bg-secondary text-white shadow-sm"
@@ -250,7 +301,7 @@ const POS = () => {
               <MenuItem
                 key={item._id}
                 item={item}
-                onAddToCart={() => addToCart(item)}
+                onClick={() => handleItemClick(item)}
               />
             ))}
           </AnimatePresence>
@@ -266,6 +317,7 @@ const POS = () => {
           )}
         </div>
       </div>
+
       {table && (
         <CartSidebar
           collapsed={cartCollapsed}
@@ -274,20 +326,33 @@ const POS = () => {
           orderId={orderId}
         />
       )}
+
+      {/* Item selection modal (shown for menus with modifiers) */}
+      <MenuItemSelectionModal
+        open={selectionModalMenu !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectionModalMenu(null);
+        }}
+        menu={selectionModalMenu}
+        onAddToCart={handleModalAdd}
+      />
     </div>
   );
 };
 
 interface MenuItemProps {
   item: Menu;
-  onAddToCart: () => void;
+  onClick: () => void;
 }
 
-const MenuItem = ({ item, onAddToCart }: MenuItemProps) => {
+const MenuItem = ({ item, onClick }: MenuItemProps) => {
+  const hasModifiers =
+    Array.isArray(item.modifierGroups) && item.modifierGroups.length > 0;
+
   return (
     <FadeInUp
-      onClick={onAddToCart}
-      className={`bg-white cursor-pointer relative hover:border-blue-500 h-64 rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover ${item?.available === false ? "!opacity-50 pointer-events-none" : ""}`}
+      onClick={onClick}
+      className={`bg-white cursor-pointer relative hover:border-secondary h-64 rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover ${item?.available === false ? "!opacity-50 pointer-events-none" : ""}`}
     >
       <div className="h-40 w-full overflow-hidden">
         <img
@@ -300,7 +365,13 @@ const MenuItem = ({ item, onAddToCart }: MenuItemProps) => {
       <div className="p-4">
         <h3 className="font-medium">{item.name}</h3>
         <div className="mt-3 flex items-center justify-between">
-          <span className="font-semibold">${item.price.toFixed(2)}</span>
+          <span className="font-semibold">€{item.price.toFixed(2)}</span>
+          {hasModifiers && (
+            <span className="flex items-center gap-1 text-xs text-secondary">
+              <SlidersHorizontal className="h-3 w-3" />
+              Customizable
+            </span>
+          )}
         </div>
       </div>
       {item?.available === false && (

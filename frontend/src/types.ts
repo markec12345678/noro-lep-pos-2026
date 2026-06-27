@@ -38,6 +38,8 @@ export interface Menu extends BaseEntity {
   available: boolean;
   /** Optional tax rate override. Falls back to system default if undefined. */
   tax_rate?: number;
+  /** Links to modifiergroup collection. Populated when fetch uses populate=1. */
+  modifierGroups?: ModifierGroup[] | LinkModelType[];
 }
 
 export enum TableStatus {
@@ -84,9 +86,14 @@ export interface OrderItem extends BaseEntity {
   quantity: number;
   status: OrderItemStatus;
   special_instruction: string;
+  /** Unit price INCLUDING selected modifiers (snapshot at add-to-cart time). */
   price: number;
+  /** Base menu price without modifiers (for receipts / refunds). */
+  base_price?: number;
   /** Tax rate snapshot at the time the item was added to the cart. */
   tax_rate?: number;
+  /** Selected modifier options, stored as JSON on the orderitem collection. */
+  selectedModifiers?: MenuModifierSelection[];
 }
 
 export interface Category extends BaseEntity {
@@ -131,4 +138,60 @@ export interface TaxBreakdownEntry {
   base: number;
   tax: number;
   total: number;
+}
+
+/* ------------------------------------------------------------------ */
+/* Menu Modifiers                                                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A group of modifier options that applies to a menu item.
+ * Example: "Size" (Small / Medium / Large), "Toppings" (Cheese, Ham, Mushroom).
+ *
+ * Stored as a Cockpit CMS collection named `modifiergroup`.
+ */
+export interface ModifierGroup extends BaseEntity {
+  name: string;
+  /** Whether the customer MUST select at least one option. */
+  required: boolean;
+  /** Allow selecting more than one option in this group. */
+  multiSelect: boolean;
+  /** Minimum number of selections (only meaningful when multiSelect=true). */
+  minSelect: number;
+  /** Maximum number of selections (0 = unlimited). */
+  maxSelect: number;
+  /** Display order — lower numbers appear first. */
+  sort: number;
+  /** Linked options; populated when fetch uses populate=1. */
+  options?: ModifierOption[];
+}
+
+/**
+ * A single selectable option within a ModifierGroup.
+ * Stored as a Cockpit CMS collection named `modifieroption`.
+ */
+export interface ModifierOption extends BaseEntity {
+  name: string;
+  /** Additional price added to the menu base price when selected. */
+  price: number;
+  /** Pre-selected by default (only meaningful in single-select groups). */
+  default: boolean;
+  /** Display order within the group. */
+  sort: number;
+  /** Link back to the parent group (contentItemLink). */
+  group?: LinkModelType | ModifierGroup;
+}
+
+/**
+ * Snapshot of a selected modifier option, stored on the OrderItem.
+ * We snapshot name+price so historical orders stay correct even if the
+ * underlying modifier is later renamed or re-priced.
+ */
+export interface MenuModifierSelection {
+  groupId: string;
+  groupName: string;
+  optionId: string;
+  optionName: string;
+  /** Price delta at the time of selection (can be 0). */
+  price: number;
 }

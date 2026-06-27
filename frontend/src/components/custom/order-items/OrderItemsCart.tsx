@@ -10,7 +10,7 @@ import {
   useFetchOrderItems,
   useDeleteOrderItem,
 } from "@/services/orderItemsService";
-import { getImageUrl, getStatusColor } from "@/lib/helper";
+import { getImageUrl, formatModifierSummary } from "@/lib/helper";
 import OrderItemStatusBadge from "./OrderItemStatusBadge";
 
 // Cart Item Component
@@ -23,17 +23,13 @@ const OrderItemsCart = ({ item, orderId }: OrderItemsCartProps) => {
   const [openOrderItemModal, setOpenOrderItemModal] = useState(false);
   const { tableId } = useParams();
   const { data: table } = useFetchTable(tableId);
-  const {
-    data: orderItems,
-    isLoading,
-    error,
-  } = useFetchOrderItems(table?.order?._id, !!table?.order?._id);
+  const { data: orderItems } = useFetchOrderItems(table?.order?._id, true);
   const { mutate: updateTable } = useUpdateTable();
   const { mutate: deleteOrder } = useDeleteOrder();
   const { mutate: deleteOrderItem } = useDeleteOrderItem();
 
   const removeFromCart = (id: string, orderId: string) => {
-    if (orderItems.length === 1) {
+    if (orderItems && orderItems.length === 1) {
       updateTable({
         _id: tableId,
         status: TableStatus.Available,
@@ -44,6 +40,8 @@ const OrderItemsCart = ({ item, orderId }: OrderItemsCartProps) => {
 
     deleteOrderItem(id);
   };
+  const modifierSummary = formatModifierSummary(item.selectedModifiers);
+  const hasModifiers = Boolean(modifierSummary);
 
   return (
     <>
@@ -54,7 +52,7 @@ const OrderItemsCart = ({ item, orderId }: OrderItemsCartProps) => {
         exit={{ opacity: 0, x: -50 }}
         transition={{ duration: 0.3 }}
         onClick={() => setOpenOrderItemModal(true)}
-        className={`p-3 border border-border rounded-lg hover:border-blue-500 active:border-blue-500 cursor-pointer relative ${item.special_instruction && "pb-6"}`}
+        className={`p-3 border border-border rounded-lg hover:border-secondary active:border-secondary cursor-pointer relative ${hasModifiers ? "pb-2" : ""}`}
       >
         <span className="absolute top-2 -left-2">
           <OrderItemStatusBadge status={item.status} />
@@ -68,8 +66,21 @@ const OrderItemsCart = ({ item, orderId }: OrderItemsCartProps) => {
             />
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-sm truncate">{item?.menu?.name}</h4>
-            <p className="text-sm text-gray-500">${item.price.toFixed(2)}</p>
+            <h4 className="font-medium text-sm truncate">
+              {item?.menu?.name}
+            </h4>
+            <p className="text-sm text-gray-500">
+              €{(item.price ?? 0).toFixed(2)}
+              {item.quantity > 1 && (
+                <span className="text-gray-400"> × {item.quantity}</span>
+              )}
+            </p>
+            {hasModifiers && (
+              <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                <span className="text-gray-400">Modifiers: </span>
+                {modifierSummary}
+              </p>
+            )}
           </div>
 
           <div className="flex items-center">
@@ -79,7 +90,7 @@ const OrderItemsCart = ({ item, orderId }: OrderItemsCartProps) => {
               className="ml-2 p-1.5 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors duration-200"
               onClick={(e) => {
                 e.stopPropagation();
-                removeFromCart(item?._id, orderId);
+                removeFromCart(item._id ?? "", orderId);
               }}
             >
               <Trash2 className="h-4 w-4" />
@@ -87,8 +98,8 @@ const OrderItemsCart = ({ item, orderId }: OrderItemsCartProps) => {
           </div>
         </div>
         {item.special_instruction && (
-          <span className="text-xs text-gray-400 absolute bottom-2 left-3">
-            {item.special_instruction}
+          <span className="text-xs text-gray-400 italic block mt-1">
+            Note: {item.special_instruction}
           </span>
         )}
       </motion.div>

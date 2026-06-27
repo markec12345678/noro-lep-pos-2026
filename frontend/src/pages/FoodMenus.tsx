@@ -1,6 +1,6 @@
 import { useState, FormEvent, useEffect } from "react";
 import { motion } from "framer-motion";
-import { PlusCircle, Search, Edit, Trash, ToggleLeft, ToggleRight } from "lucide-react";
+import { PlusCircle, Search, Edit, Trash, ToggleLeft, ToggleRight, SlidersHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import {
   useFetchMenus,
@@ -9,13 +9,14 @@ import {
   useDeleteMenu,
 } from "@/services/menuService";
 import { useFetchCategories } from "@/services/categoryService";
-import { Menu } from "@/types";
+import { Menu, LinkModelType } from "@/types";
 import { getImageUrl } from "@/lib/helper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import ModifierManager from "@/components/custom/menu-modifiers/ModifierManager";
 import {
   Dialog,
   DialogContent,
@@ -73,6 +74,44 @@ const FoodMenus = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState<MenuForm>(EMPTY_FORM);
   const [deleteTarget, setDeleteTarget] = useState<Menu | null>(null);
+  const [modifierMenuTarget, setModifierMenuTarget] = useState<Menu | null>(
+    null,
+  );
+
+  /**
+   * Update the set of modifier groups linked to a menu item.
+   * Called by the ModifierManager dialog when the user toggles a link
+   * or creates a new group (which auto-links).
+   */
+  const handleUpdateMenuModifiers = async (
+    menuId: string,
+    modifierGroupIds: string[],
+  ) => {
+    const links: LinkModelType[] = modifierGroupIds.map((gid) => ({
+      _model: "modifiergroup",
+      _id: gid,
+    }));
+    try {
+      await updateMenu({
+        _id: menuId,
+        modifierGroups: links,
+      });
+      // Refresh local target so the dialog reflects the new state
+      setModifierMenuTarget((prev) =>
+        prev
+          ? {
+              ...prev,
+              modifierGroups: links,
+            }
+          : prev,
+      );
+    } catch (err) {
+      toast.error(
+        `Failed to update modifiers: ${err instanceof Error ? err.message : "Unknown error"}`,
+      );
+      throw err;
+    }
+  };
 
   useEffect(() => {
     if (!dialogOpen) {
@@ -260,6 +299,14 @@ const FoodMenus = () => {
                               {item.category[0].name}
                             </div>
                           )}
+                        {Array.isArray(item.modifierGroups) &&
+                          item.modifierGroups.length > 0 && (
+                            <div className="text-xs text-purple-500 flex items-center gap-1 mt-0.5">
+                              <SlidersHorizontal className="h-3 w-3" />
+                              {item.modifierGroups.length} modifier
+                              {item.modifierGroups.length > 1 ? "s" : ""}
+                            </div>
+                          )}
                       </div>
                     </div>
                   </td>
@@ -296,6 +343,14 @@ const FoodMenus = () => {
                       aria-label="Edit"
                     >
                       <Edit className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => setModifierMenuTarget(item)}
+                      className="text-purple-500 hover:text-purple-600 mr-3"
+                      aria-label="Manage modifiers"
+                      title="Manage modifiers"
+                    >
+                      <SlidersHorizontal className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => setDeleteTarget(item)}
@@ -464,6 +519,25 @@ const FoodMenus = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Modifier manager dialog */}
+      {modifierMenuTarget && (
+        <ModifierManager
+          open={modifierMenuTarget !== null}
+          onOpenChange={(open) => {
+            if (!open) setModifierMenuTarget(null);
+          }}
+          menu={modifierMenuTarget}
+          onMenuUpdated={async (modifierGroupIds) => {
+            if (modifierMenuTarget?._id) {
+              await handleUpdateMenuModifiers(
+                modifierMenuTarget._id,
+                modifierGroupIds,
+              );
+            }
+          }}
+        />
+      )}
     </div>
   );
 };
