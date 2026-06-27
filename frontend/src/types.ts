@@ -36,6 +36,8 @@ export interface Menu extends BaseEntity {
   description: string;
   category: LinkModelType[];
   available: boolean;
+  /** Optional tax rate override. Falls back to system default if undefined. */
+  tax_rate?: number;
 }
 
 export enum TableStatus {
@@ -70,6 +72,10 @@ export interface Order extends BaseEntity {
   status: OrderStatus;
   order_type?: OrderType;
   total_amount: number;
+  /** Snapshot of tax breakdown captured at checkout time. */
+  tax_breakdown?: TaxBreakdownEntry[];
+  /** Final tax amount (sum of all tax_breakdown entries). */
+  tax_amount?: number;
 }
 
 export interface OrderItem extends BaseEntity {
@@ -79,6 +85,8 @@ export interface OrderItem extends BaseEntity {
   status: OrderItemStatus;
   special_instruction: string;
   price: number;
+  /** Tax rate snapshot at the time the item was added to the cart. */
+  tax_rate?: number;
 }
 
 export interface Category extends BaseEntity {
@@ -96,4 +104,31 @@ export interface Table extends BaseEntity {
   location?: string;
   status: string;
   order: LinkModelType;
+}
+
+/**
+ * Tax (DDV) configuration. Slovenia has 3 rates:
+ *   - 22%  standard (most food & beverages)
+ *   - 9.5% reduced (food for immediate consumption, some beverages)
+ *   - 5%   special (books, newspapers - not relevant for restaurants)
+ *
+ * Defaults to 22% which covers the majority of restaurant sales.
+ */
+export interface TaxConfig {
+  /** Default rate applied when menu item has no explicit override. */
+  defaultRate: number;
+  /** Available rates exposed in the UI (percent values, e.g. 22, 9.5, 0). */
+  availableRates: number[];
+}
+
+export const DEFAULT_TAX_CONFIG: TaxConfig = {
+  defaultRate: 22,
+  availableRates: [22, 9.5, 0],
+};
+
+export interface TaxBreakdownEntry {
+  rate: number;
+  base: number;
+  tax: number;
+  total: number;
 }

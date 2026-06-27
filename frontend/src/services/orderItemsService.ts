@@ -6,7 +6,7 @@ import { fetcher } from "@/lib/helper";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const useFetchOrderItems = (
-  orderId: string,
+  orderId: string | undefined,
   allStatuses?: boolean,
   enabled?: boolean,
 ) => {
@@ -14,11 +14,12 @@ export const useFetchOrderItems = (
   return useQuery<OrderItem[]>({
     queryKey: ["orderItems", orderId],
     queryFn: () =>
-      fetcher(
+      fetcher<OrderItem[]>(
         `${API_URL}/api/content/items/orderitem?populate=1&filter={order:"${orderId}"${status}}`,
       ),
     placeholderData: [],
-    enabled,
+    // Auto-disable when orderId is missing, unless caller overrides
+    enabled: enabled ?? Boolean(orderId),
   });
 };
 
@@ -26,7 +27,7 @@ export const useFetchKitchenOrderItems = () =>
   useQuery<OrderItem[]>({
     queryKey: ["kitchenOrderItems"],
     queryFn: () =>
-      fetcher(
+      fetcher<OrderItem[]>(
         `${API_URL}/api/content/items/orderitem?populate=1&sort={_created:-1}&filter={status:{$regex:"in-kitchen|ready"}}`,
       ),
   });
@@ -35,7 +36,9 @@ export const useFetchOrderItem = (orderItemId: string) =>
   useQuery<OrderItem>({
     queryKey: ["orderItem"],
     queryFn: () =>
-      fetcher(`${API_URL}/api/content/items/orderitem/${orderItemId}`),
+      fetcher<OrderItem>(
+        `${API_URL}/api/content/items/orderitem/${orderItemId}`,
+      ),
   });
 
 export const useCreateOrderItem = () => {
@@ -48,11 +51,11 @@ export const useCreateOrderItem = () => {
       }),
     onSuccess: (_, variables) => {
       if (variables.order) {
-        // Invalidate the cache to mark it as stale
         queryClient.invalidateQueries({
           queryKey: ["orderItems", variables.order?._id],
         });
       }
+      queryClient.invalidateQueries({ queryKey: ["kitchenOrderItems"] });
     },
   });
 };

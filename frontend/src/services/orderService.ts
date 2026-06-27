@@ -9,7 +9,7 @@ export const useFetchOrders = () =>
   useQuery<Order[]>({
     queryKey: ["orders"],
     queryFn: () =>
-      fetcher(
+      fetcher<Order[]>(
         `${API_URL}/api/content/items/order?populate=1&sort={_created:-1}`,
       ),
   });
@@ -18,22 +18,24 @@ export const useFetchKitchenOrders = () =>
   useQuery<Order[]>({
     queryKey: ["kitchenOrders"],
     queryFn: () =>
-      fetcher(
+      fetcher<Order[]>(
         `${API_URL}/api/content/items/order?populate=1&sort={_created:-1}&filter={status:"in-kitchen"}`,
       ),
   });
 
-export const useFetchOrder = (orderId: string) =>
+export const useFetchOrder = (orderId: string | undefined) =>
   useQuery<Order>({
     queryKey: ["order", orderId],
-    queryFn: () => fetcher(`${API_URL}/api/content/item/order/${orderId}`),
+    queryFn: () =>
+      fetcher<Order>(`${API_URL}/api/content/item/order/${orderId}`),
+    enabled: Boolean(orderId),
   });
 
 export const useCreateOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (order: Partial<Order>) =>
-      fetcher(`${API_URL}/api/content/item/order`, {
+      fetcher<Order>(`${API_URL}/api/content/item/order`, {
         method: "POST",
         body: JSON.stringify({ data: order }),
       }),
@@ -45,11 +47,18 @@ export const useUpdateOrder = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (order: Partial<Order>) =>
-      fetcher(`${API_URL}/api/content/item/order`, {
+      fetcher<Order>(`${API_URL}/api/content/item/order`, {
         method: "POST",
         body: JSON.stringify({ data: order }),
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["orders"] }),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      if (variables?._id) {
+        queryClient.invalidateQueries({
+          queryKey: ["order", variables._id],
+        });
+      }
+    },
   });
 };
 

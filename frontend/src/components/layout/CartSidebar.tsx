@@ -7,6 +7,7 @@ import {
   OrderStatus,
   Table,
   TableStatus,
+  DEFAULT_TAX_CONFIG,
 } from "@/types";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -19,6 +20,12 @@ import {
 import { useUpdateTable } from "@/services/tableService";
 import { useFetchOrder, useUpdateOrder } from "@/services/orderService";
 import PrintOrderDetails from "../custom/orders/PrintOrderDetails";
+import {
+  computeGrandTotal,
+  computeSubtotal,
+  computeTaxBreakdown,
+  computeTotalTax,
+} from "@/lib/helper";
 
 interface CartSidebarProps {
   collapsed: boolean;
@@ -35,23 +42,31 @@ const CartSidebar = ({
 }: CartSidebarProps) => {
   const { data: orderItems, isLoading, error } = useFetchOrderItems(orderId);
   const { data: order } = useFetchOrder(orderId);
-  const { mutate: updateOrderItem } = useUpdateOrderItem();
+  const updateOrderItemMut = useUpdateOrderItem();
   const clearOrderItems = useClearOrderItems();
-  const { mutate: updateOrder } = useUpdateOrder();
-  const { mutate: updateTable } = useUpdateTable();
+  const updateOrderMut = useUpdateOrder();
+  const updateTableMut = useUpdateTable();
   const navigate = useNavigate();
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
-  const getTotal = () => {
-    const items = orderItems.filter(
-      (item) => item.status !== OrderItemStatus.Cancelled,
-    );
-    return items.reduce((total, item) => total + item.price * item.quantity, 0);
-  };
+  const taxBreakdown = computeTaxBreakdown(orderItems ?? []);
+  const subtotal = computeSubtotal(orderItems ?? []);
+  const totalTax = computeTotalTax(taxBreakdown);
+  const grandTotal = computeGrandTotal(taxBreakdown);
 
+  /**
+   * Process checkout — now waits for ALL order item updates to settle
+   * before navigating away, eliminating the previous race condition
+   * where the UI reported "success" before mutations actually completed.
+   */
   const processCheckout = async () => {
+    if (!orderItems || orderItems.length === 0) {
+      toast.error("Cart is empty", { position: "top-center" });
+      return;
+    }
+
     const inKitchenAndNewExist = orderItems.some(
       (orderItem) =>
         orderItem.status === OrderItemStatus.InKitchen ||
@@ -60,7 +75,7 @@ const CartSidebar = ({
 
     if (inKitchenAndNewExist) {
       toast.error(
-        "You cannot checkout because there are pending (new and in-kitchen) food orderItems.",
+        "Cannot checkout: there are pending (new / in-kitchen) order items.",
         {
           duration: 3000,
           style: {
@@ -77,49 +92,65 @@ const CartSidebar = ({
       return;
     }
 
-    // Update Order Status and Total
-    updateOrder({
-      _id: table?.order._id,
-      customer: null,
-      status: OrderStatus.Completed,
-      total_amount: Number(getTotal().toFixed(2)),
-    });
+    try {
+      // 1. Update all non-cancelled order items to "completed" in parallel
+      const itemUpdates = orderItems
+        .filter((oi) => oi.status !== OrderItemStatus.Cancelled)
+        .map((oi) =>
+          updateOrderItemMut.mutateAsync({
+            ...oi,
+            status: OrderItemStatus.Completed,
+          }),
+        );
+      await Promise.all(itemUpdates);
 
-    // Make table available again
-    updateTable({
-      _id: table?._id,
-      status: TableStatus.Available,
-      order: null,
-    });
+      // 2. Update order: status + snapshot of tax breakdown + totals
+      await updateOrderMut.mutateAsync({
+        _id: table?.order?._id,
+        customer: null,
+        status: OrderStatus.Completed,
+        total_amount: grandTotal,
+        tax_amount: totalTax,
+        tax_breakdown: taxBreakdown,
+      });
 
-    // Update statuses
-    orderItems.forEach(async (orderItem) => {
-      if (orderItem.status === OrderItemStatus.Cancelled) return;
-      orderItem.status = OrderItemStatus.Completed;
+      // 3. Free up the table
+      await updateTableMut.mutateAsync({
+        _id: table?._id,
+        status: TableStatus.Available,
+        order: null,
+      });
 
-      const updatedItem: Partial<OrderItem> = {
-        ...orderItem,
-        status: "completed" as OrderItemStatus,
-      };
-      updateOrderItem(updatedItem);
-    });
+      toast.success("Checkout successful!", {
+        duration: 3000,
+        style: {
+          background: "#4ade80",
+          color: "#fff",
+          fontWeight: "bold",
+          padding: "16px",
+          borderRadius: "4px",
+        },
+        position: "top-center",
+        dismissible: true,
+      });
 
-    toast.success("Successfully checkout the order!", {
-      duration: 3000,
-      style: {
-        background: "#4ade80",
-        color: "#fff",
-        fontWeight: "bold",
-        padding: "16px",
-        borderRadius: "4px",
-      },
-      position: "top-center",
-      dismissible: true,
-    });
-
-    clearOrderItems(orderId);
-
-    navigate("/");
+      clearOrderItems(orderId);
+      navigate("/");
+    } catch (err) {
+      console.error("Checkout failed:", err);
+      toast.error(
+        `Checkout failed: ${err instanceof Error ? err.message : "Unknown error"}`,
+        {
+          duration: 4000,
+          style: {
+            background: "#f87171",
+            color: "#fff",
+            fontWeight: "bold",
+          },
+          position: "top-center",
+        },
+      );
+    }
   };
 
   const sidebarVariants = {
@@ -141,7 +172,7 @@ const CartSidebar = ({
       >
         <div className="flex flex-col h-full">
           <div className="p-4 border-b border-border flex items-center justify-between">
-            <h2 className="font-semibold text-lg">Cart</h2>{" "}
+            <h2 className="font-semibold text-lg">Cart</h2>
             <span>Table : {table?.table_number}</span>
             <button
               onClick={() => setCollapsed(true)}
@@ -180,21 +211,36 @@ const CartSidebar = ({
             <div className="space-y-2 mb-4">
               <div className="flex justify-between">
                 <span className="text-gray-500">Subtotal</span>
-                <span>${getTotal().toFixed(2)}</span>
+                <span>€{subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Tax (0%)</span>
-                <span>${getTotal().toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between font-semibold">
+
+              {/* Tax (DDV) breakdown — one line per rate */}
+              {taxBreakdown.length > 0 ? (
+                taxBreakdown.map((entry) => (
+                  <div
+                    key={`tax-${entry.rate}`}
+                    className="flex justify-between text-sm text-gray-500"
+                  >
+                    <span>DDV {entry.rate}%</span>
+                    <span>€{entry.tax.toFixed(2)}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="flex justify-between text-sm text-gray-500">
+                  <span>DDV ({DEFAULT_TAX_CONFIG.defaultRate}%)</span>
+                  <span>€0.00</span>
+                </div>
+              )}
+
+              <div className="flex justify-between font-semibold text-base border-t pt-2">
                 <span>Total</span>
-                <span>${getTotal().toFixed(2)}</span>
+                <span>€{grandTotal.toFixed(2)}</span>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <button
-                className="flex items-center justify-center p-3 rounded-lg bg-gray-200 cursor-pointer text-gray-700 hover:bg-gray-200 disabled:bg-gray-100 disabled:text-gray-700 disabled:cursor-not-allowed transition-colors duration-200 btn-hover"
+                className="flex items-center justify-center p-3 rounded-lg bg-gray-200 cursor-pointer text-gray-700 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
                 onClick={() => print()}
                 disabled={orderItems.length === 0}
               >
@@ -202,15 +248,20 @@ const CartSidebar = ({
                 <span>Print Receipt</span>
               </button>
               <button
-                className="flex items-center justify-center p-3 rounded-lg bg-secondary text-white hover:bg-secondary/90 disabled:bg-gray-100 disabled:text-gray-700 disabled:cursor-not-allowed transition-colors duration-200 btn-hover"
+                className="flex items-center justify-center p-3 rounded-lg bg-secondary text-white hover:bg-secondary/90 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
                 disabled={
-                  orderItems.length === 0 &&
-                  orderItems.every((item) => item.status === "ready")
+                  orderItems.length === 0 ||
+                  updateOrderMut.isPending ||
+                  updateTableMut.isPending
                 }
                 onClick={processCheckout}
               >
                 <CreditCard className="h-5 w-5 mr-2" />
-                <span>Checkout</span>
+                <span>
+                  {updateOrderMut.isPending || updateTableMut.isPending
+                    ? "Processing..."
+                    : "Checkout"}
+                </span>
               </button>
             </div>
           </div>

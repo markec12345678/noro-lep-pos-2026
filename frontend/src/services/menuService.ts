@@ -8,29 +8,22 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const useFetchMenus = () =>
   useQuery<Menu[]>({
     queryKey: ["menus"],
-    queryFn: () => fetcher(`${API_URL}/api/content/items/menu?populate=1`),
-  });
-
-export const useFetchKitchenMenus = () =>
-  useQuery<Menu[]>({
-    queryKey: ["kitchenMenus"],
     queryFn: () =>
-      fetcher(
-        `${API_URL}/api/content/items/menu?populate=1&sort={_created:-1}&filter={status:"in-kitchen"}`,
-      ),
+      fetcher<Menu[]>(`${API_URL}/api/content/items/menu?populate=1`),
   });
 
-export const useFetchMenu = (menuId: string) =>
+export const useFetchMenu = (menuId: string | undefined) =>
   useQuery<Menu>({
     queryKey: ["menu", menuId],
-    queryFn: () => fetcher(`${API_URL}/api/content/items/menu/${menuId}`),
+    queryFn: () => fetcher<Menu>(`${API_URL}/api/content/item/menu/${menuId}`),
+    enabled: Boolean(menuId),
   });
 
 export const useCreateMenu = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (menu: Partial<Menu>) =>
-      fetcher(`${API_URL}/api/content/item/menu`, {
+      fetcher<Menu>(`${API_URL}/api/content/item/menu`, {
         method: "POST",
         body: JSON.stringify({ data: menu }),
       }),
@@ -42,11 +35,18 @@ export const useUpdateMenu = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (menu: Partial<Menu>) =>
-      fetcher(`${API_URL}/api/content/item/menu`, {
+      fetcher<Menu>(`${API_URL}/api/content/item/menu`, {
         method: "POST",
         body: JSON.stringify({ data: menu }),
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["menus"] }),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["menus"] });
+      if (variables?._id) {
+        queryClient.invalidateQueries({
+          queryKey: ["menu", variables._id],
+        });
+      }
+    },
   });
 };
 

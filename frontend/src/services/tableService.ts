@@ -8,29 +8,25 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const useFetchTables = () =>
   useQuery<Table[]>({
     queryKey: ["tables"],
-    queryFn: () => fetcher(`${API_URL}/api/content/items/table?populate=1`),
-  });
-
-export const useFetchKitchenTables = () =>
-  useQuery<Table[]>({
-    queryKey: ["kitchenTables"],
     queryFn: () =>
-      fetcher(
-        `${API_URL}/api/content/items/table?populate=1&sort={_created:-1}&filter={status:"in-kitchen"}`,
+      fetcher<Table[]>(
+        `${API_URL}/api/content/items/table?populate=1`,
       ),
   });
 
-export const useFetchTable = (tableId: string) =>
+export const useFetchTable = (tableId: string | undefined) =>
   useQuery<Table>({
     queryKey: ["table", tableId],
-    queryFn: () => fetcher(`${API_URL}/api/content/item/table/${tableId}`),
+    queryFn: () =>
+      fetcher<Table>(`${API_URL}/api/content/item/table/${tableId}`),
+    enabled: Boolean(tableId),
   });
 
 export const useCreateTable = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (table: Partial<Table>) =>
-      fetcher(`${API_URL}/api/content/item/table`, {
+      fetcher<Table>(`${API_URL}/api/content/item/table`, {
         method: "POST",
         body: JSON.stringify({ data: table }),
       }),
@@ -42,11 +38,18 @@ export const useUpdateTable = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (table: Partial<Table>) =>
-      fetcher(`${API_URL}/api/content/item/table`, {
+      fetcher<Table>(`${API_URL}/api/content/item/table`, {
         method: "POST",
         body: JSON.stringify({ data: table }),
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tables"] }),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["tables"] });
+      if (variables?._id) {
+        queryClient.invalidateQueries({
+          queryKey: ["table", variables._id],
+        });
+      }
+    },
   });
 };
 
