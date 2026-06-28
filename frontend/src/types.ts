@@ -40,6 +40,12 @@ export interface Menu extends BaseEntity {
   tax_rate?: number;
   /** Links to modifiergroup collection. Populated when fetch uses populate=1. */
   modifierGroups?: ModifierGroup[] | LinkModelType[];
+  /**
+   * EU FIC allergens present in this menu item.
+   * Stored as a JSON array of Allergen enum values.
+   * Required by Regulation (EU) No 1169/2011 for Slovenian restaurants.
+   */
+  allergens?: string[];
 }
 
 export enum TableStatus {
@@ -406,6 +412,8 @@ export interface PublicMenuItem {
   image?: { path?: string; title?: string };
   category?: Array<{ _id: string; name?: string }>;
   tax_rate?: number;
+  /** EU FIC allergens present in this item. */
+  allergens?: string[];
 }
 
 /** A category group returned by the public menu API. */

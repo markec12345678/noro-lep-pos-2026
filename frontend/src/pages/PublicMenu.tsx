@@ -19,6 +19,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 import { useFetchPublicMenu, createGuestOrder } from "@/services/publicMenuService";
 import { PublicMenuItem } from "@/types";
+import { AllergenFilter, AllergenIcons } from "@/components/custom/allergens/AllergenComponents";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,12 +51,23 @@ const PublicMenu = () => {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [allergenFilter, setAllergenFilter] = useState<string[]>([]);
 
   const allItems = useMemo(() => {
     if (!menuData) return [];
     const categorized = menuData.categories.flatMap((g) => g.items);
     return [...categorized, ...menuData.uncategorizedItems];
   }, [menuData]);
+
+  /**
+   * Filter items by allergens — guests select allergens they want to AVOID.
+   * Items containing any selected allergen are hidden from the menu.
+   */
+  const isAllergenSafe = (item: PublicMenuItem): boolean => {
+    if (allergenFilter.length === 0) return true;
+    if (!item.allergens || item.allergens.length === 0) return true;
+    return !allergenFilter.some((a) => item.allergens?.includes(a));
+  };
 
   const filteredItems = useMemo(() => {
     return allItems.filter((item) => {
@@ -68,9 +80,9 @@ const PublicMenu = () => {
         [item.name, item.description].some((text) =>
           (text ?? "").toLowerCase().includes(searchQuery.toLowerCase()),
         );
-      return matchesCategory && matchesSearch;
+      return matchesCategory && matchesSearch && isAllergenSafe(item);
     });
-  }, [allItems, selectedCategory, searchQuery]);
+  }, [allItems, selectedCategory, searchQuery, allergenFilter]);
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartTotal = cart.reduce(
@@ -226,6 +238,14 @@ const PublicMenu = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-4 py-2.5 rounded-full border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+          />
+        </div>
+
+        {/* Allergen filter */}
+        <div className="mt-3">
+          <AllergenFilter
+            selected={allergenFilter}
+            onChange={setAllergenFilter}
           />
         </div>
       </div>
@@ -572,6 +592,8 @@ const MenuItemCard = ({ item, onAdd, cartQuantity }: MenuItemCardProps) => {
             {item.description}
           </p>
         )}
+        {/* Allergen icons */}
+        <AllergenIcons allergens={item.allergens} />
         <div className="flex items-center justify-between mt-2">
           <span className="font-bold text-orange-600">
             {formatCurrency(item.price)}

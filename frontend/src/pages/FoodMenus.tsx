@@ -42,6 +42,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AllergenSelector, AllergenIcons } from "@/components/custom/allergens/AllergenComponents";
 
 interface MenuForm {
   _id?: string;
@@ -51,6 +52,7 @@ interface MenuForm {
   categoryId: string;
   available: boolean;
   tax_rate: string;
+  allergens: string[];
 }
 
 const EMPTY_FORM: MenuForm = {
@@ -60,6 +62,7 @@ const EMPTY_FORM: MenuForm = {
   categoryId: "",
   available: true,
   tax_rate: "22",
+  allergens: [],
 };
 
 const FoodMenus = () => {
@@ -139,6 +142,7 @@ const FoodMenus = () => {
       categoryId: Array.isArray(menu.category) ? menu.category[0]?._id ?? "" : "",
       available: menu.available ?? true,
       tax_rate: String(menu.tax_rate ?? 22),
+      allergens: Array.isArray(menu.allergens) ? menu.allergens : [],
     });
     setDialogOpen(true);
   };
@@ -161,6 +165,7 @@ const FoodMenus = () => {
       price,
       available: form.available,
       tax_rate: parseFloat(form.tax_rate) || 22,
+      allergens: form.allergens,
       category: form.categoryId
         ? [{ _model: "category", _id: form.categoryId }]
         : [],
@@ -305,6 +310,12 @@ const FoodMenus = () => {
                               <SlidersHorizontal className="h-3 w-3" />
                               {item.modifierGroups.length} modifier
                               {item.modifierGroups.length > 1 ? "s" : ""}
+                            </div>
+                          )}
+                        {Array.isArray(item.allergens) &&
+                          item.allergens.length > 0 && (
+                            <div className="mt-1">
+                              <AllergenIcons allergens={item.allergens} />
                             </div>
                           )}
                       </div>
@@ -460,6 +471,20 @@ const FoodMenus = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Allergens */}
+            <div className="space-y-2">
+              <Label>Alergeni (EU FIC 1169/2011)</Label>
+              <AllergenSelector
+                selected={form.allergens}
+                onChange={(allergens) => setForm({ ...form, allergens })}
+              />
+              <p className="text-xs text-gray-500">
+                Označite vse alergene, ki jih jed vsebuje. Obvezno po
+                EU regulaciji (FIC 1169/2011).
+              </p>
+            </div>
+
             <div className="flex items-center justify-between rounded-lg border p-3">
               <div>
                 <Label htmlFor="available" className="cursor-pointer">

@@ -22,7 +22,7 @@ import {
 } from "@/services/orderItemsService";
 import { useFetchMenus } from "@/services/menuService";
 import { useFetchCategories } from "@/services/categoryService";
-import { getImageUrl } from "@/lib/helper";
+import { getImageUrl, ALLERGEN_INFO, Allergen } from "@/lib/helper";
 import { FadeInUp } from "@/components/motions/FadeInUp";
 import { toast } from "sonner";
 import MenuItemSelectionModal from "@/components/custom/menu-modifiers/MenuItemSelectionModal";
@@ -364,6 +364,19 @@ const MenuItem = ({ item, onClick }: MenuItemProps) => {
 
       <div className="p-4">
         <h3 className="font-medium">{item.name}</h3>
+        {Array.isArray(item.allergens) && item.allergens.length > 0 && (
+          <div className="flex flex-wrap gap-0.5 mt-1">
+            {item.allergens.slice(0, 8).map((a) => {
+              const info = ALLERGEN_INFO[a as Allergen];
+              if (!info) return null;
+              return (
+                <span key={a} title={info.description} className="text-sm">
+                  {info.icon}
+                </span>
+              );
+            })}
+          </div>
+        )}
         <div className="mt-3 flex items-center justify-between">
           <span className="font-semibold">€{item.price.toFixed(2)}</span>
           {hasModifiers && (

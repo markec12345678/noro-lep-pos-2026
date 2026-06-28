@@ -1,15 +1,206 @@
-import {
-  DEFAULT_TAX_CONFIG,
-  ImageType,
-  Menu,
-  MenuModifierSelection,
-  ModifierGroup,
-  ModifierOption,
-  OrderItem,
-  OrderItemStatus,
-  TaxBreakdownEntry,
-  TaxConfig,
-} from "@/types";
+import { ImageType, LinkModelType } from "@/types";
+
+/* ------------------------------------------------------------------ */
+/* EU FIC Allergens (Regulation 1169/2011, Annex II)                  */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The 14 mandatory allergens that must be declared on food labels
+ * and menus in the European Union per Regulation (EU) No 1169/2011
+ * (Food Information for Consumers — FIC).
+ *
+ * Slovenian restaurants are legally required to indicate which of
+ * these allergens are present in each dish.
+ */
+export enum Allergen {
+  Gluten = "gluten",
+  Crustaceans = "crustaceans",
+  Eggs = "eggs",
+  Fish = "fish",
+  Peanuts = "peanuts",
+  Soybeans = "soybeans",
+  Milk = "milk",
+  Nuts = "nuts",
+  Celery = "celery",
+  Mustard = "mustard",
+  Sesame = "sesame",
+  Sulphites = "sulphites",
+  Lupin = "lupin",
+  Molluscs = "molluscs",
+}
+
+export interface AllergenInfo {
+  enum: Allergen;
+  /** EU Annex II number (1-14) */
+  number: number;
+  /** Short label shown in badges (Slovenian) */
+  label: string;
+  /** Full description shown in tooltips/details */
+  description: string;
+  /** Emoji icon for quick visual identification */
+  icon: string;
+  /** Tailwind color classes for badges */
+  color: string;
+}
+
+/**
+ * Complete metadata for all 14 EU allergens.
+ * Used by AllergenBadge, AllergenSelector, and AllergenFilter.
+ */
+export const ALLERGEN_INFO: Record<Allergen, AllergenInfo> = {
+  [Allergen.Gluten]: {
+    enum: Allergen.Gluten,
+    number: 1,
+    label: "Gluten",
+    description: "Žita ki vsebujejo gluten (pšenica, rž, ječmen, oves, pira)",
+    icon: "🌾",
+    color: "bg-amber-100 text-amber-800 border-amber-200",
+  },
+  [Allergen.Crustaceans]: {
+    enum: Allergen.Crustaceans,
+    number: 2,
+    label: "Raki",
+    description: "Rakovaste živali (raki, jastogi, kozice)",
+    icon: "🦞",
+    color: "bg-red-100 text-red-800 border-red-200",
+  },
+  [Allergen.Eggs]: {
+    enum: Allergen.Eggs,
+    number: 3,
+    label: "Jajca",
+    description: "Jajca in izdelki iz jajc",
+    icon: "🥚",
+    color: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  },
+  [Allergen.Fish]: {
+    enum: Allergen.Fish,
+    number: 4,
+    label: "Ribe",
+    description: "Ribe in ribji izdelki",
+    icon: "🐟",
+    color: "bg-blue-100 text-blue-800 border-blue-200",
+  },
+  [Allergen.Peanuts]: {
+    enum: Allergen.Peanuts,
+    number: 5,
+    label: "Arašidi",
+    description: "Arašidi in izdelki iz arašidov",
+    icon: "🥜",
+    color: "bg-orange-100 text-orange-800 border-orange-200",
+  },
+  [Allergen.Soybeans]: {
+    enum: Allergen.Soybeans,
+    number: 6,
+    label: "Soja",
+    description: "Soja in izdelki iz soje",
+    icon: "🫘",
+    color: "bg-green-100 text-green-800 border-green-200",
+  },
+  [Allergen.Milk]: {
+    enum: Allergen.Milk,
+    number: 7,
+    label: "Mleko",
+    description: "Mleko in mlečni izdelki (vključno z laktozo)",
+    icon: "🥛",
+    color: "bg-gray-100 text-gray-800 border-gray-200",
+  },
+  [Allergen.Nuts]: {
+    enum: Allergen.Nuts,
+    number: 8,
+    label: "Oreški",
+    description: "Oreški (mandlji, lešniki, orehi, indijski oreški...)",
+    icon: "🌰",
+    color: "bg-amber-100 text-amber-800 border-amber-200",
+  },
+  [Allergen.Celery]: {
+    enum: Allergen.Celery,
+    number: 9,
+    label: "Zelena",
+    description: "Zelena in izdelki iz zelene",
+    icon: "🥬",
+    color: "bg-green-100 text-green-800 border-green-200",
+  },
+  [Allergen.Mustard]: {
+    enum: Allergen.Mustard,
+    number: 10,
+    label: "Gorčica",
+    description: "Gorčica in izdelki iz gorčice",
+    icon: "🟡",
+    color: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  },
+  [Allergen.Sesame]: {
+    enum: Allergen.Sesame,
+    number: 11,
+    label: "Sezam",
+    description: "Sezamovo seme in izdelki",
+    icon: "⚪",
+    color: "bg-gray-100 text-gray-800 border-gray-200",
+  },
+  [Allergen.Sulphites]: {
+    enum: Allergen.Sulphites,
+    number: 12,
+    label: "Sulfiti",
+    description: "Žveplov dioksid in sulfiti (pogosto v vinu)",
+    icon: "🍷",
+    color: "bg-purple-100 text-purple-800 border-purple-200",
+  },
+  [Allergen.Lupin]: {
+    enum: Allergen.Lupin,
+    number: 13,
+    label: "Volčji bob",
+    description: "Volčji bob in izdelki",
+    icon: "🌼",
+    color: "bg-pink-100 text-pink-800 border-pink-200",
+  },
+  [Allergen.Molluscs]: {
+    enum: Allergen.Molluscs,
+    number: 14,
+    label: "Mehkužci",
+    description: "Mehkužci (lignji, školjke, polži)",
+    icon: "🦑",
+    color: "bg-cyan-100 text-cyan-800 border-cyan-200",
+  },
+};
+
+/** All 14 allergens in EU Annex II order (used for selectors). */
+export const ALL_ALLERGENS: AllergenInfo[] = Object.values(ALLERGEN_INFO).sort(
+  (a, b) => a.number - b.number,
+);
+
+/** Get allergen info safely (returns undefined for unknown values). */
+export const getAllergenInfo = (
+  allergen: Allergen,
+): AllergenInfo | undefined => ALLERGEN_INFO[allergen];
+
+/**
+ * Check if a menu item is safe for a guest with given allergies.
+ * Returns true if NONE of the guest's allergens are present in the item.
+ */
+export const isSafeForAllergies = (
+  itemAllergens: Allergen[] | undefined,
+  guestAllergens: Allergen[],
+): boolean => {
+  if (!itemAllergens || itemAllergens.length === 0) return true;
+  if (guestAllergens.length === 0) return true;
+  return !guestAllergens.some((a) => itemAllergens.includes(a));
+};
+
+/**
+ * Format allergens as a comma-separated string for receipts.
+ * Example: "Gluten, Mleko, Oreški"
+ */
+export const formatAllergens = (
+  allergens: Allergen[] | undefined,
+): string => {
+  if (!allergens || allergens.length === 0) return "";
+  return allergens
+    .map((a) => ALLERGEN_INFO[a]?.label ?? a)
+    .join(", ");
+};
+
+/* ------------------------------------------------------------------ */
+/* Original helpers (kept for backward compatibility)                  */
+/* ------------------------------------------------------------------ */
 
 export const getStatusColor = (status: string) => {
   switch (status) {
@@ -122,10 +313,6 @@ export const sumModifierPrice = (
 /**
  * Compute the effective unit price for a menu item given a set of selected
  * modifier options: base menu price + sum of modifier price deltas.
- *
- * This is the price that should be stored on `OrderItem.price` when an item
- * is added to the cart, so that downstream tax / total calculations stay
- * consistent without needing to re-resolve modifier lookups.
  */
 export const computeItemUnitPrice = (
   menu: Pick<Menu, "price">,
@@ -138,10 +325,6 @@ export const computeItemUnitPrice = (
 /**
  * Convert a set of selected ModifierOption objects (with group context)
  * into the snapshot shape stored on the OrderItem.
- *
- * Snapshots are important: if a manager later renames "Extra Cheese" to
- * "Double Cheese" or changes its price from €1.50 to €2.00, historical
- * orders keep the original name and price they were sold at.
  */
 export const snapshotSelections = (
   options: Array<{
@@ -159,7 +342,6 @@ export const snapshotSelections = (
 
 /**
  * Human-readable summary of selected modifiers for receipts and cart UI.
- * Example: "Large, +Cheese, +Ham"
  */
 export const formatModifierSummary = (
   selections: MenuModifierSelection[] | undefined,
@@ -170,18 +352,16 @@ export const formatModifierSummary = (
 
 /**
  * Total line price for an order item: unit_price * quantity.
- * The `price` field on OrderItem already includes modifier deltas
- * (captured at add-to-cart time), so this is a straight multiply.
  */
 export const computeOrderItemLineTotal = (item: OrderItem): number =>
   round2((item.price ?? 0) * (item.quantity ?? 0));
 
+/* ------------------------------------------------------------------ */
+/* Auth + fetcher                                                     */
+/* ------------------------------------------------------------------ */
+
 /**
  * Authenticated fetcher used by React Query.
- *
- * Throws a typed `AuthError` when the user is not authenticated so that
- * React Query surfaces an `error` state instead of silently resolving
- * to `undefined` (which left the UI in a perpetual loading-looking state).
  */
 export class AuthError extends Error {
   constructor(message = "Not authenticated") {
@@ -221,7 +401,6 @@ export const fetcher = async <T = unknown>(
   });
 
   if (response.status === 401) {
-    // Clear invalid session and surface auth error
     localStorage.removeItem("user");
     throw new AuthError("Session expired");
   }
@@ -239,7 +418,6 @@ export const fetcher = async <T = unknown>(
     throw new Error(message);
   }
 
-  // Some DELETE endpoints return empty body
   const text = await response.text();
   if (!text) return undefined as T;
   try {
@@ -248,3 +426,19 @@ export const fetcher = async <T = unknown>(
     return text as unknown as T;
   }
 };
+
+/* ------------------------------------------------------------------ */
+/* Type imports (kept inline to avoid circular deps)                   */
+/* ------------------------------------------------------------------ */
+
+import {
+  DEFAULT_TAX_CONFIG,
+  Menu,
+  MenuModifierSelection,
+  ModifierGroup,
+  ModifierOption,
+  OrderItem,
+  OrderItemStatus,
+  TaxBreakdownEntry,
+  TaxConfig,
+} from "@/types";
