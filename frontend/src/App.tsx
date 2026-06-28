@@ -31,6 +31,8 @@ const PublicOrderStatus = lazy(() => import("@/pages/PublicOrderStatus"));
 const PublicLoyalty = lazy(() => import("@/pages/PublicLoyalty"));
 const PublicReservation = lazy(() => import("@/pages/PublicReservation"));
 const Reservations = lazy(() => import("@/pages/Reservations"));
+const Suppliers = lazy(() => import("@/pages/Suppliers"));
+const Invoices = lazy(() => import("@/pages/Invoices"));
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -81,6 +83,8 @@ const AppInner = () => {
             <Route path="customers" element={<Customers />} />
             <Route path="loyalty-rewards" element={<LoyaltyRewards />} />
             <Route path="reservations" element={<Reservations />} />
+            <Route path="suppliers" element={<Suppliers />} />
+            <Route path="invoices" element={<Invoices />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

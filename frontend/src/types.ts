@@ -641,3 +641,101 @@ export interface ReservationSlot {
   available: boolean;
   reason?: string;
 }
+
+/* ------------------------------------------------------------------ */
+/* Suppliers & Invoices                                                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A supplier that delivers inventory items to the restaurant.
+ *
+ * Stored as Cockpit CMS collection `supplier`.
+ */
+export interface Supplier extends BaseEntity {
+  name: string;
+  /** Contact person at the supplier. */
+  contactPerson?: string;
+  /** Email for ordering. */
+  email?: string;
+  /** Phone number. */
+  phone?: string;
+  /** Address for delivery / pickup. */
+  address?: string;
+  /** Tax number (davčna številka) — required for Slovenian invoices. */
+  taxNumber?: string;
+  /** Payment terms (e.g. "30 dni", "15 dni", "predračun"). */
+  paymentTerms?: string;
+  /** Notes (e.g. delivery days, MOQ). */
+  notes?: string;
+  /** Active suppliers are shown in dropdowns; inactive are hidden. */
+  active: boolean;
+}
+
+/** Status of an invoice (goods received + payment status). */
+export enum InvoiceStatus {
+  Draft = "draft",
+  Received = "received", // goods received, awaiting payment
+  Paid = "paid",
+  Cancelled = "cancelled",
+}
+
+/**
+ * An invoice from a supplier for delivered goods.
+ *
+ * Stored as Cockpit CMS collection `invoice`.
+ * When status transitions to "received", each line item triggers an
+ * inventory restock (StockTransactionType.Restock).
+ */
+export interface Invoice extends BaseEntity {
+  /** Invoice number from the supplier (their numbering). */
+  invoiceNumber: string;
+  /** Link to the supplier. */
+  supplier: LinkModelType;
+  /** Issue date on the invoice (YYYY-MM-DD). */
+  issueDate: string;
+  /** Date the goods were received (YYYY-MM-DD). */
+  receivedDate?: string;
+  /** Due date for payment (YYYY-MM-DD). */
+  dueDate?: string;
+  /** Total amount (sum of line items). */
+  totalAmount: number;
+  /** Tax amount (sum of line-item taxes). */
+  taxAmount?: number;
+  /** Net amount (before tax). */
+  netAmount?: number;
+  /** Payment status. */
+  status: InvoiceStatus;
+  /** Optional: payment date (when status = paid). */
+  paidDate?: string;
+  /** Optional: payment method. */
+  paymentMethod?: "cash" | "bank_transfer" | "card";
+  /** Notes (e.g. damaged items, partial delivery). */
+  notes?: string;
+  /** Staff member who entered the invoice. */
+  staff?: string;
+}
+
+/**
+ * A line item on an invoice — represents a quantity of an inventory
+ * item delivered at a specific unit price.
+ *
+ * Stored as Cockpit CMS collection `invoiceitem`.
+ */
+export interface InvoiceItem extends BaseEntity {
+  /** Link to the parent invoice. */
+  invoice: LinkModelType;
+  /** Link to the inventory item being restocked. */
+  inventoryItem: LinkModelType;
+  /** Item name snapshot (in case inventory item is later deleted). */
+  itemName: string;
+  /** Quantity delivered. */
+  quantity: number;
+  /** Unit price (per single unit, before tax). */
+  unitPrice: number;
+  /** Tax rate (e.g. 22, 9.5, 0). */
+  taxRate: number;
+  /** Line total (quantity × unitPrice). */
+  lineTotal: number;
+  /** Whether this line has already been processed for stock update. */
+  restocked: boolean;
+}
