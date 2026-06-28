@@ -142,6 +142,31 @@ interface GuestOrderItemInput {
   }>;
 }
 
+interface Customer {
+  _id: string;
+  phone: string;
+  name: string;
+  email?: string;
+  points?: number;
+  lifetimePoints?: number;
+  totalSpent?: number;
+  visits?: number;
+  firstVisitAt?: number;
+  lastVisitAt?: number;
+  birthday?: string;
+  notes?: string;
+}
+
+interface LoyaltyReward {
+  _id: string;
+  name: string;
+  description?: string;
+  pointsCost: number;
+  discountType: "fixed" | "percent" | "item";
+  discountValue: number;
+  active: boolean;
+}
+
 interface CreateGuestOrderInput {
   tableToken: string;
   customerName: string;
@@ -530,6 +555,67 @@ const handleGetOrderStatus = async (
   }
 };
 
+/**
+ * GET /api/public/loyalty/:phone
+ *
+ * Public loyalty balance lookup by phone number.
+ * Returns the customer record + available rewards.
+ */
+const handleGetLoyaltyByPhone = async (
+  _req: any,
+  res: ServerResponse,
+  params: { phone: string },
+) => {
+  try {
+    // 1. Find customer by phone
+    const customers = await cockpitFetch<Customer[]>(
+      `/api/content/items/customer?populate=1&filter={phone:"${params.phone}"}`,
+    );
+
+    if (!customers || customers.length === 0) {
+      return sendJson(res, 404, {
+        error: "Customer not found",
+        message: " telefonske številke ni v naši bazi.",
+      });
+    }
+
+    const customer = customers[0];
+
+    // 2. Fetch active rewards
+    const rewards = await cockpitFetch<LoyaltyReward[]>(
+      `/api/content/items/loyaltyreward?populate=1&filter={active:true}&sort={pointsCost:1}`,
+    );
+
+    return sendJson(res, 200, {
+      customer: {
+        _id: customer._id,
+        name: customer.name,
+        phone: customer.phone,
+        points: customer.points ?? 0,
+        lifetimePoints: customer.lifetimePoints ?? 0,
+        totalSpent: customer.totalSpent ?? 0,
+        visits: customer.visits ?? 0,
+        firstVisitAt: customer.firstVisitAt,
+        lastVisitAt: customer.lastVisitAt,
+      },
+      rewards: (rewards ?? []).map((r) => ({
+        _id: r._id,
+        name: r.name,
+        description: r.description,
+        pointsCost: r.pointsCost,
+        discountType: r.discountType,
+        discountValue: r.discountValue,
+      })),
+    });
+  } catch (err) {
+    console.error("[pos-public] getLoyaltyByPhone failed:", err);
+    return sendJson(res, 500, {
+      error: "Failed to fetch loyalty data",
+      detail: err instanceof Error ? err.message : "Unknown",
+    });
+  }
+};
+
 /* ------------------------------------------------------------------ */
 /* HTTP server                                                         */
 /* ------------------------------------------------------------------ */
@@ -567,6 +653,11 @@ const routes: Route[] = [
     pattern: /^\/api\/public\/order\/([^/]+)$/,
     paramNames: ["orderId"],
     handlers: { GET: handleGetOrderStatus },
+  },
+  {
+    pattern: /^\/api\/public\/loyalty\/([^/]+)$/,
+    paramNames: ["phone"],
+    handlers: { GET: handleGetLoyaltyByPhone },
   },
 ];
 
