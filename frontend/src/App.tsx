@@ -29,6 +29,8 @@ const LoyaltyRewards = lazy(() => import("@/pages/LoyaltyRewards"));
 const PublicMenu = lazy(() => import("@/pages/PublicMenu"));
 const PublicOrderStatus = lazy(() => import("@/pages/PublicOrderStatus"));
 const PublicLoyalty = lazy(() => import("@/pages/PublicLoyalty"));
+const PublicReservation = lazy(() => import("@/pages/PublicReservation"));
+const Reservations = lazy(() => import("@/pages/Reservations"));
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -53,6 +55,7 @@ const AppInner = () => {
           <Route path="/public/menu/:tableToken" element={<PublicMenu />} />
           <Route path="/public/order/:orderId" element={<PublicOrderStatus />} />
           <Route path="/public/loyalty" element={<PublicLoyalty />} />
+          <Route path="/public/reservation" element={<PublicReservation />} />
 
           {/* Authenticated routes */}
           <Route path="/login" element={<Login />} />
@@ -77,6 +80,7 @@ const AppInner = () => {
             <Route path="qr-codes" element={<QRCodes />} />
             <Route path="customers" element={<Customers />} />
             <Route path="loyalty-rewards" element={<LoyaltyRewards />} />
+            <Route path="reservations" element={<Reservations />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

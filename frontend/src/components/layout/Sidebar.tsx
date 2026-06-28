@@ -14,6 +14,7 @@ import {
   QrCode,
   Award,
   Gift,
+  CalendarCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
@@ -35,6 +36,7 @@ const menuItems: MenuItem[] = [
   { name: "Food Menus", icon: UtensilsCrossed, path: "/menus" },
   { name: "Categories", icon: Tags, path: "/categories" },
   { name: "Tables", icon: Table, path: "/" },
+  { name: "Reservations", icon: CalendarCheck, path: "/reservations" },
   { name: "Kitchen", icon: ChefHatIcon, path: "/kitchen" },
   { name: "Orders", icon: ClipboardList, path: "/orders" },
   { name: "Customers", icon: Award, path: "/customers" },

@@ -43,6 +43,11 @@ const EVENT_TO_QUERY_KEYS: Record<string, readonly string[]> = {
   "menu:updated": ["menus", "menu"],
   "menu:created": ["menus"],
   "menu:deleted": ["menus"],
+
+  // Reservation events
+  "reservation:created": ["reservations"],
+  "reservation:updated": ["reservations", "reservation"],
+  "reservation:cancelled": ["reservations"],
 } as const;
 
 /**

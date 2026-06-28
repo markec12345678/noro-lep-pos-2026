@@ -565,3 +565,79 @@ export interface LoyaltyConfig extends BaseEntity {
   /** Welcome message shown to members. */
   welcomeMessage?: string;
 }
+
+/* ------------------------------------------------------------------ */
+/* Reservations                                                       */
+/* ------------------------------------------------------------------ */
+
+export enum ReservationStatus {
+  Pending = "pending",
+  Confirmed = "confirmed",
+  Cancelled = "cancelled",
+  Completed = "completed",
+  NoShow = "no-show",
+}
+
+/**
+ * A table reservation made by a guest (via public booking page) or
+ * by staff (over the phone / walk-in).
+ *
+ * Stored as Cockpit CMS collection `reservation`.
+ */
+export interface Reservation extends BaseEntity {
+  /** Guest name. */
+  customerName: string;
+  /** Guest phone (required for contact). */
+  customerPhone: string;
+  /** Guest email (optional). */
+  customerEmail?: string;
+  /** Reservation date in YYYY-MM-DD format. */
+  date: string;
+  /** Reservation time in HH:MM format (24h). */
+  time: string;
+  /** Number of guests. */
+  partySize: number;
+  /** Optional table assignment (link to table collection). */
+  table?: LinkModelType | null;
+  /** Special requests (high chair, birthday, etc.). */
+  notes?: string;
+  /** Current status. */
+  status: ReservationStatus;
+  /** Source of the reservation. */
+  source: "guest" | "staff";
+  /** Staff member who created/updated (for staff-created). */
+  staff?: string;
+  /** Confirmation code shown to guest (6-char alphanumeric). */
+  confirmationCode: string;
+}
+
+/** Input for creating a reservation via the public API. */
+export interface CreateReservationInput {
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string;
+  date: string;
+  time: string;
+  partySize: number;
+  notes?: string;
+}
+
+/** Response from POST /api/public/reservation */
+export interface CreateReservationResponse {
+  reservationId: string;
+  confirmationCode: string;
+  status: ReservationStatus;
+  date: string;
+  time: string;
+  partySize: number;
+}
+
+/**
+ * Available time slots for a given date + party size.
+ * Returned by GET /api/public/reservation/slots
+ */
+export interface ReservationSlot {
+  time: string;
+  available: boolean;
+  reason?: string;
+}
