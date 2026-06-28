@@ -466,3 +466,102 @@ export interface GuestOrderStatusResponse {
     selectedModifiers?: MenuModifierSelection[];
   }>;
 }
+
+/* ------------------------------------------------------------------ */
+/* Loyalty Program                                                     */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A loyalty program member. Identified by phone number (unique).
+ *
+ * Points are earned at checkout (1 point per €1 spent by default,
+ * configurable via LoyaltyConfig.pointsPerEuro). Points can be
+ * redeemed for rewards defined in the LoyaltyReward collection.
+ *
+ * Stored as Cockpit CMS collection `customer`.
+ */
+export interface Customer extends BaseEntity {
+  /** Phone number — primary identifier (unique). */
+  phone: string;
+  /** Customer display name. */
+  name: string;
+  /** Email (optional, for marketing). */
+  email?: string;
+  /** Current points balance. */
+  points: number;
+  /** Lifetime points earned (never decreases). */
+  lifetimePoints: number;
+  /** Total amount spent across all orders (€). */
+  totalSpent: number;
+  /** Number of visits (orders placed). */
+  visits: number;
+  /** Timestamp of first visit. */
+  firstVisitAt?: number;
+  /** Timestamp of last visit. */
+  lastVisitAt?: number;
+  /** Optional birthday (for bonus points). */
+  birthday?: string;
+  /** Notes from staff (free text). */
+  notes?: string;
+}
+
+/**
+ * A redeemable reward in the loyalty program.
+ * Example: "Free coffee" for 50 points, "10% off" for 100 points.
+ *
+ * Stored as Cockpit CMS collection `loyaltyreward`.
+ */
+export interface LoyaltyReward extends BaseEntity {
+  name: string;
+  description: string;
+  /** Points required to redeem this reward. */
+  pointsCost: number;
+  /** Discount type for the reward. */
+  discountType: "fixed" | "percent" | "item";
+  /** Discount value (€ for fixed, % for percent, item ID for item). */
+  discountValue: number;
+  /** Whether this reward is currently available for redemption. */
+  active: boolean;
+}
+
+/**
+ * Audit log for a points movement (earn or redeem).
+ *
+ * Stored as Cockpit CMS collection `loyaltytransaction`.
+ * Every points change creates a transaction row for auditability.
+ */
+export interface LoyaltyTransaction extends BaseEntity {
+  /** Link to the customer. */
+  customer: LinkModelType;
+  /** Type of movement. */
+  type: "earn" | "redeem" | "adjust" | "expire";
+  /** Signed points delta (positive for earn, negative for redeem). */
+  points: number;
+  /** Resulting balance after the change (snapshot). */
+  balanceAfter: number;
+  /** Reason / description. */
+  reason: string;
+  /** Optional link to the order that triggered this transaction. */
+  order?: LinkModelType;
+  /** Optional link to the reward redeemed. */
+  reward?: LinkModelType;
+  /** Staff member who performed the action. */
+  staff?: string;
+}
+
+/**
+ * Loyalty program configuration (singleton).
+ * Stored as Cockpit CMS collection `loyaltyconfig`.
+ */
+export interface LoyaltyConfig extends BaseEntity {
+  /** Points earned per €1 spent. Default 1. */
+  pointsPerEuro: number;
+  /** Bonus points awarded on first visit. Default 0. */
+  signupBonus: number;
+  /** Points expire after N days of inactivity (0 = never). Default 0. */
+  expiryDays: number;
+  /** Whether the loyalty program is enabled. */
+  enabled: boolean;
+  /** Welcome message shown to members. */
+  welcomeMessage?: string;
+}

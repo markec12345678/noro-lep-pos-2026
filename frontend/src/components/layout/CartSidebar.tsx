@@ -1,3 +1,4 @@
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CreditCard, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -24,13 +25,24 @@ import {
   useFetchFiscalConfig,
   useIssueFiscalInvoice,
 } from "@/services/fiscalService";
+import {
+  useFindOrCreateCustomer,
+  useFetchLoyaltyConfig,
+} from "@/services/customerService";
+import {
+  useEarnPoints,
+  useRedeemReward,
+} from "@/services/loyaltyService";
+import LoyaltyPhoneInput from "../custom/loyalty/LoyaltyPhoneInput";
 import PrintOrderDetails from "../custom/orders/PrintOrderDetails";
 import {
   computeGrandTotal,
   computeSubtotal,
   computeTaxBreakdown,
   computeTotalTax,
+  round2,
 } from "@/lib/helper";
+import { Customer, LoyaltyReward } from "@/types";
 
 interface CartSidebarProps {
   collapsed: boolean;
@@ -54,15 +66,42 @@ const CartSidebar = ({
   const decrementStock = useDecrementStockForOrderItem();
   const { data: fiscalConfigs } = useFetchFiscalConfig();
   const issueFiscalInvoice = useIssueFiscalInvoice();
+  const findOrCreateCustomer = useFindOrCreateCustomer();
+  const { data: loyaltyConfigs } = useFetchLoyaltyConfig();
+  const earnPoints = useEarnPoints();
+  const redeemReward = useRedeemReward();
   const navigate = useNavigate();
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+  // Loyalty state — managed by LoyaltyPhoneInput component.
+  // All hooks must be called BEFORE any early returns to satisfy
+  // React's Rules of Hooks.
+  const [loyaltyCustomer, setLoyaltyCustomer] = useState<Customer | null>(null);
+  const [selectedReward, setSelectedReward] = useState<LoyaltyReward | null>(
+    null,
+  );
 
+  // Compute totals (safe even when orderItems is undefined — returns 0)
   const taxBreakdown = computeTaxBreakdown(orderItems ?? []);
   const subtotal = computeSubtotal(orderItems ?? []);
   const totalTax = computeTotalTax(taxBreakdown);
-  const grandTotal = computeGrandTotal(taxBreakdown);
+  const grossTotal = computeGrandTotal(taxBreakdown);
+
+  // Compute loyalty discount from selected reward
+  const loyaltyDiscount = useMemo(() => {
+    if (!selectedReward) return 0;
+    if (selectedReward.discountType === "fixed") {
+      return Math.min(selectedReward.discountValue, grossTotal);
+    }
+    if (selectedReward.discountType === "percent") {
+      return round2((grossTotal * selectedReward.discountValue) / 100);
+    }
+    return 0; // 'item' type is manual — no automatic discount
+  }, [selectedReward, grossTotal]);
+
+  const grandTotal = round2(grossTotal - loyaltyDiscount);
+
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
 
   /**
    * Process checkout — now waits for ALL order item updates to settle
@@ -192,6 +231,64 @@ const CartSidebar = ({
         }
       }
 
+      // 6. Loyalty program: find-or-create customer, earn points, redeem reward
+      // The LoyaltyPhoneInput component tracks the phone number via the
+      // customer object it found. We use the customer's phone to find-or-create.
+      if (loyaltyCustomer?.phone) {
+        try {
+          // If the customer was looked up by phone, we already have their ID.
+          // If not found, find-or-create will create a new profile.
+          const customerRecord = loyaltyCustomer._id
+            ? loyaltyCustomer
+            : await findOrCreateCustomer.mutateAsync({
+                phone: loyaltyCustomer.phone,
+                name: loyaltyCustomer.name || loyaltyCustomer.phone,
+              });
+
+          // Redeem reward if selected (deducts points, writes transaction)
+          if (selectedReward?._id && customerRecord._id) {
+            const redeemResult = await redeemReward.mutateAsync({
+              customerId: customerRecord._id,
+              reward: selectedReward,
+              staff: JSON.parse(localStorage.getItem("user") || "{}")?.name,
+            });
+            if (redeemResult.success) {
+              toast.success(
+                `Redeemed ${selectedReward.name} (-${selectedReward.pointsCost} points)`,
+              );
+            } else {
+              toast.warning(
+                `Could not redeem reward: ${redeemResult.error}`,
+              );
+            }
+          }
+
+          // Earn points for this order (based on final grand total)
+          if (customerRecord._id) {
+            const loyaltyConfig = (loyaltyConfigs ?? [])[0] as
+              | import("@/types").LoyaltyConfig
+              | undefined;
+            const earnResult = await earnPoints.mutateAsync({
+              customerId: customerRecord._id,
+              orderId: table.order._id,
+              amountSpent: grandTotal,
+              config: loyaltyConfig,
+              staff: JSON.parse(localStorage.getItem("user") || "{}")?.name,
+            });
+            toast.success(
+              `+${earnResult.earned} loyalty points earned`,
+              { duration: 3000 },
+            );
+          }
+        } catch (err) {
+          console.error("Loyalty processing failed:", err);
+          toast.warning(
+            `Loyalty processing failed: ${err instanceof Error ? err.message : "Unknown"}. Order is still complete.`,
+            { duration: 5000 },
+          );
+        }
+      }
+
       toast.success("Checkout successful!", {
         duration: 3000,
         style: {
@@ -279,6 +376,15 @@ const CartSidebar = ({
           </div>
 
           <div className="p-4 border-t border-border">
+            {/* Loyalty phone input — shown above totals */}
+            <div className="mb-3">
+              <LoyaltyPhoneInput
+                onCustomerChange={setLoyaltyCustomer}
+                onRewardSelect={setSelectedReward}
+                cartTotal={grossTotal}
+              />
+            </div>
+
             <div className="space-y-2 mb-4">
               <div className="flex justify-between">
                 <span className="text-gray-500">Subtotal</span>
@@ -300,6 +406,17 @@ const CartSidebar = ({
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>DDV ({DEFAULT_TAX_CONFIG.defaultRate}%)</span>
                   <span>€0.00</span>
+                </div>
+              )}
+
+              {/* Loyalty discount (if a reward is selected) */}
+              {loyaltyDiscount > 0 && (
+                <div className="flex justify-between text-sm text-purple-600 font-medium">
+                  <span>
+                    Loyalty discount
+                    {selectedReward && ` (${selectedReward.name})`}
+                  </span>
+                  <span>-€{loyaltyDiscount.toFixed(2)}</span>
                 </div>
               )}
 

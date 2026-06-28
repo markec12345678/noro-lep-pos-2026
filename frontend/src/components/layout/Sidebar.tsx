@@ -12,6 +12,8 @@ import {
   WifiOff,
   Shield,
   QrCode,
+  Award,
+  Gift,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
@@ -35,6 +37,8 @@ const menuItems: MenuItem[] = [
   { name: "Tables", icon: Table, path: "/" },
   { name: "Kitchen", icon: ChefHatIcon, path: "/kitchen" },
   { name: "Orders", icon: ClipboardList, path: "/orders" },
+  { name: "Customers", icon: Award, path: "/customers" },
+  { name: "Loyalty Rewards", icon: Gift, path: "/loyalty-rewards" },
   { name: "Inventory", icon: Package, path: "/inventory" },
   { name: "Cash Drawer", icon: Wallet, path: "/cash-drawer" },
   { name: "QR Codes", icon: QrCode, path: "/qr-codes" },
