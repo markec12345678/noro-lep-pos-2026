@@ -161,16 +161,13 @@ export const useCloseCashDrawerSession = () => {
 /* ------------------------------------------------------------------ */
 
 /**
- * Compute the expected cash amount for a session based on orders
- * completed between session.openedAt and now.
+ * Compute the expected cash amount for a session based on orders completed
+ * between session.openedAt and now.
  *
- * NOTE: in a production system with multiple payment methods (card,
- * cash, voucher), this should filter by `payment_method = "cash"`. For
- * now we treat all completed order totals as cash since payment methods
- * are not yet modeled.
- *
- * Caller passes the already-fetched orders (typically from
- * useFetchOrders) so we don't introduce a second fetch here.
+ * IMPORTANT: Only counts orders where payment_method = "cash". Card and
+ * other payment methods don't affect the cash drawer. Orders without a
+ * payment_method field (legacy data) are treated as cash for backward
+ * compatibility.
  */
 export const computeExpectedCash = (
   orders: Order[] | undefined,
@@ -184,7 +181,10 @@ export const computeExpectedCash = (
       (o) =>
         o.status === OrderStatus.Completed &&
         (o._created ?? 0) >= session.openedAt! &&
-        (o._created ?? 0) <= now,
+        (o._created ?? 0) <= now &&
+        // Only cash payments affect the drawer.
+        // Legacy orders without payment_method default to "cash".
+        (!o.payment_method || o.payment_method === "cash"),
     )
     .reduce((sum, o) => sum + (o.total_amount ?? 0), 0);
   return Math.round((openingFloat + cashSales) * 100) / 100;

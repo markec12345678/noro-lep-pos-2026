@@ -80,7 +80,12 @@ export interface Order extends BaseEntity {
   tax_amount?: number;
   /** Who created the order: "staff" (POS) or "guest" (QR code ordering). */
   source?: "staff" | "guest";
+  /** Payment method used at checkout. Defaults to "cash" for backward compat. */
+  payment_method?: PaymentMethod;
 }
+
+/** How the customer paid for the order. */
+export type PaymentMethod = "cash" | "card" | "other";
 
 export interface OrderItem extends BaseEntity {
   order: any;

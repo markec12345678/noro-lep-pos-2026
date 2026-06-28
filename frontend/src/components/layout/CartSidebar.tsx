@@ -42,7 +42,7 @@ import {
   computeTotalTax,
   round2,
 } from "@/lib/helper";
-import { Customer, LoyaltyReward } from "@/types";
+import { Customer, LoyaltyReward, PaymentMethod } from "@/types";
 
 interface CartSidebarProps {
   collapsed: boolean;
@@ -79,6 +79,7 @@ const CartSidebar = ({
   const [selectedReward, setSelectedReward] = useState<LoyaltyReward | null>(
     null,
   );
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
 
   // Compute totals (safe even when orderItems is undefined — returns 0)
   const taxBreakdown = computeTaxBreakdown(orderItems ?? []);
@@ -151,7 +152,7 @@ const CartSidebar = ({
         );
       await Promise.all(itemUpdates);
 
-      // 2. Update order: status + snapshot of tax breakdown + totals
+      // 2. Update order: status + payment method + tax breakdown + totals
       await updateOrderMut.mutateAsync({
         _id: table?.order?._id,
         customer: null,
@@ -159,6 +160,7 @@ const CartSidebar = ({
         total_amount: grandTotal,
         tax_amount: totalTax,
         tax_breakdown: taxBreakdown,
+        payment_method: paymentMethod,
       });
 
       // 3. Free up the table
@@ -208,7 +210,7 @@ const CartSidebar = ({
             orderId: table.order._id,
             totalAmount: grandTotal,
             taxesByRate: taxBreakdown,
-            paymentMethod: "cash", // TODO: derive from selected payment method
+            paymentMethod,
             config: fiscalConfig,
           });
           if (result.status === "submitted" && result.eor) {
@@ -423,6 +425,35 @@ const CartSidebar = ({
               <div className="flex justify-between font-semibold text-base border-t pt-2">
                 <span>Total</span>
                 <span>€{grandTotal.toFixed(2)}</span>
+              </div>
+            </div>
+
+            {/* Payment method selector */}
+            <div className="mb-3">
+              <p className="text-xs font-medium text-gray-600 mb-1.5">
+                Način plačila
+              </p>
+              <div className="grid grid-cols-3 gap-1.5">
+                {(
+                  [
+                    { value: "cash", label: "Gotovina" },
+                    { value: "card", label: "Kartica" },
+                    { value: "other", label: "Drugo" },
+                  ] as const
+                ).map((pm) => (
+                  <button
+                    key={pm.value}
+                    type="button"
+                    onClick={() => setPaymentMethod(pm.value)}
+                    className={`px-2 py-2 rounded-lg border text-xs font-medium transition-all ${
+                      paymentMethod === pm.value
+                        ? "border-secondary bg-secondary/10 text-secondary"
+                        : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                    }`}
+                  >
+                    {pm.label}
+                  </button>
+                ))}
               </div>
             </div>
 

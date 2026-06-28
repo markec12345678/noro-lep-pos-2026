@@ -36,6 +36,7 @@ const Suppliers = lazy(() => import("@/pages/Suppliers"));
 const Invoices = lazy(() => import("@/pages/Invoices"));
 const Locations = lazy(() => import("@/pages/Locations"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const ZReport = lazy(() => import("@/pages/ZReport"));
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -90,6 +91,7 @@ const AppInner = () => {
             <Route path="suppliers" element={<Suppliers />} />
             <Route path="invoices" element={<Invoices />} />
             <Route path="locations" element={<Locations />} />
+            <Route path="z-report" element={<ZReport />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
