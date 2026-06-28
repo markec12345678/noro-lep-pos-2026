@@ -167,6 +167,31 @@ interface LoyaltyReward {
   active: boolean;
 }
 
+interface Reservation {
+  _id: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string;
+  date: string;
+  time: string;
+  partySize: number;
+  notes?: string;
+  status: string;
+  source: string;
+  confirmationCode: string;
+  _created?: number;
+}
+
+interface CreateReservationInput {
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string;
+  date: string;
+  time: string;
+  partySize: number;
+  notes?: string;
+}
+
 interface CreateGuestOrderInput {
   tableToken: string;
   customerName: string;
@@ -616,6 +641,228 @@ const handleGetLoyaltyByPhone = async (
   }
 };
 
+/**
+ * Default time slots offered for reservations.
+ * Lunch: 11:00–15:00, Dinner: 17:00–22:00 (30-min intervals).
+ */
+const DEFAULT_TIME_SLOTS = [
+  "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
+  "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30",
+];
+
+/**
+ * Generate a 6-character alphanumeric confirmation code.
+ * Excludes ambiguous characters (0/O, 1/I/L) for readability.
+ */
+const generateConfirmationCode = (): string => {
+  const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return code;
+};
+
+/**
+ * GET /api/public/reservation/slots?date=YYYY-MM-DD&partySize=N
+ *
+ * Returns available time slots for the given date + party size.
+ * A slot is unavailable if there are already 8+ reservations at that
+ * exact time (configurable capacity — could be made dynamic per-table).
+ *
+ * Past slots (before now) are also marked unavailable.
+ */
+const handleGetReservationSlots = async (
+  req: IncomingMessage,
+  res: ServerResponse,
+) => {
+  try {
+    const url = new URL(req.url ?? "", `http://localhost:${PORT}`);
+    const date = url.searchParams.get("date");
+    const partySize = parseInt(url.searchParams.get("partySize") ?? "1", 10);
+
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return sendJson(res, 400, { error: "Invalid date format (use YYYY-MM-DD)" });
+    }
+    if (Number.isNaN(partySize) || partySize < 1 || partySize > 20) {
+      return sendJson(res, 400, { error: "Party size must be 1-20" });
+    }
+
+    // Don't allow reservations in the past
+    const now = new Date();
+    const todayStr = now.toISOString().slice(0, 10);
+    if (date < todayStr) {
+      return sendJson(res, 200, {
+        slots: DEFAULT_TIME_SLOTS.map((time) => ({
+          time,
+          available: false,
+          reason: "Past date",
+        })),
+      });
+    }
+
+    // Fetch existing reservations for this date (excluding cancelled)
+    const existing = await cockpitFetch<Reservation[]>(
+      `/api/content/items/reservation?filter={date:"${date}",status:{$ne:"cancelled"}}`,
+    ).catch(() => [] as Reservation[]);
+
+    // Count reservations per time slot (capacity = 8 per slot by default)
+    const MAX_PER_SLOT = 8;
+    const countsByTime = new Map<string, number>();
+    for (const r of existing ?? []) {
+      countsByTime.set(r.time, (countsByTime.get(r.time) ?? 0) + 1);
+    }
+
+    // Build slots, marking past times as unavailable for today
+    const slots = DEFAULT_TIME_SLOTS.map((time) => {
+      const count = countsByTime.get(time) ?? 0;
+      if (date === todayStr) {
+        const [h, m] = time.split(":").map(Number);
+        const slotTime = new Date(now);
+        slotTime.setHours(h, m, 0, 0);
+        if (slotTime <= now) {
+          return { time, available: false, reason: "Past time" };
+        }
+      }
+      if (count >= MAX_PER_SLOT) {
+        return { time, available: false, reason: "Fully booked" };
+      }
+      return { time, available: true };
+    });
+
+    return sendJson(res, 200, { slots });
+  } catch (err) {
+    console.error("[pos-public] getReservationSlots failed:", err);
+    return sendJson(res, 500, {
+      error: "Failed to fetch slots",
+      detail: err instanceof Error ? err.message : "Unknown",
+    });
+  }
+};
+
+/**
+ * POST /api/public/reservation
+ *
+ * Create a reservation from the public booking page.
+ * Server validates input, checks slot availability, generates a
+ * confirmation code, and stores the reservation with status=pending
+ * (staff confirms later).
+ *
+ * Emits a realtime event so the manager's Reservations page refreshes.
+ */
+const handleCreateReservation = async (
+  _req: any,
+  res: ServerResponse,
+  _params: Record<string, string>,
+  body: CreateReservationInput,
+) => {
+  try {
+    // Validate input
+    if (!body?.customerName?.trim()) {
+      return sendJson(res, 400, { error: "Customer name is required" });
+    }
+    if (!body?.customerPhone?.trim() || body.customerPhone.trim().length < 6) {
+      return sendJson(res, 400, { error: "Valid phone number is required" });
+    }
+    if (!body?.date || !/^\d{4}-\d{2}-\d{2}$/.test(body.date)) {
+      return sendJson(res, 400, { error: "Invalid date (use YYYY-MM-DD)" });
+    }
+    if (!body?.time || !DEFAULT_TIME_SLOTS.includes(body.time)) {
+      return sendJson(res, 400, { error: "Invalid time slot" });
+    }
+    if (!body?.partySize || body.partySize < 1 || body.partySize > 20) {
+      return sendJson(res, 400, { error: "Party size must be 1-20" });
+    }
+
+    // Don't allow reservations in the past
+    const now = new Date();
+    const todayStr = now.toISOString().slice(0, 10);
+    if (body.date < todayStr) {
+      return sendJson(res, 400, { error: "Cannot book in the past" });
+    }
+    if (body.date === todayStr) {
+      const [h, m] = body.time.split(":").map(Number);
+      const slotTime = new Date(now);
+      slotTime.setHours(h, m, 0, 0);
+      if (slotTime <= now) {
+        return sendJson(res, 400, { error: "That time slot has already passed" });
+      }
+    }
+
+    // Check slot capacity
+    const existing = await cockpitFetch<Reservation[]>(
+      `/api/content/items/reservation?filter={date:"${body.date}",time:"${body.time}",status:{$ne:"cancelled"}}`,
+    ).catch(() => [] as Reservation[]);
+    const MAX_PER_SLOT = 8;
+    if ((existing ?? []).length >= MAX_PER_SLOT) {
+      return sendJson(res, 409, { error: "That time slot is fully booked" });
+    }
+
+    // Generate unique confirmation code
+    let confirmationCode = generateConfirmationCode();
+    let attempts = 0;
+    while (attempts < 5) {
+      const dupeCheck = await cockpitFetch<Reservation[]>(
+        `/api/content/items/reservation?filter={confirmationCode:"${confirmationCode}"}`,
+      ).catch(() => [] as Reservation[]);
+      if (!dupeCheck || dupeCheck.length === 0) break;
+      confirmationCode = generateConfirmationCode();
+      attempts++;
+    }
+
+    // Create the reservation
+    const reservation = await cockpitFetch<Reservation>(
+      `/api/content/item/reservation`,
+      {
+        method: "POST",
+        body: {
+          data: {
+            customerName: body.customerName.trim(),
+            customerPhone: body.customerPhone.trim(),
+            customerEmail: body.customerEmail?.trim() || undefined,
+            date: body.date,
+            time: body.time,
+            partySize: body.partySize,
+            notes: body.notes?.trim() || undefined,
+            status: "pending",
+            source: "guest",
+            confirmationCode,
+          },
+        },
+      },
+    );
+
+    if (!reservation?._id) {
+      return sendJson(res, 500, { error: "Failed to create reservation" });
+    }
+
+    // Emit realtime event so manager's Reservations page refreshes
+    emitRealtimeEvent("reservation:created", {
+      reservationId: reservation._id,
+      date: body.date,
+      time: body.time,
+      partySize: body.partySize,
+      customerName: body.customerName,
+      source: "guest",
+    });
+
+    return sendJson(res, 201, {
+      reservationId: reservation._id,
+      confirmationCode,
+      status: "pending",
+      date: body.date,
+      time: body.time,
+      partySize: body.partySize,
+    });
+  } catch (err) {
+    console.error("[pos-public] createReservation failed:", err);
+    return sendJson(res, 500, {
+      error: "Failed to create reservation",
+      detail: err instanceof Error ? err.message : "Unknown",
+    });
+  }
+};
+
 /* ------------------------------------------------------------------ */
 /* HTTP server                                                         */
 /* ------------------------------------------------------------------ */
@@ -658,6 +905,16 @@ const routes: Route[] = [
     pattern: /^\/api\/public\/loyalty\/([^/]+)$/,
     paramNames: ["phone"],
     handlers: { GET: handleGetLoyaltyByPhone },
+  },
+  {
+    pattern: /^\/api\/public\/reservation\/slots$/,
+    paramNames: [],
+    handlers: { GET: handleGetReservationSlots },
+  },
+  {
+    pattern: /^\/api\/public\/reservation$/,
+    paramNames: [],
+    handlers: { POST: handleCreateReservation },
   },
 ];
 
