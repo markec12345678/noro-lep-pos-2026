@@ -739,3 +739,49 @@ export interface InvoiceItem extends BaseEntity {
   /** Whether this line has already been processed for stock update. */
   restocked: boolean;
 }
+
+/* ------------------------------------------------------------------ */
+/* Multi-Location (Chain Management)                                  */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A restaurant location in a multi-location chain.
+ *
+ * Stored as Cockpit CMS collection `location`. Each location has its
+ * own tables, menus, inventory, orders, etc. The active location is
+ * tracked client-side via LocationContext and used to filter all
+ * data queries.
+ *
+ * For single-location deployments, a default location is created
+ * automatically and the LocationSwitcher is hidden.
+ */
+export interface Location extends BaseEntity {
+  /** Display name (e.g. "Noro Lep Center", "Noro Lep BTC"). */
+  name: string;
+  /** Short code (e.g. "CENTER", "BTC") — used in invoice numbers, etc. */
+  code: string;
+  /** Street address. */
+  address: string;
+  /** City. */
+  city: string;
+  /** Postal code. */
+  postalCode: string;
+  /** Phone number. */
+  phone: string;
+  /** Email. */
+  email?: string;
+  /** Tax number (davčna številka) — each location may have its own. */
+  taxNumber: string;
+  /** FURS business premise ID (each location registers separately). */
+  businessPremiseId: string;
+  /** Default tax rate for this location (in case of regional differences). */
+  defaultTaxRate: number;
+  /** Currency code (ISO 4217) — for international chains. Default EUR. */
+  currency: string;
+  /** Whether this location is currently operating. */
+  active: boolean;
+  /** Optional timezone (IANA name, e.g. "Europe/Ljubljana"). */
+  timezone?: string;
+  /** Optional notes. */
+  notes?: string;
+}

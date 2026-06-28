@@ -17,6 +17,7 @@ import {
   CalendarCheck,
   Truck,
   FileText,
+  Store,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
@@ -49,6 +50,7 @@ const menuItems: MenuItem[] = [
   { name: "Cash Drawer", icon: Wallet, path: "/cash-drawer" },
   { name: "QR Codes", icon: QrCode, path: "/qr-codes" },
   { name: "Reports", icon: PieChart, path: "/reports" },
+  { name: "Locations", icon: Store, path: "/locations" },
   { name: "FURS Settings", icon: Shield, path: "/fiscal" },
 ];
 

@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
 import LoadingSpinner from "./components/ui/loader";
 import { useRealtimeSync } from "./hooks/useRealtimeSync";
+import { LocationProvider } from "@/services/locationService";
 import Reports from "./pages/Reports";
 
 // Lazy load pages
@@ -33,6 +34,7 @@ const PublicReservation = lazy(() => import("@/pages/PublicReservation"));
 const Reservations = lazy(() => import("@/pages/Reservations"));
 const Suppliers = lazy(() => import("@/pages/Suppliers"));
 const Invoices = lazy(() => import("@/pages/Invoices"));
+const Locations = lazy(() => import("@/pages/Locations"));
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -85,6 +87,7 @@ const AppInner = () => {
             <Route path="reservations" element={<Reservations />} />
             <Route path="suppliers" element={<Suppliers />} />
             <Route path="invoices" element={<Invoices />} />
+            <Route path="locations" element={<Locations />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
@@ -111,11 +114,13 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <CustomToaster />
-        <SonnerToaster />
-        <AppInner />
-      </TooltipProvider>
+      <LocationProvider>
+        <TooltipProvider>
+          <CustomToaster />
+          <SonnerToaster />
+          <AppInner />
+        </TooltipProvider>
+      </LocationProvider>
     </QueryClientProvider>
   );
 };

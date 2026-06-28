@@ -1,16 +1,19 @@
 import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
+import LocationSwitcher from "@/components/custom/location/LocationSwitcher";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { ChevronDown, User, Settings, LogOut } from "lucide-react";
 import { getImageUrl } from "@/lib/helper";
 import { isRouteRestricted } from "@/middleware";
+import { useActiveLocation } from "@/services/locationService";
 
 const AppLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const { activeLocation } = useActiveLocation();
 
   useEffect(() => {
     // Redirect to home if the user's role is restricted from the current path
@@ -39,8 +42,18 @@ const AppLayout = () => {
 
       <main className="flex-1 overflow-auto bg-gray-50">
         <div className="h-16 border-b border-border bg-white shadow-sm px-4 flex items-center justify-between">
-          <h1 className="text-xl font-semibold">TGI Pos</h1>
-          <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-semibold">Noro Lep POS</h1>
+            {activeLocation && (
+              <span className="text-xs text-gray-400 hidden sm:inline">
+                · {activeLocation.name}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            {/* Location switcher — hidden in single-location mode */}
+            <LocationSwitcher />
+
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
                 <button className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100">
