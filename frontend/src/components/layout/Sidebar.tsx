@@ -18,6 +18,7 @@ import {
   Truck,
   FileText,
   Store,
+  LayoutDashboard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
@@ -36,12 +37,13 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { name: "Food Menus", icon: UtensilsCrossed, path: "/menus" },
-  { name: "Categories", icon: Tags, path: "/categories" },
-  { name: "Tables", icon: Table, path: "/" },
+  { name: "Dashboard", icon: LayoutDashboard, path: "/" },
+  { name: "Tables", icon: Table, path: "/tables-list" },
   { name: "Reservations", icon: CalendarCheck, path: "/reservations" },
   { name: "Kitchen", icon: ChefHatIcon, path: "/kitchen" },
   { name: "Orders", icon: ClipboardList, path: "/orders" },
+  { name: "Food Menus", icon: UtensilsCrossed, path: "/menus" },
+  { name: "Categories", icon: Tags, path: "/categories" },
   { name: "Customers", icon: Award, path: "/customers" },
   { name: "Loyalty Rewards", icon: Gift, path: "/loyalty-rewards" },
   { name: "Inventory", icon: Package, path: "/inventory" },

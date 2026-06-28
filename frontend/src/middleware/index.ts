@@ -5,7 +5,7 @@
  * A route in the restricted list means the role CANNOT access it.
  */
 
-// Waiters can only use POS + Tables. They cannot manage menus, kitchen, etc.
+// Waiters can only use Dashboard + Tables + POS. They cannot manage menus, kitchen, etc.
 export const waiterRestrictedRoutes = [
   "/menus",
   "/kitchen",
@@ -24,7 +24,7 @@ export const waiterRestrictedRoutes = [
   "/locations",
 ];
 
-// Chefs can use Kitchen + Tables, but cannot see orders management or reports.
+// Chefs can use Dashboard + Kitchen + Tables, but cannot see orders management or reports.
 export const chefRestrictedRoutes = [
   "/orders",
   "/reports",

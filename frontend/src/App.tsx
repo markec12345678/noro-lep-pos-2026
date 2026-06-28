@@ -35,6 +35,7 @@ const Reservations = lazy(() => import("@/pages/Reservations"));
 const Suppliers = lazy(() => import("@/pages/Suppliers"));
 const Invoices = lazy(() => import("@/pages/Invoices"));
 const Locations = lazy(() => import("@/pages/Locations"));
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -71,7 +72,7 @@ const AppInner = () => {
               </ProtectedRoute>
             }
           >
-            <Route index element={<Tables />} />
+            <Route index element={<Dashboard />} />
             <Route path="tables/:tableId" element={<POS />} />
             <Route path="menus" element={<FoodMenus />} />
             <Route path="categories" element={<Categories />} />
@@ -84,6 +85,7 @@ const AppInner = () => {
             <Route path="qr-codes" element={<QRCodes />} />
             <Route path="customers" element={<Customers />} />
             <Route path="loyalty-rewards" element={<LoyaltyRewards />} />
+            <Route path="tables-list" element={<Tables />} />
             <Route path="reservations" element={<Reservations />} />
             <Route path="suppliers" element={<Suppliers />} />
             <Route path="invoices" element={<Invoices />} />
