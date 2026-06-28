@@ -78,6 +78,8 @@ export interface Order extends BaseEntity {
   tax_breakdown?: TaxBreakdownEntry[];
   /** Final tax amount (sum of all tax_breakdown entries). */
   tax_amount?: number;
+  /** Who created the order: "staff" (POS) or "guest" (QR code ordering). */
+  source?: "staff" | "guest";
 }
 
 export interface OrderItem extends BaseEntity {
@@ -111,6 +113,8 @@ export interface Table extends BaseEntity {
   location?: string;
   status: string;
   order: LinkModelType;
+  /** Public UUID token for QR-code-based guest ordering. Null = QR disabled. */
+  publicToken?: string;
 }
 
 /**
@@ -382,4 +386,83 @@ export interface FiscalInvoice extends BaseEntity {
   errorMessage?: string;
   /** Number of submission attempts. */
   attempts: number;
+}
+
+/* ------------------------------------------------------------------ */
+/* Public / Guest Ordering (QR code)                                  */
+/* ------------------------------------------------------------------ */
+
+/** A menu item as returned by the public menu API (no auth required). */
+export interface PublicMenuItem {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  image?: { path?: string; title?: string };
+  category?: Array<{ _id: string; name?: string }>;
+  tax_rate?: number;
+}
+
+/** A category group returned by the public menu API. */
+export interface PublicMenuCategoryGroup {
+  category: { _id: string; name: string; image?: { path?: string } };
+  items: PublicMenuItem[];
+}
+
+/** Full public menu response from /api/public/menu/:tableToken */
+export interface PublicMenuResponse {
+  table: {
+    _id: string;
+    table_number?: string;
+    seats?: string;
+    location?: string;
+  };
+  categories: PublicMenuCategoryGroup[];
+  uncategorizedItems: PublicMenuItem[];
+  totalItems: number;
+}
+
+/** Input for creating a guest order via the public API. */
+export interface CreateGuestOrderInput {
+  tableToken: string;
+  customerName: string;
+  customerPhone?: string;
+  items: Array<{
+    menuId: string;
+    quantity: number;
+    specialInstruction?: string;
+    selectedModifiers?: MenuModifierSelection[];
+  }>;
+}
+
+/** Response from POST /api/public/order */
+export interface CreateGuestOrderResponse {
+  orderId: string;
+  tableId: string;
+  tableNumber?: string;
+  totalAmount: number;
+  itemCount: number;
+  status: string;
+  createdAt: number;
+}
+
+/** Order status response from GET /api/public/order/:orderId */
+export interface GuestOrderStatusResponse {
+  order: {
+    _id: string;
+    status: string;
+    totalAmount: number;
+    createdAt: number;
+    customer?: { name?: string; phone?: string };
+    tableNumber?: string;
+  };
+  items: Array<{
+    _id: string;
+    name: string;
+    quantity: number;
+    price: number;
+    status: string;
+    specialInstruction?: string;
+    selectedModifiers?: MenuModifierSelection[];
+  }>;
 }

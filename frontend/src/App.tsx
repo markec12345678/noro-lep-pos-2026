@@ -21,6 +21,11 @@ const Login = lazy(() => import("@/pages/Login"));
 const Inventory = lazy(() => import("@/pages/Inventory"));
 const CashDrawer = lazy(() => import("@/pages/CashDrawer"));
 const FiscalSettings = lazy(() => import("@/pages/FiscalSettings"));
+const QRCodes = lazy(() => import("@/pages/QRCodes"));
+
+// Public routes (no auth required) — lazy loaded for code splitting
+const PublicMenu = lazy(() => import("@/pages/PublicMenu"));
+const PublicOrderStatus = lazy(() => import("@/pages/PublicOrderStatus"));
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -41,6 +46,11 @@ const AppInner = () => {
     <BrowserRouter>
       <Suspense fallback={<LoadingSpinner />}>
         <Routes>
+          {/* Public routes — no authentication required */}
+          <Route path="/public/menu/:tableToken" element={<PublicMenu />} />
+          <Route path="/public/order/:orderId" element={<PublicOrderStatus />} />
+
+          {/* Authenticated routes */}
           <Route path="/login" element={<Login />} />
           <Route
             path="/"
@@ -60,6 +70,7 @@ const AppInner = () => {
             <Route path="inventory" element={<Inventory />} />
             <Route path="cash-drawer" element={<CashDrawer />} />
             <Route path="fiscal" element={<FiscalSettings />} />
+            <Route path="qr-codes" element={<QRCodes />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
