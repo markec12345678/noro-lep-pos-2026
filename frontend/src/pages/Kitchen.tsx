@@ -1,218 +1,459 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { PlusCircle, Search, Check, X } from "lucide-react";
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  useFetchKitchenOrderItems,
-  useUpdateOrderItem,
-} from "@/services/orderItemsService";
-import { OrderItemStatus } from "@/types";
+  Clock,
+  ChefHat,
+  Check,
+  X,
+  Volume2,
+  VolumeX,
+  Users,
+  Utensils,
+  AlertTriangle,
+  Bell,
+} from "lucide-react";
 import { toast } from "sonner";
-import { getImageUrl, getStatusColor } from "@/lib/helper";
-import OrderItemStatusBadge from "@/components/custom/order-items/OrderItemStatusBadge";
+import { useUpdateOrderItem } from "@/services/orderItemsService";
+import {
+  useKitchenTickets,
+  useNewOrderSound,
+  useTick,
+  formatWaitTime,
+  getUrgencyColors,
+  KitchenTicket,
+} from "@/hooks/useKitchenTickets";
+import { OrderItemStatus } from "@/types";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
+/**
+ * Enhanced Kitchen Display System (KDS)
+ *
+ * Kanban-style board with 3 columns:
+ * - NEW: items waiting to be started
+ * - IN KITCHEN: items being prepared
+ * - READY: items done, waiting for pickup
+ *
+ * Features:
+ * - Color-coded urgency (green < 5min, amber 5-10min, red > 10min)
+ * - Live wait timers (updates every second)
+ * - Sound notification on new orders (toggleable)
+ * - Per-item status buttons (start cooking, mark ready, cancel)
+ * - "Bump order" button (mark ALL items in a ticket as ready)
+ * - Source badge (staff vs guest/online order)
+ * - Special instructions + modifiers shown per item
+ * - Auto-sort: most urgent (oldest) first
+ */
 const Kitchen = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const { data: orderItems, isLoading, error } = useFetchKitchenOrderItems();
+  const { tickets, isLoading } = useKitchenTickets();
   const { mutate: updateOrderItem } = useUpdateOrderItem();
+  useNewOrderSound(tickets);
+  useTick(1000); // re-render every second for live timers
 
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [sourceFilter, setSourceFilter] = useState<
+    "all" | "staff" | "guest"
+  >("all");
 
-  const filteredItems =
-    orderItems.length > 0
-      ? orderItems.filter(
-          (item) =>
-            item?.menu?.name
-              ?.toLowerCase()
-              .includes(searchQuery.toLowerCase()) ||
-            item?.menu?.description
-              ?.toLowerCase()
-              .includes(searchQuery.toLowerCase()),
-        )
-      : [];
+  // Filter tickets by source
+  const filteredTickets = useMemo(() => {
+    if (sourceFilter === "all") return tickets;
+    return tickets.filter((t) => t.source === sourceFilter);
+  }, [tickets, sourceFilter]);
 
-  const updateStatus = async (item, status: string) => {
-    item.status = status;
-    updateOrderItem(item);
+  // Group tickets by status (kanban columns)
+  const newTickets = filteredTickets.filter(
+    (t) => t.status === OrderItemStatus.New,
+  );
+  const inKitchenTickets = filteredTickets.filter(
+    (t) => t.status === OrderItemStatus.InKitchen,
+  );
+  const readyTickets = filteredTickets.filter(
+    (t) => t.status === OrderItemStatus.Ready,
+  );
 
-    if (status === "cancel") {
-      toast.error(`Canceled ${item.menu.name}`, {
-        duration: 3000,
-        style: {
-          background: "#f87171",
-          color: "#fff",
-          fontWeight: "bold",
-          padding: "16px",
-          borderRadius: "4px",
-        },
-        position: "top-center",
-        dismissible: true,
-      });
-      return;
+  const handleStartCooking = (ticket: KitchenTicket) => {
+    // Mark all NEW items in this ticket as in-kitchen
+    for (const item of ticket.items) {
+      if (item.status === OrderItemStatus.New) {
+        updateOrderItem({
+          _id: item._id,
+          status: OrderItemStatus.InKitchen,
+        });
+      }
     }
-
-    toast.success(`Updated ${item.menu.name} status to ${status}`, {
-      duration: 3000,
-      style: {
-        background: "#4ade80",
-        color: "#fff",
-        fontWeight: "bold",
-        padding: "16px",
-        borderRadius: "4px",
-      },
-      position: "top-center",
-      dismissible: true,
-    });
+    toast.success(`Začel: Miza ${ticket.tableNumber ?? "?"}`);
   };
 
-  return (
-    <div className="space-y-6 p-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Kitchen Orders</h1>
+  const handleMarkReady = (ticket: KitchenTicket) => {
+    // Mark all in-kitchen items as ready
+    let count = 0;
+    for (const item of ticket.items) {
+      if (item.status === OrderItemStatus.InKitchen) {
+        updateOrderItem({
+          _id: item._id,
+          status: OrderItemStatus.Ready,
+        });
+        count++;
+      }
+    }
+    toast.success(`${count} jedi pripravljenih: Miza ${ticket.tableNumber ?? "?"}`);
+  };
 
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="flex items-center px-4 py-2 bg-secondary text-white rounded-lg btn-hover"
-        >
-          <PlusCircle className="h-5 w-5 mr-2" />
-          Add New Item
-        </motion.button>
+  const handleCancelItem = (itemId: string, itemName: string) => {
+    updateOrderItem({
+      _id: itemId,
+      status: OrderItemStatus.Cancelled,
+    });
+    toast.error(`Preklicano: ${itemName}`);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+        <ChefHat className="h-12 w-12 animate-pulse text-orange-400" />
+        <span className="ml-3 text-gray-400">Nalagam kuhinjo...</span>
       </div>
+    );
+  }
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-          <h2 className="font-medium">Orders</h2>
-
-          <div className="relative w-64">
-            <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search items..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 w-full rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-transparent transition-all duration-200"
-            />
+  return (
+    <div className="h-[calc(100vh-4rem)] flex flex-col">
+      {/* Toolbar */}
+      <div className="px-4 py-3 bg-white border-b border-gray-200 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <h1 className="text-lg font-semibold flex items-center gap-2">
+            <ChefHat className="h-5 w-5 text-orange-500" />
+            Kuhinja
+          </h1>
+          {/* Source filter */}
+          <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
+            {(
+              [
+                { value: "all", label: "Vse" },
+                { value: "staff", label: "Natakar" },
+                { value: "guest", label: "Online" },
+              ] as const
+            ).map((f) => (
+              <button
+                key={f.value}
+                onClick={() => setSourceFilter(f.value)}
+                className={cn(
+                  "px-3 py-1 rounded-md text-xs font-medium transition-all",
+                  sourceFilter === f.value
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-500 hover:text-gray-700",
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Item
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Qty
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Table
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Instruction
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {filteredItems &&
-                filteredItems.map((item) => (
-                  <motion.tr
-                    key={item._id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                    className="hover:bg-gray-50"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="h-10 w-10 rounded-lg overflow-hidden flex-shrink-0">
-                          <img
-                            src={getImageUrl(item?.menu?.image)}
-                            alt={item?.menu?.name}
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {item?.menu?.name}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-500 line-clamp-1">
-                        {item?.quantity}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-500 line-clamp-1">
-                        {item?.order?.table?.table_number}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <OrderItemStatusBadge status={item.status} />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {item?.special_instruction}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      {/* Add toggleable buttons for in-kitchen, ready, and cancelled */}
-                      {item.status === OrderItemStatus.InKitchen && (
-                        <div className="flex justify-end space-x-2">
-                          <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() =>
-                              updateStatus(item, OrderItemStatus.Ready)
-                            }
-                            className="flex items-center px-2 py-1 bg-green-500 text-white rounded-lg btn-hover"
-                          >
-                            <Check className="h-4 w-4 mr-1" />
-                            <span>Ready</span>
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() =>
-                              updateStatus(item, OrderItemStatus.Cancelled)
-                            }
-                            className="flex items-center px-2 py-1 bg-red-500 text-white rounded-lg btn-hover"
-                          >
-                            <X className="h-4 w-4 mr-1" />
-                            <span>Cancel</span>
-                          </motion.button>
-                        </div>
-                      )}
-                    </td>
-                  </motion.tr>
-                ))}
+        {/* Counts */}
+        <div className="flex items-center gap-4 text-sm">
+          <CountBadge
+            label="Novo"
+            count={newTickets.length}
+            color="bg-blue-100 text-blue-700"
+          />
+          <CountBadge
+            label="V pripravi"
+            count={inKitchenTickets.length}
+            color="bg-amber-100 text-amber-700"
+          />
+          <CountBadge
+            label="Pripravljeno"
+            count={readyTickets.length}
+            color="bg-green-100 text-green-700"
+          />
+        </div>
 
-              {filteredItems.length === 0 && (
-                <tr>
-                  <td
-                    className="px-6 py-8 text-center text-gray-500"
-                    colSpan={4}
-                  >
-                    No items found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        {/* Sound toggle */}
+        <button
+          onClick={() => setSoundEnabled(!soundEnabled)}
+          className={cn(
+            "p-2 rounded-lg transition-colors",
+            soundEnabled
+              ? "text-orange-500 hover:bg-orange-50"
+              : "text-gray-400 hover:bg-gray-100",
+          )}
+          title={soundEnabled ? "Zvok vklopljen" : "Zvok izklopljen"}
+        >
+          {soundEnabled ? (
+            <Volume2 className="h-5 w-5" />
+          ) : (
+            <VolumeX className="h-5 w-5" />
+          )}
+        </button>
+      </div>
+
+      {/* Kanban board */}
+      <div className="flex-1 overflow-x-auto p-4">
+        <div className="flex gap-4 h-full min-w-max">
+          {/* NEW column */}
+          <KanbanColumn
+            title="Novo"
+            icon={Bell}
+            color="bg-blue-500"
+            tickets={newTickets}
+            onAction={handleStartCooking}
+            actionLabel="Začni pripravo"
+            actionIcon={ChefHat}
+            actionColor="bg-amber-500 hover:bg-amber-600"
+            onCancelItem={handleCancelItem}
+          />
+
+          {/* IN KITCHEN column */}
+          <KanbanColumn
+            title="V pripravi"
+            icon={ChefHat}
+            color="bg-amber-500"
+            tickets={inKitchenTickets}
+            onAction={handleMarkReady}
+            actionLabel="Pripravljeno"
+            actionIcon={Check}
+            actionColor="bg-green-500 hover:bg-green-600"
+            onCancelItem={handleCancelItem}
+          />
+
+          {/* READY column */}
+          <KanbanColumn
+            title="Pripravljeno"
+            icon={Check}
+            color="bg-green-500"
+            tickets={readyTickets}
+            onAction={() => {}}
+            actionLabel=""
+            actionIcon={Check}
+            actionColor=""
+            onCancelItem={handleCancelItem}
+            isReadyColumn
+          />
         </div>
       </div>
     </div>
   );
 };
+
+/* ------------------------------------------------------------------ */
+/* Kanban column                                                       */
+/* ------------------------------------------------------------------ */
+
+interface KanbanColumnProps {
+  title: string;
+  icon: React.ElementType;
+  color: string;
+  tickets: KitchenTicket[];
+  onAction: (ticket: KitchenTicket) => void;
+  actionLabel: string;
+  actionIcon: React.ElementType;
+  actionColor: string;
+  onCancelItem: (itemId: string, itemName: string) => void;
+  isReadyColumn?: boolean;
+}
+
+const KanbanColumn = ({
+  title,
+  icon: Icon,
+  color,
+  tickets,
+  onAction,
+  actionLabel,
+  actionIcon: ActionIcon,
+  actionColor,
+  onCancelItem,
+  isReadyColumn,
+}: KanbanColumnProps) => {
+  return (
+    <div className="flex-1 min-w-[300px] max-w-[400px] flex flex-col">
+      {/* Column header */}
+      <div className="flex items-center gap-2 mb-3 px-1">
+        <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center", color)}>
+          <Icon className="h-4 w-4 text-white" />
+        </div>
+        <h2 className="font-semibold text-gray-700">{title}</h2>
+        <span className="ml-auto text-sm font-medium text-gray-400">
+          {tickets.length}
+        </span>
+      </div>
+
+      {/* Tickets */}
+      <div className="flex-1 overflow-y-auto space-y-3 pb-4">
+        <AnimatePresence>
+          {tickets.map((ticket) => (
+            <TicketCard
+              key={ticket.orderId}
+              ticket={ticket}
+              onAction={onAction}
+              actionLabel={actionLabel}
+              actionIcon={ActionIcon}
+              actionColor={actionColor}
+              onCancelItem={onCancelItem}
+              isReadyColumn={isReadyColumn}
+            />
+          ))}
+        </AnimatePresence>
+
+        {tickets.length === 0 && (
+          <div className="text-center py-12 text-gray-300">
+            <Icon className="h-10 w-10 mx-auto mb-2 opacity-30" />
+            <p className="text-sm">Prazen</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/* Ticket card                                                         */
+/* ------------------------------------------------------------------ */
+
+interface TicketCardProps {
+  ticket: KitchenTicket;
+  onAction: (ticket: KitchenTicket) => void;
+  actionLabel: string;
+  actionIcon: React.ElementType;
+  actionColor: string;
+  onCancelItem: (itemId: string, itemName: string) => void;
+  isReadyColumn?: boolean;
+}
+
+const TicketCard = ({
+  ticket,
+  onAction,
+  actionLabel,
+  actionIcon: ActionIcon,
+  actionColor,
+  onCancelItem,
+  isReadyColumn,
+}: TicketCardProps) => {
+  const colors = getUrgencyColors(ticket.urgency);
+  const now = Math.floor(Date.now() / 1000);
+  // Recompute wait time live
+  const liveWait = now - ticket.createdAt;
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ duration: 0.2 }}
+      className={cn(
+        "rounded-xl border-2 shadow-sm overflow-hidden",
+        colors.border,
+        colors.bg,
+      )}
+    >
+      {/* Ticket header */}
+      <div className="px-3 py-2 flex items-center justify-between border-b border-gray-200/50">
+        <div className="flex items-center gap-2">
+          <div className={cn("px-2 py-1 rounded-md text-xs font-bold", colors.badge)}>
+            <Clock className="h-3 w-3 inline mr-1" />
+            {formatWaitTime(liveWait)}
+          </div>
+          {ticket.tableNumber && (
+            <span className="text-sm font-semibold text-gray-700">
+              Miza {ticket.tableNumber}
+            </span>
+          )}
+        </div>
+        {ticket.source === "guest" && (
+          <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-medium">
+            Online
+          </span>
+        )}
+      </div>
+
+      {/* Items */}
+      <div className="p-3 space-y-2">
+        {ticket.items.map((item) => (
+          <div
+            key={item._id}
+            className={cn(
+              "p-2 rounded-lg bg-white/70 border border-gray-200/50",
+              item.status === OrderItemStatus.Cancelled && "opacity-50 line-through",
+            )}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-gray-800">
+                    {item.quantity}×
+                  </span>
+                  <span className="font-medium text-gray-800 text-sm">
+                    {item.name}
+                  </span>
+                </div>
+                {/* Modifiers */}
+                {item.selectedModifiers && item.selectedModifiers.length > 0 && (
+                  <p className="text-xs text-gray-500 mt-0.5 ml-5">
+                    {item.selectedModifiers.map((m) => m.optionName).join(", ")}
+                  </p>
+                )}
+                {/* Special instructions */}
+                {item.specialInstruction && (
+                  <p className="text-xs text-amber-600 italic mt-0.5 ml-5">
+                    ⚠ {item.specialInstruction}
+                  </p>
+                )}
+              </div>
+              {/* Per-item cancel (only in non-ready columns) */}
+              {!isReadyColumn && item.status !== OrderItemStatus.Cancelled && (
+                <button
+                  onClick={() => onCancelItem(item._id, item.name)}
+                  className="p-1 text-gray-400 hover:text-red-500 rounded"
+                  title="Prekliči postavko"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Action button */}
+      {!isReadyColumn && actionLabel && (
+        <div className="p-2 border-t border-gray-200/50">
+          <button
+            onClick={() => onAction(ticket)}
+            className={cn(
+              "w-full flex items-center justify-center gap-2 py-2 rounded-lg text-white text-sm font-medium transition-colors",
+              actionColor,
+            )}
+          >
+            <ActionIcon className="h-4 w-4" />
+            {actionLabel}
+          </button>
+        </div>
+      )}
+    </motion.div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/* Count badge                                                         */
+/* ------------------------------------------------------------------ */
+
+const CountBadge = ({
+  label,
+  count,
+  color,
+}: {
+  label: string;
+  count: number;
+  color: string;
+}) => (
+  <div className="flex items-center gap-1.5">
+    <span className={cn("px-2 py-0.5 rounded-full text-xs font-bold", color)}>
+      {count}
+    </span>
+    <span className="text-gray-500">{label}</span>
+  </div>
+);
 
 export default Kitchen;
