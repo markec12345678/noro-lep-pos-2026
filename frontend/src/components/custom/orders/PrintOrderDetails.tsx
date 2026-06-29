@@ -159,9 +159,30 @@ const PrintOrderDetails = ({ order }: { order: Order }) => {
           <div className="flex justify-between w-full mt-2 pt-2 border-t-2 font-bold text-lg">
             <span>SKUPAJ:</span>
             <span className="font-mono">
-              {formatCurrency(order?.total_amount ?? subtotal + totalTax)}
+              {formatCurrency(
+                (order?.total_amount ?? subtotal + totalTax) -
+                  (order?.tip_amount ?? 0),
+              )}
             </span>
           </div>
+
+          {/* Tip line (if tip > 0) */}
+          {(order?.tip_amount ?? 0) > 0 && (
+            <>
+              <div className="flex justify-between w-full mt-1 text-sm">
+                <span>Napitnina{order?.tip_type === "percentage" && ` (${order.tip_percentage}%)`}:</span>
+                <span className="font-mono">
+                  {formatCurrency(order?.tip_amount ?? 0)}
+                </span>
+              </div>
+              <div className="flex justify-between w-full mt-1 pt-1 border-t font-bold text-lg">
+                <span>SKUPAJ Z NAPITNINO:</span>
+                <span className="font-mono">
+                  {formatCurrency(order?.total_amount ?? 0)}
+                </span>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Fiscal section — ZOI, EOR, QR */}

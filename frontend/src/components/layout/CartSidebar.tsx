@@ -80,6 +80,11 @@ const CartSidebar = ({
     null,
   );
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash");
+  const [tipType, setTipType] = useState<"none" | "percentage" | "custom">(
+    "none",
+  );
+  const [tipPercentage, setTipPercentage] = useState(0);
+  const [customTipAmount, setCustomTipAmount] = useState("0");
 
   // Compute totals (safe even when orderItems is undefined — returns 0)
   const taxBreakdown = computeTaxBreakdown(orderItems ?? []);
@@ -99,7 +104,20 @@ const CartSidebar = ({
     return 0; // 'item' type is manual — no automatic discount
   }, [selectedReward, grossTotal]);
 
-  const grandTotal = round2(grossTotal - loyaltyDiscount);
+  const afterDiscount = round2(grossTotal - loyaltyDiscount);
+
+  // Compute tip based on the post-discount total
+  const tipAmount = useMemo(() => {
+    if (tipType === "percentage") {
+      return round2((afterDiscount * tipPercentage) / 100);
+    }
+    if (tipType === "custom") {
+      return round2(parseFloat(customTipAmount) || 0);
+    }
+    return 0;
+  }, [tipType, tipPercentage, customTipAmount, afterDiscount]);
+
+  const grandTotal = round2(afterDiscount + tipAmount);
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
@@ -161,6 +179,10 @@ const CartSidebar = ({
         tax_amount: totalTax,
         tax_breakdown: taxBreakdown,
         payment_method: paymentMethod,
+        tip_amount: tipAmount,
+        tip_type: tipType,
+        tip_percentage: tipType === "percentage" ? tipPercentage : undefined,
+        served_by: JSON.parse(localStorage.getItem("user") || "{}")?.name,
       });
 
       // 3. Free up the table
@@ -422,8 +444,16 @@ const CartSidebar = ({
                 </div>
               )}
 
+              {/* Tip line (if tip > 0) */}
+              {tipAmount > 0 && (
+                <div className="flex justify-between text-sm text-green-600 font-medium">
+                  <span>Napitnina</span>
+                  <span>+€{tipAmount.toFixed(2)}</span>
+                </div>
+              )}
+
               <div className="flex justify-between font-semibold text-base border-t pt-2">
-                <span>Total</span>
+                <span>Total{tipAmount > 0 ? " (z napitnino)" : ""}</span>
                 <span>€{grandTotal.toFixed(2)}</span>
               </div>
             </div>
@@ -455,6 +485,59 @@ const CartSidebar = ({
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Tip selector */}
+            <div className="mb-3">
+              <p className="text-xs font-medium text-gray-600 mb-1.5">
+                Napitnina {tipAmount > 0 && `(€${tipAmount.toFixed(2)})`}
+              </p>
+              <div className="grid grid-cols-5 gap-1">
+                {[
+                  { pct: 0, label: "Brez" },
+                  { pct: 5, label: "5%" },
+                  { pct: 10, label: "10%" },
+                  { pct: 15, label: "15%" },
+                ].map((opt) => (
+                  <button
+                    key={opt.pct}
+                    type="button"
+                    onClick={() => {
+                      setTipType(opt.pct === 0 ? "none" : "percentage");
+                      setTipPercentage(opt.pct);
+                    }}
+                    className={`px-1 py-2 rounded-lg border text-xs font-medium transition-all ${
+                      tipType === "percentage" && tipPercentage === opt.pct
+                        ? "border-secondary bg-secondary/10 text-secondary"
+                        : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setTipType("custom")}
+                  className={`px-1 py-2 rounded-lg border text-xs font-medium transition-all ${
+                    tipType === "custom"
+                      ? "border-secondary bg-secondary/10 text-secondary"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                  }`}
+                >
+                  €
+                </button>
+              </div>
+              {tipType === "custom" && (
+                <input
+                  type="number"
+                  step="0.50"
+                  min="0"
+                  value={customTipAmount}
+                  onChange={(e) => setCustomTipAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="mt-1.5 w-full px-2 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50"
+                />
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-2">

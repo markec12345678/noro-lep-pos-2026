@@ -88,6 +88,14 @@ export interface Order extends BaseEntity {
   source?: "staff" | "guest";
   /** Payment method used at checkout. Defaults to "cash" for backward compat. */
   payment_method?: PaymentMethod;
+  /** Tip/gratuity amount (€). 0 if no tip. */
+  tip_amount?: number;
+  /** Tip type: "none", "percentage" (auto-calculated), "custom" (manual). */
+  tip_type?: "none" | "percentage" | "custom";
+  /** Tip percentage used (e.g. 10 for 10%). Only set when tip_type="percentage". */
+  tip_percentage?: number;
+  /** Staff member who served the order (for tip attribution). */
+  served_by?: string;
 }
 
 /** How the customer paid for the order. */
