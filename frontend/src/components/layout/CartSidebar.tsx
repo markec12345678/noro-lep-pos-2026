@@ -26,6 +26,10 @@ import {
   useIssueFiscalInvoice,
 } from "@/services/fiscalService";
 import {
+  useFetchActivePromotions,
+  evaluatePromotions,
+} from "@/services/promotionService";
+import {
   useFindOrCreateCustomer,
   useFetchLoyaltyConfig,
 } from "@/services/customerService";
@@ -86,11 +90,21 @@ const CartSidebar = ({
   const [tipPercentage, setTipPercentage] = useState(0);
   const [customTipAmount, setCustomTipAmount] = useState("0");
 
+  // Fetch active promotions for auto-apply
+  const { data: activePromotions } = useFetchActivePromotions();
+
   // Compute totals (safe even when orderItems is undefined — returns 0)
   const taxBreakdown = computeTaxBreakdown(orderItems ?? []);
   const subtotal = computeSubtotal(orderItems ?? []);
   const totalTax = computeTotalTax(taxBreakdown);
   const grossTotal = computeGrandTotal(taxBreakdown);
+
+  // Evaluate active promotions against current cart items
+  const { applied: appliedPromotions, totalDiscount: promotionDiscount } =
+    useMemo(
+      () => evaluatePromotions(activePromotions, orderItems ?? []),
+      [activePromotions, orderItems],
+    );
 
   // Compute loyalty discount from selected reward
   const loyaltyDiscount = useMemo(() => {
@@ -104,7 +118,7 @@ const CartSidebar = ({
     return 0; // 'item' type is manual — no automatic discount
   }, [selectedReward, grossTotal]);
 
-  const afterDiscount = round2(grossTotal - loyaltyDiscount);
+  const afterDiscount = round2(grossTotal - loyaltyDiscount - promotionDiscount);
 
   // Compute tip based on the post-discount total
   const tipAmount = useMemo(() => {
@@ -443,6 +457,17 @@ const CartSidebar = ({
                   <span>-€{loyaltyDiscount.toFixed(2)}</span>
                 </div>
               )}
+
+              {/* Promotion discounts (auto-applied, if any active) */}
+              {appliedPromotions.map((promo) => (
+                <div
+                  key={promo.promotionId}
+                  className="flex justify-between text-sm text-pink-600 font-medium"
+                >
+                  <span>🎁 {promo.name}</span>
+                  <span>-€{promo.discountAmount.toFixed(2)}</span>
+                </div>
+              ))}
 
               {/* Tip line (if tip > 0) */}
               {tipAmount > 0 && (

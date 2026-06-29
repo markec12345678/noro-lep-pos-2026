@@ -860,3 +860,60 @@ export interface StaffScheduleSummary {
   /** Estimated labor cost (hours × hourlyWage). */
   laborCost: number;
 }
+
+/* ------------------------------------------------------------------ */
+/* Happy Hour / Time-Based Promotions                                  */
+/* ------------------------------------------------------------------ */
+
+/** Type of discount the promotion applies. */
+export type PromotionType = "percentage" | "fixed" | "buy_one_get_one";
+
+/** Which days of the week the promotion is active (bitmask or array). */
+export type PromotionDays = number[]; // [0=Sun, 1=Mon, ..., 6=Sat]
+
+/**
+ * A time-based promotion (happy hour, lunch special, etc.).
+ *
+ * Stored as Cockpit CMS collection `promotion`.
+ * Promotions are active only during specified time windows on
+ * specified days of the week. They can apply to all items, specific
+ * categories, or specific menu items.
+ *
+ * Example: "Happy Hour Cocktails" — 20% off all drinks, Mon-Fri 17:00-19:00
+ */
+export interface Promotion extends BaseEntity {
+  name: string;
+  description?: string;
+  /** Discount type. */
+  type: PromotionType;
+  /** Discount value: % for percentage, € for fixed. */
+  value: number;
+  /** Start time (HH:MM). */
+  startTime: string;
+  /** End time (HH:MM). */
+  endTime: string;
+  /** Active days of week: [1,2,3,4,5] = Mon-Fri. */
+  days: PromotionDays;
+  /** Start date for the promotion (YYYY-MM-DD). Optional = from today. */
+  startDate?: string;
+  /** End date for the promotion (YYYY-MM-DD). Optional = no expiry. */
+  endDate?: string;
+  /** Category filter: if set, only items in this category get the discount. */
+  categoryIds?: string[];
+  /** Menu item filter: if set, only these specific items get the discount. */
+  menuItemIds?: string[];
+  /** Whether the promotion is currently active (manager toggle). */
+  active: boolean;
+}
+
+/** Result of checking if a promotion applies to a cart. */
+export interface AppliedPromotion {
+  promotionId: string;
+  name: string;
+  type: PromotionType;
+  value: number;
+  /** Total discount amount applied. */
+  discountAmount: number;
+  /** Which items were affected. */
+  affectedItemIds: string[];
+}
