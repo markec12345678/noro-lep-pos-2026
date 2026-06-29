@@ -20,6 +20,7 @@ import {
   Store,
   LayoutDashboard,
   FileBarChart,
+  Briefcase,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
@@ -50,6 +51,7 @@ const menuItems: MenuItem[] = [
   { name: "Inventory", icon: Package, path: "/inventory" },
   { name: "Suppliers", icon: Truck, path: "/suppliers" },
   { name: "Invoices", icon: FileText, path: "/invoices" },
+  { name: "Shifts", icon: Briefcase, path: "/shifts" },
   { name: "Cash Drawer", icon: Wallet, path: "/cash-drawer" },
   { name: "QR Codes", icon: QrCode, path: "/qr-codes" },
   { name: "Reports", icon: PieChart, path: "/reports" },

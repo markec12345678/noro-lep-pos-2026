@@ -798,3 +798,57 @@ export interface Location extends BaseEntity {
   /** Optional notes. */
   notes?: string;
 }
+
+/* ------------------------------------------------------------------ */
+/* Staff Scheduling & Shift Management                                 */
+/* ------------------------------------------------------------------ */
+
+/** Day of the week (0=Sunday through 6=Saturday). */
+export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+/**
+ * A scheduled shift for a staff member.
+ *
+ * Stored as Cockpit CMS collection `shift`.
+ * Each shift represents one work period on one day for one employee.
+ * Staff can clock in (actual start) and clock out (actual end) to
+ * track real working time vs scheduled time.
+ */
+export interface Shift extends BaseEntity {
+  /** Staff member name (from the POS user / login). */
+  staffName: string;
+  /** Staff role (manager / waiter / chef). */
+  role: string;
+  /** Date of the shift (YYYY-MM-DD). */
+  date: string;
+  /** Scheduled start time (HH:MM). */
+  scheduledStart: string;
+  /** Scheduled end time (HH:MM). */
+  scheduledEnd: string;
+  /** Actual clock-in time (HH:MM, set when staff clocks in). */
+  clockIn?: string;
+  /** Actual clock-out time (HH:MM, set when staff clocks out). */
+  clockOut?: string;
+  /** Hourly wage (€) for labor cost calculation. */
+  hourlyWage: number;
+  /** Whether the staff member has clocked in. */
+  isClockedIn: boolean;
+  /** Whether the shift is completed (clocked out). */
+  isCompleted: boolean;
+  /** Notes (e.g. "training", "covering for X"). */
+  notes?: string;
+}
+
+/** Weekly schedule summary for a staff member. */
+export interface StaffScheduleSummary {
+  staffName: string;
+  role: string;
+  hourlyWage: number;
+  shifts: Shift[];
+  /** Total scheduled hours this week. */
+  scheduledHours: number;
+  /** Total actual hours (from clock in/out). */
+  actualHours: number;
+  /** Estimated labor cost (hours × hourlyWage). */
+  laborCost: number;
+}
