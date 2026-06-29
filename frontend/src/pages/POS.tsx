@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useKeyboardShortcuts, SHORTCUT_HINTS } from "@/hooks/useKeyboardShortcuts";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Filter, ShoppingCart, SlidersHorizontal, GitMerge } from "lucide-react";
 import {
@@ -41,6 +42,27 @@ const POS = () => {
   );
   // Table operations dialog (transfer / merge / split)
   const [tableOpsOpen, setTableOpsOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Keyboard shortcuts for fast POS operation
+  useKeyboardShortcuts({
+    onSearchFocus: () => searchInputRef.current?.focus(),
+    onShowAll: () => setSelectedCategory(null),
+    onToggleCart: () => setCartCollapsed((c) => !c),
+    onCheckout: () => {
+      if (!cartCollapsed && orderItems && orderItems.length > 0) {
+        // Trigger checkout — find and click the checkout button
+        const btn = document.querySelector<HTMLButtonElement>(
+          'button[class*="bg-secondary"]',
+        );
+        btn?.click();
+      }
+    },
+    onEscape: () => {
+      setSelectionModalMenu(null);
+      setTableOpsOpen(false);
+    },
+  });
 
   const { data: table } = useFetchTable(tableId);
   const { data: orderItems } = useFetchOrderItems(table?.order?._id);
@@ -233,6 +255,20 @@ const POS = () => {
             <div className="text-sm text-gray-500">
               {filteredItems.length} items available
             </div>
+            {/* Keyboard shortcut hints */}
+            <div className="hidden lg:flex items-center gap-1.5">
+              {SHORTCUT_HINTS.map((hint) => (
+                <span
+                  key={hint.keys}
+                  className="inline-flex items-center gap-0.5 text-xs text-gray-400"
+                >
+                  <kbd className="px-1.5 py-0.5 rounded border border-gray-200 bg-gray-50 font-mono text-[10px] font-medium">
+                    {hint.keys}
+                  </kbd>
+                  <span>{hint.label}</span>
+                </span>
+              ))}
+            </div>
           </div>
 
           <div className="flex gap-3">
@@ -249,8 +285,9 @@ const POS = () => {
             <div className="relative w-64">
               <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
+                ref={searchInputRef}
                 type="text"
-                placeholder="Search menu..."
+                placeholder="Search menu... (F1)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-transparent transition-all duration-200"

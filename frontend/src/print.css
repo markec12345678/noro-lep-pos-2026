@@ -1,15 +1,111 @@
+/* ─── Print CSS — 80mm thermal receipt printer ─── */
+/* Optimized for common ESC/POS thermal printers (80mm / 58mm) */
+
 @media print {
+  /* Show only the print box */
   .print-box {
-    width: 100vw !important;
-    height: 100vh !important;
+    width: 80mm !important;
+    height: auto !important;
     position: fixed;
     top: 0;
     left: 0;
     z-index: 999;
     visibility: visible !important;
     opacity: 1 !important;
+    background: white !important;
   }
-  .orders-list {
-    display: none;
+
+  /* Hide everything else on the page */
+  .orders-list,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Reset body for clean print */
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  /* Receipt container — 80mm wide with 4mm margins = 72mm content */
+  .receipt-content {
+    width: 72mm !important;
+    padding: 2mm 0 !important;
+    font-family: "Courier New", "Lucida Console", monospace !important;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+    color: #000 !important;
+  }
+
+  /* Header — centered, bold */
+  .receipt-content h2 {
+    text-align: center !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    margin: 4px 0 !important;
+  }
+
+  /* HR lines — dashed for thermal printers */
+  .receipt-content hr {
+    border: none !important;
+    border-top: 1px dashed #000 !important;
+    margin: 4px 0 !important;
+  }
+
+  /* Tables — compact for 80mm */
+  .receipt-content table {
+    width: 100% !important;
+    font-size: 10px !important;
+  }
+
+  .receipt-content td {
+    padding: 1px 2px !important;
+  }
+
+  /* Modifiers and notes — smaller font */
+  .receipt-content .text-xs {
+    font-size: 9px !important;
+  }
+
+  /* QR code — centered, 32mm */
+  .receipt-content img {
+    width: 32mm !important;
+    height: 32mm !important;
+    display: block !important;
+    margin: 2mm auto !important;
+  }
+
+  /* ZOI / EOR — tiny monospace */
+  .receipt-content .font-mono {
+    font-size: 8px !important;
+    word-break: break-all !important;
+  }
+
+  /* Totals section — right aligned */
+  .receipt-content .border-t-2 {
+    border-top: 2px solid #000 !important;
+  }
+
+  /* Footer — centered */
+  .receipt-content .text-center {
+    text-align: center !important;
+  }
+
+  /* @page — no margins (printer handles margins) */
+  @page {
+    margin: 0;
+    size: 80mm auto;
+  }
+}
+
+/* ─── Screen preview of receipt (not print) ─── */
+@media screen {
+  .print-box {
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
   }
 }
