@@ -23,6 +23,7 @@ import {
   Briefcase,
   Heart,
   Tag,
+  TrendingUp as TrendingUpIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
@@ -56,6 +57,7 @@ const menuItems: MenuItem[] = [
   { name: "Shifts", icon: Briefcase, path: "/shifts" },
   { name: "Tips Report", icon: Heart, path: "/tips" },
   { name: "Promotions", icon: Tag, path: "/promotions" },
+  { name: "Menu Engineering", icon: TrendingUpIcon, path: "/menu-engineering" },
   { name: "Cash Drawer", icon: Wallet, path: "/cash-drawer" },
   { name: "QR Codes", icon: QrCode, path: "/qr-codes" },
   { name: "Reports", icon: PieChart, path: "/reports" },
