@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, ShoppingCart, SlidersHorizontal } from "lucide-react";
+import { Search, Filter, ShoppingCart, SlidersHorizontal, GitMerge } from "lucide-react";
 import {
   Menu,
   Order,
@@ -26,6 +26,7 @@ import { getImageUrl, ALLERGEN_INFO, Allergen } from "@/lib/helper";
 import { FadeInUp } from "@/components/motions/FadeInUp";
 import { toast } from "sonner";
 import MenuItemSelectionModal from "@/components/custom/menu-modifiers/MenuItemSelectionModal";
+import TableOperationsDialog from "@/components/custom/table-operations/TableOperationsDialog";
 
 const POS = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -38,6 +39,8 @@ const POS = () => {
   const [selectionModalMenu, setSelectionModalMenu] = useState<Menu | null>(
     null,
   );
+  // Table operations dialog (transfer / merge / split)
+  const [tableOpsOpen, setTableOpsOpen] = useState(false);
 
   const { data: table } = useFetchTable(tableId);
   const { data: orderItems } = useFetchOrderItems(table?.order?._id);
@@ -233,6 +236,16 @@ const POS = () => {
           </div>
 
           <div className="flex gap-3">
+            {table?.order?._id && (
+              <button
+                onClick={() => setTableOpsOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-100 text-sm font-medium transition-colors"
+                title="Operacije z mizo (prenesi, združi, razdeli)"
+              >
+                <GitMerge className="h-4 w-4" />
+                <span className="hidden sm:inline">Miza</span>
+              </button>
+            )}
             <div className="relative w-64">
               <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
@@ -336,6 +349,16 @@ const POS = () => {
         menu={selectionModalMenu}
         onAddToCart={handleModalAdd}
       />
+
+      {/* Table operations dialog (transfer / merge / split) */}
+      {table && orderId && (
+        <TableOperationsDialog
+          open={tableOpsOpen}
+          onOpenChange={setTableOpsOpen}
+          sourceTable={table}
+          orderId={orderId}
+        />
+      )}
     </div>
   );
 };
