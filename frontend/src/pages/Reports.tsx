@@ -26,6 +26,8 @@ import {
   Clock,
   Award,
   PieChart as PieChartIcon,
+  Flame,
+  Zap,
 } from "lucide-react";
 import {
   useFetchReportOrders,
@@ -36,6 +38,11 @@ import {
   aggregateHourlySales,
   computeSummaryStats,
 } from "@/services/reportService";
+import {
+  useKitchenPerformance,
+  formatPrepTime,
+  RATING_INFO,
+} from "@/hooks/useKitchenPerformance";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -471,7 +478,187 @@ const Reports = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Kitchen Performance Analytics */}
+      <KitchenPerformanceSection />
     </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/* Kitchen Performance Section                                         */
+/* ------------------------------------------------------------------ */
+
+const KitchenPerformanceSection = () => {
+  const { summary, isLoading } = useKitchenPerformance();
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <Skeleton className="h-8 w-48 mb-4" />
+          <Skeleton className="h-64 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!summary || summary.totalDishes === 0) {
+    return null;
+  }
+
+  const chartData = summary.dishes.slice(0, 15).map((d) => ({
+    name: d.name.length > 20 ? d.name.slice(0, 18) + "…" : d.name,
+    fullName: d.name,
+    "Povprečje": Math.round(d.avgPrepTime / 60 * 10) / 10,
+    "Mediana": Math.round(d.medianPrepTime / 60 * 10) / 10,
+    "Min": Math.round(d.minPrepTime / 60 * 10) / 10,
+    "Max": Math.round(d.maxPrepTime / 60 * 10) / 10,
+  }));
+
+  return (
+    <>
+      {/* Header + stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <StatCard
+          icon={Clock}
+          label="Skupno jedi"
+          value={String(summary.totalDishes)}
+          color="#f97316"
+        />
+        <StatCard
+          icon={Utensils}
+          label="Skupno pripravljenih"
+          value={String(summary.totalItems)}
+          color="#10b981"
+        />
+        <StatCard
+          icon={Zap}
+          label="Povprečni čas"
+          value={formatPrepTime(summary.overallAvg)}
+          color="#3b82f6"
+        />
+        {summary.slowestDish && (
+          <StatCard
+            icon={Flame}
+            label="Najpočasnejša jed"
+            value={formatPrepTime(summary.slowestDish.avgPrepTime)}
+            subtitle={summary.slowestDish.name}
+            color="#ef4444"
+          />
+        )}
+      </div>
+
+      {/* Bar chart: prep time per dish */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Flame className="h-5 w-5 text-orange-500" />
+            Čas priprave po jedeh (minute)
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {chartData.length === 0 ? (
+            <EmptyChart />
+          ) : (
+            <ResponsiveContainer width="100%" height={400}>
+              <BarChart data={chartData} layout="vertical" margin={{ left: 80 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis type="number" tick={{ fontSize: 11 }} unit="m" />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  tick={{ fontSize: 10 }}
+                  width={80}
+                />
+                <Tooltip
+                  formatter={(value: number) => `${value} min`}
+                  contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb" }}
+                />
+                <Legend />
+                <Bar dataKey="Povprečje" fill="#f97316" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="Max" fill="#ef4444" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Detailed table */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Clock className="h-5 w-5 text-orange-500" />
+            Podrobnosti časa priprave
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Jed
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    Pripravljeno
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    Povprečno
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    Mediana
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    Min
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    Max
+                  </th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                    Ocena
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {summary.dishes.map((dish) => {
+                  const info = RATING_INFO[dish.rating];
+                  return (
+                    <tr key={dish.menuId} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 font-medium">{dish.name}</td>
+                      <td className="px-4 py-3 text-right">{dish.count}×</td>
+                      <td className="px-4 py-3 text-right font-medium">
+                        {formatPrepTime(dish.avgPrepTime)}
+                      </td>
+                      <td className="px-4 py-3 text-right text-gray-500">
+                        {formatPrepTime(dish.medianPrepTime)}
+                      </td>
+                      <td className="px-4 py-3 text-right text-green-600">
+                        {formatPrepTime(dish.minPrepTime)}
+                      </td>
+                      <td className="px-4 py-3 text-right text-red-600">
+                        {formatPrepTime(dish.maxPrepTime)}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${info.bg} ${info.color}`}
+                        >
+                          {info.label}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-xs text-gray-400 mt-3">
+            Čas priprave = čas od naročila do označitve "pripravljeno".
+            Podatki temeljijo na {summary.totalItems} pripravljenih postavkah.
+          </p>
+        </CardContent>
+      </Card>
+    </>
   );
 };
 
