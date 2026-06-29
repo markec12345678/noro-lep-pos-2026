@@ -145,13 +145,20 @@ const ZReport = () => {
       0,
     );
     const totalTax = taxBreakdown.reduce((s, t) => s + t.tax, 0);
-    const netRevenue = round2(totalRevenue - totalTax);
 
     // Cash drawer reconciliation
     const cashSales = paymentBreakdown.find((p) => p.method === "cash");
     const openSession = openSessions?.[0];
     const openingFloat = openSession?.openingFloat ?? 0;
     const expectedCash = round2(openingFloat + (cashSales?.total ?? 0));
+
+    // Refunds
+    const refundedOrders = completed.filter((o) => (o.refund_amount ?? 0) > 0);
+    const totalRefunds = refundedOrders.reduce(
+      (s, o) => s + (o.refund_amount ?? 0),
+      0,
+    );
+    const netRevenue = round2(totalRevenue - totalTax - totalRefunds);
 
     return {
       completedCount: completed.length,
@@ -168,6 +175,8 @@ const ZReport = () => {
       openingFloat,
       expectedCash,
       cashDrawerOpen: Boolean(openSession),
+      totalRefunds: round2(totalRefunds),
+      refundedCount: refundedOrders.length,
     };
   }, [dayOrders, openSessions]);
 
@@ -470,6 +479,32 @@ const ZReport = () => {
               <span className="font-medium text-red-600">
                 {formatCurrency(summary.cancelledTotal)}
               </span>
+            </div>
+          </div>
+        )}
+
+        {/* Refunds */}
+        {summary.totalRefunds > 0 && (
+          <div className="mb-6">
+            <h3 className="font-medium text-sm mb-2 flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-orange-500" />
+              Povračila
+            </h3>
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">
+                  {summary.refundedCount} povračil
+                </span>
+                <span className="font-medium text-orange-600">
+                  −{formatCurrency(summary.totalRefunds)}
+                </span>
+              </div>
+              <div className="flex justify-between mt-1 pt-1 border-t border-orange-200">
+                <span className="text-gray-600">Neto prihodek:</span>
+                <span className="font-bold text-green-600">
+                  {formatCurrency(summary.netRevenue)}
+                </span>
+              </div>
             </div>
           </div>
         )}

@@ -8,10 +8,14 @@ import {
   CheckCircle,
   XCircle,
   Trash,
+  RotateCcw,
 } from "lucide-react";
 import { toast } from "sonner";
 import OrderDetails from "@/components/custom/orders/OrderDetails";
+import RefundDialog from "@/components/custom/refunds/RefundDialog";
 import { useDeleteOrder, useFetchOrders } from "@/services/orderService";
+import { isRefunded } from "@/services/refundService";
+import { Order } from "@/types";
 import PrintOrderDetails from "@/components/custom/orders/PrintOrderDetails";
 
 const Orders = () => {
@@ -19,6 +23,7 @@ const Orders = () => {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [openOrderDetailModal, setOpenOrderDetailModal] = useState(false);
+  const [refundOrder, setRefundOrder] = useState<Order | null>(null);
   const { data: orders, isLoading, error } = useFetchOrders();
   const { mutate: deleteOrderMutation } = useDeleteOrder();
 
@@ -280,6 +285,23 @@ const Orders = () => {
                       >
                         <Printer className="h-4 w-4" />
                       </button>
+                      {order.status === "completed" && !isRefunded(order) && (
+                        <button
+                          onClick={() => setRefundOrder(order)}
+                          className="text-orange-500 hover:text-orange-600 mr-2"
+                          title="Povračilo"
+                        >
+                          <RotateCcw className="h-4 w-4" />
+                        </button>
+                      )}
+                      {isRefunded(order) && (
+                        <span
+                          className="text-xs text-orange-500 mr-2 font-medium"
+                          title={`Povrnjeno: €${(order.refund_amount ?? 0).toFixed(2)}`}
+                        >
+                          ↺
+                        </span>
+                      )}
                       <button 
                       onClick={() => deleteOrder(order._id)}
                       className="text-red-500 hover:text-red-600">
@@ -314,6 +336,16 @@ const Orders = () => {
       </div>
 
       {selectedOrder && <PrintOrderDetails order={selectedOrder} />}
+
+      {refundOrder && (
+        <RefundDialog
+          open={refundOrder !== null}
+          onOpenChange={(open) => {
+            if (!open) setRefundOrder(null);
+          }}
+          order={refundOrder}
+        />
+      )}
     </>
   );
 };

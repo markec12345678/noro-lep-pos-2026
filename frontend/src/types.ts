@@ -96,6 +96,14 @@ export interface Order extends BaseEntity {
   tip_percentage?: number;
   /** Staff member who served the order (for tip attribution). */
   served_by?: string;
+  /** Refund amount (€) if the order was partially or fully refunded. */
+  refund_amount?: number;
+  /** Refund reason (free text). */
+  refund_reason?: string;
+  /** Staff member who processed the refund. */
+  refund_processed_by?: string;
+  /** Timestamp of the refund. */
+  refund_date?: number;
 }
 
 /** How the customer paid for the order. */
