@@ -1,4 +1,5 @@
 import { lazy, Suspense, useMemo } from "react";
+import { ThemeProvider } from "next-themes";
 import { Toaster as CustomToaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -125,15 +126,17 @@ const App = () => {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <LocationProvider>
-        <TooltipProvider>
-          <CustomToaster />
-          <SonnerToaster />
-          <AppInner />
-        </TooltipProvider>
-      </LocationProvider>
-    </QueryClientProvider>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+      <QueryClientProvider client={queryClient}>
+        <LocationProvider>
+          <TooltipProvider>
+            <CustomToaster />
+            <SonnerToaster />
+            <AppInner />
+          </TooltipProvider>
+        </LocationProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 };
 

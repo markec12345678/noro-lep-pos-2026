@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useTheme } from "next-themes";
 import Sidebar from "./Sidebar";
 import LocationSwitcher from "@/components/custom/location/LocationSwitcher";
 import NotificationCenter from "@/components/custom/notifications/NotificationCenter";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { ChevronDown, User, Settings, LogOut } from "lucide-react";
+import { ChevronDown, User, Settings, LogOut, Sun, Moon } from "lucide-react";
 import { getImageUrl } from "@/lib/helper";
 import { isRouteRestricted } from "@/middleware";
 import { useActiveLocation } from "@/services/locationService";
@@ -15,6 +16,10 @@ const AppLayout = () => {
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const { activeLocation } = useActiveLocation();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     // Redirect to home if the user's role is restricted from the current path
@@ -52,6 +57,22 @@ const AppLayout = () => {
             )}
           </div>
           <div className="flex items-center gap-3">
+            {/* Dark mode toggle */}
+            {mounted && (
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Toggle theme"
+                title={theme === "dark" ? "Svetlo" : "Temno"}
+              >
+                {theme === "dark" ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )}
+              </button>
+            )}
+
             {/* Notification center — bell icon with live alerts */}
             <NotificationCenter />
 
