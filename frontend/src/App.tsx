@@ -43,6 +43,7 @@ const TipsReport = lazy(() => import("@/pages/TipsReport"));
 const Promotions = lazy(() => import("@/pages/Promotions"));
 const MenuEngineering = lazy(() => import("@/pages/MenuEngineering"));
 const Settings = lazy(() => import("@/pages/Settings"));
+const PublicFeedback = lazy(() => import("@/pages/PublicFeedback"));
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -68,6 +69,7 @@ const AppInner = () => {
           <Route path="/public/order/:orderId" element={<PublicOrderStatus />} />
           <Route path="/public/loyalty" element={<PublicLoyalty />} />
           <Route path="/public/reservation" element={<PublicReservation />} />
+          <Route path="/public/feedback/:orderId" element={<PublicFeedback />} />
 
           {/* Authenticated routes */}
           <Route path="/login" element={<Login />} />

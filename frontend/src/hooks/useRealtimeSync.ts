@@ -48,6 +48,9 @@ const EVENT_TO_QUERY_KEYS: Record<string, readonly string[]> = {
   "reservation:created": ["reservations"],
   "reservation:updated": ["reservations", "reservation"],
   "reservation:cancelled": ["reservations"],
+
+  // Feedback events
+  "feedback:created": ["feedback"],
 } as const;
 
 /**

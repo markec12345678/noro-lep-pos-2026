@@ -8,6 +8,7 @@ import {
   ArrowLeft,
   Receipt,
   ShoppingBag,
+  Star,
 } from "lucide-react";
 import { useParams, Link } from "react-router-dom";
 import { useFetchGuestOrderStatus } from "@/services/publicMenuService";
@@ -276,16 +277,25 @@ const PublicOrderStatus = () => {
           </div>
         </div>
 
-        {/* Back to menu */}
+        {/* Back to menu + feedback */}
         {isCompleted && (
-          <div className="text-center pt-2">
+          <div className="text-center pt-2 space-y-3">
             <Link
-              to="/"
-              className="inline-flex items-center gap-2 text-orange-600 hover:underline font-medium"
+              to={`/public/feedback/${orderId}`}
+              className="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2 rounded-full hover:bg-amber-600 font-medium transition-colors"
             >
-              <ArrowLeft className="h-4 w-4" />
-              Nazaj na meni
+              <Star className="h-4 w-4" />
+              Oceni izkušnjo
             </Link>
+            <div>
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 text-orange-600 hover:underline font-medium"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Nazaj na meni
+              </Link>
+            </div>
           </div>
         )}
 

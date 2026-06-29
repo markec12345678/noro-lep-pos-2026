@@ -137,6 +137,28 @@ const handleGetLoyaltyByPhone = async (_req: any, res: ServerResponse, params: {
 type RouteHandler = (req: IncomingMessage, res: ServerResponse, params: Record<string, string>, body?: any) => Promise<void> | void;
 interface Route { pattern: RegExp; paramNames: string[]; handlers: Record<string, RouteHandler>; }
 
+const handleSubmitFeedback = async (_req: any, res: ServerResponse, _params: any, body: any) => {
+  try {
+    if (!body?.orderId) return sendJson(res, 400, { error: "Missing orderId" });
+    if (!body?.rating || body.rating < 1 || body.rating > 5) return sendJson(res, 400, { error: "Rating must be 1-5" });
+    const order = await cockpitFetch<any>(`/api/content/item/order/${body.orderId}?populate=1`).catch(() => null);
+    if (!order?._id) return sendJson(res, 404, { error: "Order not found" });
+    if (order.source !== "guest") return sendJson(res, 403, { error: "Feedback only for guest orders" });
+    const existing = await cockpitFetch<any[]>(`/api/content/items/feedback?filter={order:"${body.orderId}"}`).catch(() => []);
+    if (existing && existing.length > 0) return sendJson(res, 409, { error: "Feedback already submitted" });
+    const fb = await cockpitFetch<any>(`/api/content/item/feedback`, { method: "POST", body: { data: {
+      order: { _model: "order", _id: body.orderId }, rating: body.rating,
+      foodRating: body.foodRating, serviceRating: body.serviceRating,
+      comment: body.comment?.trim() || undefined,
+      guestName: order.customer?.name, guestPhone: order.customer?.phone,
+      tableNumber: order.table?.table_number, acknowledged: false,
+    } } });
+    if (!fb?._id) return sendJson(res, 500, { error: "Failed" });
+    emitRealtimeEvent("feedback:created", { feedbackId: fb._id, rating: body.rating, orderId: body.orderId });
+    return sendJson(res, 201, { success: true, message: "Hvala za vašo povratno informacijo!" });
+  } catch (err) { return sendJson(res, 500, { error: "Failed", detail: err instanceof Error ? err.message : "Unknown" }); }
+};
+
 const routes: Route[] = [
   { pattern: /^\/api\/public\/health$/, paramNames: [], handlers: { GET: handleHealth } },
   { pattern: /^\/api\/public\/menu\/([^/]+)$/, paramNames: ["tableToken"], handlers: { GET: handleGetMenu } },
@@ -145,6 +167,7 @@ const routes: Route[] = [
   { pattern: /^\/api\/public\/loyalty\/([^/]+)$/, paramNames: ["phone"], handlers: { GET: handleGetLoyaltyByPhone } },
   { pattern: /^\/api\/public\/reservation\/slots$/, paramNames: [], handlers: { GET: handleGetReservationSlots } },
   { pattern: /^\/api\/public\/reservation$/, paramNames: [], handlers: { POST: handleCreateReservation } },
+  { pattern: /^\/api\/public\/feedback$/, paramNames: [], handlers: { POST: handleSubmitFeedback } },
 ];
 
 const server = createServer(async (req, res) => {

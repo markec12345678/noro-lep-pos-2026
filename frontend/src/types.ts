@@ -925,3 +925,51 @@ export interface AppliedPromotion {
   /** Which items were affected. */
   affectedItemIds: string[];
 }
+
+/* ------------------------------------------------------------------ */
+/* Guest Feedback & Ratings                                            */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Guest feedback submitted after completing an order.
+ * Stored as Cockpit CMS collection `feedback`.
+ */
+export interface Feedback extends BaseEntity {
+  /** Link to the order this feedback is for. */
+  order: LinkModelType;
+  /** Overall rating 1-5 stars. */
+  rating: number;
+  /** Food quality rating 1-5 stars. */
+  foodRating?: number;
+  /** Service speed rating 1-5 stars. */
+  serviceRating?: number;
+  /** Free-text comment from the guest. */
+  comment?: string;
+  /** Guest name (from the order). */
+  guestName?: string;
+  /** Guest phone (from the order). */
+  guestPhone?: string;
+  /** Table number (from the order). */
+  tableNumber?: string;
+  /** Whether the manager has acknowledged this feedback. */
+  acknowledged: boolean;
+}
+
+/** Aggregated feedback stats for the dashboard/reports. */
+export interface FeedbackSummary {
+  totalFeedback: number;
+  averageRating: number;
+  averageFoodRating: number;
+  averageServiceRating: number;
+  /** Distribution: count per star (1-5). */
+  distribution: Array<{ stars: number; count: number; percentage: number }>;
+  /** Recent comments (last 10). */
+  recentComments: Array<{
+    _id: string;
+    guestName?: string;
+    rating: number;
+    comment?: string;
+    tableNumber?: string;
+    created: number;
+  }>;
+}

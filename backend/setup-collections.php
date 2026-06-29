@@ -327,6 +327,22 @@ $collections = [
       ['name' => 'notes', 'type' => 'text', 'label' => 'Notes'],
     ],
   ],
+
+  // 20. feedback
+  'feedback' => [
+    'name' => 'feedback', 'label' => 'Feedback', 'type' => 'collection',
+    'fields' => [
+      ['name' => 'order', 'type' => 'contentItemLink', 'label' => 'Order', 'opts' => ['link' => 'order', 'multiple' => false]],
+      ['name' => 'rating', 'type' => 'number', 'label' => 'Rating (1-5)', 'required' => true],
+      ['name' => 'foodRating', 'type' => 'number', 'label' => 'Food rating'],
+      ['name' => 'serviceRating', 'type' => 'number', 'label' => 'Service rating'],
+      ['name' => 'comment', 'type' => 'text', 'label' => 'Comment'],
+      ['name' => 'guestName', 'type' => 'text', 'label' => 'Guest name'],
+      ['name' => 'guestPhone', 'type' => 'text', 'label' => 'Guest phone'],
+      ['name' => 'tableNumber', 'type' => 'text', 'label' => 'Table number'],
+      ['name' => 'acknowledged', 'type' => 'boolean', 'label' => 'Acknowledged'],
+    ],
+  ],
 ];
 
 // ─── Also update existing collections with new fields ─────────────────

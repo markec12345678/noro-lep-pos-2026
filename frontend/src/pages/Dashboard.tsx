@@ -18,12 +18,14 @@ import {
   Unlock,
   QrCode,
   Award,
+  Star,
 } from "lucide-react";
 import { useFetchOrders } from "@/services/orderService";
 import { useFetchReservations } from "@/services/reservationService";
 import { useFetchInventoryItems } from "@/services/inventoryService";
 import { useFetchOpenCashDrawerSession } from "@/services/cashDrawerService";
 import { useFetchCustomers } from "@/services/customerService";
+import { useFetchFeedback, buildFeedbackSummary, renderStars } from "@/services/feedbackService";
 import { OrderStatus, ReservationStatus } from "@/types";
 
 const formatCurrency = (value: number) =>
@@ -68,6 +70,11 @@ const Dashboard = () => {
   const { data: inventory } = useFetchInventoryItems();
   const { data: openSessions } = useFetchOpenCashDrawerSession();
   const { data: customers } = useFetchCustomers();
+  const { data: feedback } = useFetchFeedback();
+  const feedbackSummary = useMemo(
+    () => buildFeedbackSummary(feedback),
+    [feedback],
+  );
 
   // Compute today's metrics
   const metrics = useMemo(() => {
@@ -351,6 +358,59 @@ const Dashboard = () => {
             )}
           </div>
         </div>
+
+        {/* Guest feedback widget */}
+        {feedbackSummary.totalFeedback > 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+              <h2 className="font-medium flex items-center gap-2">
+                <Star className="h-4 w-4 text-amber-400" />
+                Ocene gostov
+              </h2>
+              <span className="text-2xl font-bold text-amber-500">
+                {feedbackSummary.averageRating.toFixed(1)}
+                <span className="text-sm text-gray-400">/5</span>
+              </span>
+            </div>
+            <div className="p-4 space-y-2">
+              {/* Distribution bars */}
+              {feedbackSummary.distribution.reverse().map((d) => (
+                <div key={d.stars} className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400 w-8">{d.stars}★</span>
+                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-amber-400 rounded-full"
+                      style={{ width: `${d.percentage}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-gray-400 w-8 text-right">{d.count}</span>
+                </div>
+              ))}
+              {/* Recent comments */}
+              {feedbackSummary.recentComments.length > 0 && (
+                <div className="mt-3 pt-3 border-t space-y-2 max-h-32 overflow-y-auto">
+                  {feedbackSummary.recentComments.slice(0, 3).map((c) => (
+                    <div key={c._id} className="text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-amber-400">
+                          {"★".repeat(c.rating)}
+                          <span className="text-gray-200">{"★".repeat(5 - c.rating)}</span>
+                        </span>
+                        <span className="font-medium text-gray-600">{c.guestName ?? "Gost"}</span>
+                        {c.tableNumber && (
+                          <span className="text-gray-400">· Miza {c.tableNumber}</span>
+                        )}
+                      </div>
+                      {c.comment && (
+                        <p className="text-gray-500 italic mt-0.5 line-clamp-2">"{c.comment}"</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Alerts + status */}
         <div className="space-y-4">
