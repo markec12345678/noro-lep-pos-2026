@@ -24,6 +24,7 @@ import {
   Heart,
   Tag,
   TrendingUp as TrendingUpIcon,
+  Settings as SettingsIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
@@ -64,6 +65,7 @@ const menuItems: MenuItem[] = [
   { name: "Z-Report", icon: FileBarChart, path: "/z-report" },
   { name: "Locations", icon: Store, path: "/locations" },
   { name: "FURS Settings", icon: Shield, path: "/fiscal" },
+  { name: "Settings", icon: SettingsIcon, path: "/settings" },
 ];
 
 const Sidebar = ({ collapsed, setCollapsed }: SidebarProps) => {

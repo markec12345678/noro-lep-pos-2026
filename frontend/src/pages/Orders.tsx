@@ -9,12 +9,14 @@ import {
   XCircle,
   Trash,
   RotateCcw,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import OrderDetails from "@/components/custom/orders/OrderDetails";
 import RefundDialog from "@/components/custom/refunds/RefundDialog";
 import { useDeleteOrder, useFetchOrders } from "@/services/orderService";
 import { isRefunded } from "@/services/refundService";
+import { exportOrders } from "@/lib/csvExport";
 import { Order } from "@/types";
 import PrintOrderDetails from "@/components/custom/orders/PrintOrderDetails";
 
@@ -114,18 +116,30 @@ const Orders = () => {
   return (
     <>
       <div className="orders-list space-y-6 p-6">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center flex-wrap gap-4">
           <h1 className="text-2xl font-semibold">Orders</h1>
-
-          <div className="relative w-64">
-            <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search orders..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 w-full rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-transparent transition-all duration-200"
-            />
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                if (!orders?.length) return toast.error("Ni naročil");
+                exportOrders(orders);
+                toast.success(`Izvozenih ${orders.length} naročil`);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 text-sm hover:bg-gray-50 transition-colors"
+            >
+              <Download className="h-4 w-4" />
+              <span className="hidden sm:inline">CSV</span>
+            </button>
+            <div className="relative w-64">
+              <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search orders..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-4 py-2 w-full rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-transparent transition-all duration-200"
+              />
+            </div>
           </div>
         </div>
 

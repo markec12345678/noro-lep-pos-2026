@@ -27,6 +27,7 @@ export const waiterRestrictedRoutes = [
   "/tips",
   "/promotions",
   "/menu-engineering",
+  "/settings",
 ];
 
 // Chefs can use Dashboard + Kitchen + Tables, but cannot see orders management or reports.
@@ -48,6 +49,7 @@ export const chefRestrictedRoutes = [
   "/tips",
   "/promotions",
   "/menu-engineering",
+  "/settings",
   "/menus",
   "/categories",
 ];
