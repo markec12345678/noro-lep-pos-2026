@@ -28,5 +28,39 @@ services:
     depends_on:
       - backend
 
+  pos-realtime:
+    build:
+      context: ./mini-services/pos-realtime
+    ports:
+      - "3003:3003"
+    command: bun index.ts
+
+  furs-service:
+    build:
+      context: ./mini-services/furs-service
+    ports:
+      - "3004:3004"
+    environment:
+      - FURS_MODE=test
+      # For production:
+      # - FURS_MODE=production
+      # - FURS_CERT_PATH=/certs/furs-cert.pem
+      # - FURS_KEY_PATH=/certs/furs-key.pem
+    command: bun index.ts
+
+  pos-public:
+    build:
+      context: ./mini-services/pos-public
+    ports:
+      - "3005:3005"
+    environment:
+      - COCKPIT_URL=http://backend
+      - COCKPIT_API_KEY=public-read-only-key-change-me
+      - REALTIME_SERVICE_URL=http://pos-realtime:3003
+    depends_on:
+      - backend
+      - pos-realtime
+    command: bun index.ts
+
 volumes:
   backend-storage:

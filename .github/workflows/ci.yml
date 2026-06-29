@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint:
+    name: ESLint + TypeScript + Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: bun install
+
+      - name: ESLint
+        working-directory: frontend
+        run: bun run lint
+
+      - name: TypeScript check
+        working-directory: frontend
+        run: bunx tsc --noEmit
+
+      - name: Build
+        working-directory: frontend
+        run: bun run build

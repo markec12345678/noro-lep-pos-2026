@@ -1,208 +1,179 @@
-<!-- Badges -->
+# Noro Lep POS
 
-[![Linting Passed](https://img.shields.io/badge/linting-passed-brightgreen.svg)](https://github.com/<YOUR_USERNAME>/tgipos/actions?query=workflow%3Alint)
-[![Prettier Passed](https://img.shields.io/badge/prettier-passed-brightgreen.svg)](https://github.com/<YOUR_USERNAME>/tgipos/actions?query=workflow%3Aprettier)
-[![Powered by Netlify](https://api.netlify.com/api/v1/badges/c7f49f46-cd9d-4f38-8ed3-dec00e23fc2f/deploy-status)](https://www.netlify.com)
-[![Powered by Cockpit CMS](https://img.shields.io/badge/Cockpit_CMS-powered-blue.svg)](https://getcockpit.com)
-[![GPLv3 License](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
+Production-ready **restaurant management system** for Slovenian restaurants and chains. Built with Vite + React + TypeScript + Cockpit CMS, with full FURS fiscal compliance, real-time WebSocket sync, and 25+ modules covering every aspect of restaurant operations.
 
-# TGI POS
-
-TGI POS is a point-of-sale application built using Vite, React, Typescript, React Query and TailwindCSS. This project offers a fast and responsive offline sales system designed for businesses that require robust local transaction processing alongside modern frontend technologies.
-
-[Demo App](https://tgipos.netlify.app)
-
-> **Note** : Performance may be very slow when using this online mode. TGI POS is specifically designed for offline use.
-
-<img src="./frontend/public/pos-image.png" width="100%">
+![POS](./frontend/public/pos-image.png)
 
 ---
 
-## Features
+## Features (25 modules)
 
-**Orders**  
-Manage customer orders efficiently, including order creation, tracking, and payment processing.
+### Core POS
+- **POS** — point of sale with menu modifiers (sizes, toppings), DDV tax (22%/9.5%/0%), payment methods (cash/card), tips, happy hour promotions, and table operations (transfer/merge/split bill)
+- **Enhanced KDS** — kanban-style kitchen display with live wait timers, color-coded urgency alerts, sound notifications, and order bump functionality
+- **Tables** — table management with status tracking, QR code generation for guest ordering
+- **Orders** — order list with filtering, refunds, and receipt printing
+- **Food Menus** — menu CRUD with allergen tracking (EU FIC 1169/2011), modifier groups, and tax rates
+- **Categories** — menu category management
 
-**Waiters**  
-Track waiter assignments, manage shifts, and monitor service performance to ensure smooth operations.
+### Financial
+- **FURS Davčna Blagajna** — Slovenian fiscal compliance: ZOI generation, EOR submission, QR codes on receipts (mini-service on port 3004)
+- **Z-Report** — daily closing report with tax/payment breakdown, cash drawer reconciliation, and refund tracking
+- **Cash Drawer** — shift-based cash sessions with opening float, expected cash computation, and over/short detection
+- **Tips & Gratuity** — tip collection at checkout (percentage/custom) with per-staff distribution reporting
+- **Payment Methods** — cash/card/other with cash-only filtering for drawer reconciliation
 
-**Tables**  
-Organize table management with real-time availability status, reservations, and table status updates.
+### Inventory & Suppliers
+- **Inventory** — stock tracking with auto-decrement on checkout, low-stock alerts, and stock movement audit log
+- **Recipe Costing** — per-dish ingredient cost calculation from recipe + inventory data
+- **Menu Engineering** — profitability × popularity matrix (Stars/Plowhorses/Puzzles/Dogs)
+- **Suppliers** — supplier management with contact info, payment terms, and invoice history
+- **Invoices** — supplier invoice processing with line items and auto-restock on approval
 
-**Order Items**  
-Handle detailed information for each item in an order, including price, quantity, and customization options.
+### Customer & Marketing
+- **Online Ordering** — QR code-based guest ordering (public menu, cart, checkout) with real-time kitchen sync
+- **Loyalty Program** — points-based loyalty with phone number lookup, rewards redemption, and per-customer history
+- **Reservations** — public booking page + manager calendar with time slot management and confirmation codes
+- **Happy Hour** — time-based promotions with auto-apply at checkout (percentage/fixed/BOGO)
+- **Allergen Tracking** — 14 EU FIC allergens with guest-facing filter on public menu
 
-**Menus**  
-Easily update and manage your restaurant's menu, including dish details, pricing, and availability.
+### Operations
+- **Staff Scheduling** — weekly shift grid with clock in/out and labor cost calculation
+- **Multi-Location** — chain management with location switcher, per-location FURS config
+- **Manager Dashboard** — KPI overview with activity feed and context-aware alerts
+- **Notification Center** — live alerts from all modules (bell icon in header)
+- **Refund Processing** — partial/full refunds with reason tracking and Z-Report integration
+- **Realtime WebSocket** — multi-tab sync via socket.io (orders, kitchen, reservations, inventory)
 
-**Categories**  
-Organize menu items into categories for a streamlined ordering process and easier navigation.
-
-**Reports**  
-Generate insightful reports on sales, performance, and inventory to help with data-driven decision making.
-
-**Settings**  
-Customize system configurations, including user preferences, restaurant details, and integration setups.
-
----
-
-## Road Map
-
-- [x] **Integrate with backend headless CMS** Integrate with Cockpit headless CMS to handle data management and synchronization.
-- [x] **POSTMAN API Doc:** Create API documentation using Postman.
-- [x] **Add Authentication:** Implement multi-user login system with role-based access.
-- [ ] **Add Reports:** Generate sales, inventory, and performance reports.
-- [ ] **Add Refund:** Implement refund functionality to handle returns.
-- [ ] **Add Printers and Printing Settings:** Enable support for various printers and customize printing configurations.
-
----
-
-## Tech Stacks
-
-- **Electron:** Create cross-platform desktop applications with web technologies.
-- **Vite:** A modern build tool that significantly improves the development experience.
-- **React:** A popular library for building user interfaces.
-- **React Query:** A powerful data-fetching and state management library that simplifies fetching, caching, synchronizing, and updating server state in React applications.
-- **TailwindCSS:** Utility-first CSS framework for rapid styling.
+### RBAC
+- **Manager** — full access to all 25+ modules
+- **Waiter** — POS + Tables + Dashboard only
+- **Chef** — Dashboard + Kitchen + Tables only
 
 ---
 
-Below is the revised Markdown with improved clarity and grammar:
+## Architecture
 
----
-
-## Installation Guide
-
-### Backend
-
-> Note: For the backend API server, ensure you have PHP 8.3+ and SQLite installed on your machine before proceeding.
-
-### Backend
-
-1. **Enter Backend Folder:**
-
-   ```bash
-   cd backend
-   ```
-
-2. **Run Backend Server:**
-
-   ```bash
-   php -S localhost:3030
-   ```
-
-This command starts the Cockpit CMS server.
-
-> If you want to modify CMS data, the default credential is `username:admin|password:admin`.
-
----
-
-### Frontend
-
-1. **Enter Frontend Folder:**
-
-   ```bash
-   cd frontend
-   ```
-
-2. **Install Dependencies:**
-
-   ```bash
-   npm install
-   ```
-
-3. **Set Up the Environment:**
-
-   > Create a `.env` file in the root folder and add the following variables:
-
-   ```bash
-   VITE_API_URL=http://localhost:3030
-   VITE_PLACEHOLDER_IMAGE=placeholder.webp
-   VITE_DEMO_SERVER=false
-   VITE_ASSET_URL=http://localhost:3030/storage/uploads
-   ```
-
-4. **Run the Application:**
-
-   ```bash
-   npm run dev
-   ```
-
-This command starts the Vite development server and launches the POS app.
-
----
-
-## Docker
-
-You can also use `docker-compose` to run the backend and frontend servers.
-
-```bash
-docker-compose up
+```
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│   Frontend   │    │   Backend    │    │ Mini-services│
+│  Vite+React  │───▶│  Cockpit CMS │    │              │
+│  TypeScript  │    │  PHP + SQLite│    │ pos-realtime │ :3003 (WebSocket)
+│  Port 8080   │    │  Port 3030   │    │ furs-service │ :3004 (FURS ZOI/EOR)
+└──────────────┘    └──────────────┘    │ pos-public   │ :3005 (Guest API)
+                                         └──────────────┘
 ```
 
 ---
 
-## Contribution Guide
+## Quick Start
 
-We truly appreciate your interest in contributing to TGI POS! To ensure smooth collaboration, please follow these guidelines:
+### Prerequisites
+- Node.js 20+ (or Bun)
+- PHP 8.3+ with SQLite
+- Docker (optional, recommended)
 
-1. Branching and Pull Requests:
-   - All pull requests must be made to the develop branch.
-   - Create a new branch from develop for every feature or bugfix you work on.
-   - Once complete, open a pull request targeting the develop branch.
-2. Commit Messages:
-   - Follow the commit message guidelines as described in the Conventional Changelog/commitlint guide.
-   - Your commit messages should be clear, descriptive, and follow the proper format (e.g., type(scope): description).
-3. Code Quality and Linting:
-   - Ensure that your code passes all ESLint checks before submitting a pull request.
-   - PRs that do not pass ESLint will not be merged until all issues are resolved.
-   - Run linting locally with the command:
-   ```bash
-      npm run lint
-   ```
-   and fix any issues that arise.
-4. General Guidelines:
-   - Feel free to open an issue to discuss larger changes or new feature ideas before starting work.
-   - Follow the existing code style and project structure.
-   - Make sure to update documentation as needed when adding new features or modifying existing ones.
+### Option 1: Docker (recommended)
 
-We welcome your contributions and are excited to build a reliable, offline-capable point-of-sale system together!
+```bash
+git clone https://github.com/markec12345678/noro-lep-pos-2026.git
+cd noro-lep-pos-2026
+docker-compose up
+```
+
+Access:
+- Frontend: http://localhost:8080
+- Cockpit CMS: http://localhost:3030 (admin/admin)
+- Realtime: port 3003 (WebSocket)
+- FURS service: port 3004
+- Public API: port 3005
+
+### Option 2: Manual
+
+#### Backend
+```bash
+cd backend
+php -S localhost:3030
+```
+
+#### Setup Collections
+```bash
+# After Cockpit CMS is running, create all 23 collections:
+php backend/setup-collections.php
+# Or via HTTP:
+curl http://localhost:3030/setup-collections.php
+```
+
+#### Mini-services
+```bash
+# 1. Realtime WebSocket (port 3003)
+cd mini-services/pos-realtime
+bun install && bun run dev
+
+# 2. FURS service (port 3004)
+cd mini-services/furs-service
+bun install && bun run dev
+
+# 3. Public API (port 3005)
+cd mini-services/pos-public
+bun install && bun run dev
+```
+
+#### Frontend
+```bash
+cd frontend
+cp .env.example .env
+bun install
+bun run dev
+```
 
 ---
 
-## Contributors
+## Demo Accounts
 
-We welcome contributions! Feel free to check our [contributing guidelines](CONTRIBUTING.md) and submit issues or pull requests. Special thanks to all contributors who have already supported this project.
-
-- [Ronald Aug](https://github.com/ronaldaug)
-
----
-
-## Star Us on GitHub
-
-If you like TGI Offline POS and want to support our work, please give us a star on GitHub! Your support means a lot and helps us increase the reach of this project.
-
-[![GitHub stars](https://img.shields.io/github/stars/augusthost/tgipos?style=social)](https://github.com/augusthost/tgipos/stargazers)
+| Role | Username | Password |
+|------|----------|----------|
+| Manager | manager | m123456 |
+| Chef | chef | c123456 |
+| Waiter | waiter2 | w123456 |
 
 ---
 
-## Donate Us on [Buy Me a Coffee](http://buymeacoffee.com/ronaldaug)
+## Documentation
 
-If you find TGI Offline POS helpful, consider supporting the project by buying us a coffee. Your generosity helps us continue to improve and develop new features!
+Detailed setup guides for each module:
+
+| Document | Module |
+|----------|--------|
+| [MODIFIERS_SETUP.md](docs/MODIFIERS_SETUP.md) | Menu modifiers |
+| [INVENTORY_SETUP.md](docs/INVENTORY_SETUP.md) | Inventory & stock |
+| [CASH_DRAWER_SETUP.md](docs/CASH_DRAWER_SETUP.md) | Cash drawer |
+| [WEBSOCKET_SETUP.md](docs/WEBSOCKET_SETUP.md) | Realtime WebSocket |
+| [FURS_SETUP.md](docs/FURS_SETUP.md) | FURS fiscal compliance |
+| [PUBLIC_ORDERING_SETUP.md](docs/PUBLIC_ORDERING_SETUP.md) | Online ordering + QR menu |
+| [LOYALTY_SETUP.md](docs/LOYALTY_SETUP.md) | Loyalty program |
+| [RESERVATIONS_SETUP.md](docs/RESERVATIONS_SETUP.md) | Reservations |
+| [SUPPLIERS_SETUP.md](docs/SUPPLIERS_SETUP.md) | Suppliers & invoices |
+| [MULTI_LOCATION_SETUP.md](docs/MULTI_LOCATION_SETUP.md) | Multi-location |
+| [ALLERGENS_SETUP.md](docs/ALLERGENS_SETUP.md) | Allergen tracking |
 
 ---
 
-## Inspiration
+## Tech Stack
 
-The idea for TGI Offline POS was born out of the need for a reliable, offline-capable point-of-sale system that doesn't rely on constant internet connectivity. We wanted to combine the best of modern web technologies with the stability of a desktop application to create a comprehensive solution for retail and service businesses.
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Vite 5, React 18, TypeScript 5, Tailwind CSS 3, shadcn/ui |
+| State | TanStack Query 5 (server), useState (client) |
+| Realtime | socket.io (mini-service) |
+| Charts | Recharts |
+| Routing | React Router DOM 6 |
+| Backend | Cockpit CMS (PHP 8.3), SQLite |
+| Mini-services | Bun + TypeScript |
+| FURS | RSA-SHA1 + MD5 + Base32 + QR code generation |
 
 ---
 
-## Acknowledgements
+## License
 
-- Thanks to the developers and maintainers of [Cockpit CMS](https://getcockpit.com/), [Vite](https://vitejs.dev/), [Typescript](https://www.typescriptlang.org/), [React](https://reactjs.org/), [React Query](https://tanstack.com/query/latest), and [TailwindCSS](https://tailwindcss.com/) for their amazing work.
-- Special thanks to the open-source community for continuous support and contributions.
-
----
-
-Feel free to open issues, suggest new features, or contribute code. Let's build a powerful offline POS system together!
+GPLv3 — see [LICENSE](frontend/LICENSE)
