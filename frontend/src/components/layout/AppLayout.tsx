@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import LocationSwitcher from "@/components/custom/location/LocationSwitcher";
+import NotificationCenter from "@/components/custom/notifications/NotificationCenter";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { ChevronDown, User, Settings, LogOut } from "lucide-react";
 import { getImageUrl } from "@/lib/helper";
@@ -51,6 +52,9 @@ const AppLayout = () => {
             )}
           </div>
           <div className="flex items-center gap-3">
+            {/* Notification center — bell icon with live alerts */}
+            <NotificationCenter />
+
             {/* Location switcher — hidden in single-location mode */}
             <LocationSwitcher />
 
