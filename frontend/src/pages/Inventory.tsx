@@ -1,4 +1,4 @@
-import { useState, FormEvent, useMemo } from "react";
+import { useState, FormEvent, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   PlusCircle,
@@ -14,6 +14,8 @@ import {
   ArrowUpCircle,
   XCircle,
   PackagePlus,
+  ClipboardCheck,
+  Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -120,6 +122,9 @@ const Inventory = () => {
     null,
   );
 
+  // Quick stock count state
+  const [quickCountOpen, setQuickCountOpen] = useState(false);
+
   const filteredItems = useMemo(() => {
     return (items ?? []).filter((item) => {
       const matchesSearch =
@@ -224,10 +229,20 @@ const Inventory = () => {
             Track stock levels, recipes, and supplier costs
           </p>
         </div>
-        <Button onClick={openCreate} className="gap-2">
-          <PlusCircle className="h-5 w-5" />
-          Add Inventory Item
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setQuickCountOpen(true)}
+            className="gap-2"
+          >
+            <ClipboardCheck className="h-5 w-5" />
+            Hitri popis
+          </Button>
+          <Button onClick={openCreate} className="gap-2">
+            <PlusCircle className="h-5 w-5" />
+            Add Inventory Item
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -570,6 +585,14 @@ const Inventory = () => {
           onClose={() => setHistoryTarget(null)}
         />
       )}
+
+      {/* Quick stock count dialog */}
+      <QuickCountDialog
+        open={quickCountOpen}
+        onOpenChange={setQuickCountOpen}
+        items={items ?? []}
+        onApplyMovement={applyMovement}
+      />
     </div>
   );
 };
@@ -868,3 +891,220 @@ const StockHistoryDialog = ({
 };
 
 export default Inventory;
+
+/* ------------------------------------------------------------------ */
+/* Quick Stock Count Dialog — bulk quantity update                    */
+/* ------------------------------------------------------------------ */
+
+interface QuickCountDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  items: InventoryItem[];
+  onApplyMovement: (input: {
+    inventoryItemId: string;
+    delta: number;
+    type: StockTransactionType;
+    reason: string;
+    user?: string;
+  }) => Promise<{ previousQuantity: number; newQuantity: number }>;
+}
+
+/**
+ * Quick Stock Count — bulk quantity update dialog.
+ *
+ * Instead of opening each item individually, the manager sees a table
+ * of all inventory items with their current quantity and an input field
+ * to enter the NEW counted quantity. On save, the system computes the
+ * delta (new - current) and applies it as an adjustment movement with
+ * an audit transaction for each item.
+ *
+ * Perfect for end-of-day or end-of-week physical inventory counts.
+ */
+const QuickCountDialog = ({
+  open,
+  onOpenChange,
+  items,
+  onApplyMovement,
+}: QuickCountDialogProps) => {
+  const [counts, setCounts] = useState<Record<string, string>>({});
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Initialize counts when dialog opens
+  useEffect(() => {
+    if (open && items.length > 0) {
+      const initial: Record<string, string> = {};
+      for (const item of items) {
+        if (item._id) initial[item._id] = String(item.quantity ?? 0);
+      }
+      setCounts(initial);
+    }
+  }, [open, items]);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    let updated = 0;
+    let errors = 0;
+    const userName = JSON.parse(localStorage.getItem("user") || "{}")?.name;
+
+    for (const item of items) {
+      if (!item._id) continue;
+      const newQty = parseFloat(counts[item._id] ?? "0");
+      const oldQty = item.quantity ?? 0;
+      const delta = newQty - oldQty;
+
+      if (Math.abs(delta) < 0.001) continue; // no change
+
+      try {
+        await onApplyMovement({
+          inventoryItemId: item._id,
+          delta,
+          type: StockTransactionType.Adjustment,
+          reason: `Hitri popis: ${item.name} ${oldQty}→${newQty}${item.unit}`,
+          user: userName,
+        });
+        updated++;
+      } catch {
+        errors++;
+      }
+    }
+
+    setIsSaving(false);
+    if (errors === 0) {
+      toast.success(`Popis končan! ${updated} artiklov posodobljenih.`);
+    } else {
+      toast.warning(`Popis: ${updated} uspešnih, ${errors} napak.`);
+    }
+    onOpenChange(false);
+  };
+
+  const changedCount = items.filter((item) => {
+    if (!item._id) return false;
+    const newQty = parseFloat(counts[item._id] ?? "0");
+    return Math.abs(newQty - (item.quantity ?? 0)) >= 0.001;
+  }).length;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <ClipboardCheck className="h-5 w-5 text-secondary" />
+            Hitri popis zaloge
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-700 mb-3">
+          <p className="font-medium">Navodila:</p>
+          <p className="text-xs mt-0.5">
+            Preštejte fizično količino vsakega artikla in vnesite dejansko
+            stanje. Sistem bo samodejno izračunal razliko in zapisal
+            prilagoditev z audit sledjo.
+          </p>
+        </div>
+
+        {/* Items table */}
+        <div className="border border-gray-100 rounded-lg overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Artikel</TableHead>
+                <TableHead className="text-right">Trenutno</TableHead>
+                <TableHead className="text-right">Prešteto</TableHead>
+                <TableHead className="text-right">Razlika</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {items.map((item) => {
+                const newQty = parseFloat(counts[item._id ?? ""] ?? "0");
+                const oldQty = item.quantity ?? 0;
+                const diff = newQty - oldQty;
+                const hasChange = Math.abs(diff) >= 0.001;
+
+                return (
+                  <TableRow
+                    key={item._id}
+                    className={hasChange ? "bg-amber-50" : ""}
+                  >
+                    <TableCell>
+                      <div>
+                        <p className="font-medium text-sm">{item.name}</p>
+                        {item.sku && (
+                          <p className="text-xs text-gray-400">{item.sku}</p>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right text-sm">
+                      <span className="text-gray-500">
+                        {oldQty} {item.unit}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={counts[item._id ?? ""] ?? "0"}
+                        onChange={(e) =>
+                          setCounts((prev) => ({
+                            ...prev,
+                            [item._id ?? ""]: e.target.value,
+                          }))
+                        }
+                        className="w-20 px-2 py-1 text-right rounded border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50"
+                      />
+                    </TableCell>
+                    <TableCell className="text-right text-sm">
+                      {hasChange ? (
+                        <span
+                          className={
+                            diff > 0 ? "text-green-600 font-medium" : "text-red-600 font-medium"
+                          }
+                        >
+                          {diff > 0 ? "+" : ""}
+                          {diff.toFixed(2)}
+                        </span>
+                      ) : (
+                        <span className="text-gray-300">—</span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+              {items.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-8 text-gray-400">
+                    Ni artiklov v zalogi.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {changedCount > 0 && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 text-xs text-amber-700 text-center">
+            {changedCount} artiklov s spremembo količine
+          </div>
+        )}
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Prekliči
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={isSaving || changedCount === 0}
+            className="gap-2"
+          >
+            {isSaving ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Check className="h-4 w-4" />
+            )}
+            Shrani popis{changedCount > 0 && ` (${changedCount})`}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};

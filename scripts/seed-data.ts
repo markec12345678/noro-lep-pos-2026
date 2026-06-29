@@ -87,19 +87,46 @@ async function seed() {
   const topGrp = await create("modifiergroup", { name: "Dodatki", required: false, multiSelect: true, minSelect: 0, maxSelect: 5, sort: 2 });
   if (topGrp?._id) for (const [n, p] of [["Sir",1.5],["Šunka",2.0],["Gobe",1.5]]) await create("modifieroption", { name: n, price: p, default: false, sort: 1, group: { _model: "modifiergroup", _id: topGrp._id } });
 
-  // Inventory
-  console.log("📦 Inventory...");
+  // Inventory (expanded — 30 items covering full restaurant)
+  console.log("📦 Inventory (30 items)...");
   const inv = [
+    // Suhizadeve
     { name: "Moka tip 00", sku: "MOKA-001", unit: "kg", quantity: 25, threshold: 10, cost: 0.80 },
     { name: "Mocarela 1kg", sku: "MOC-001", unit: "kg", quantity: 8, threshold: 5, cost: 5.50 },
     { name: "Paradižnik passata", sku: "PAR-001", unit: "l", quantity: 15, threshold: 5, cost: 1.20 },
     { name: "Slanina 1kg", sku: "SLA-001", unit: "kg", quantity: 3, threshold: 5, cost: 7.00 },
     { name: "Losos filet", sku: "LOS-001", unit: "kg", quantity: 4, threshold: 3, cost: 18.00 },
     { name: "Krompir 5kg", sku: "KRO-001", unit: "kg", quantity: 30, threshold: 10, cost: 0.50 },
-    { name: "Coca-Cola 0.5L", sku: "COCA-001", unit: "pc", quantity: 48, threshold: 24, cost: 0.80 },
-    { name: "Pivo Laško 0.5L", sku: "PIV-001", unit: "pc", quantity: 60, threshold: 24, cost: 0.90 },
     { name: "Čokolada 70%", sku: "COK-001", unit: "kg", quantity: 2, threshold: 3, cost: 8.00 },
     { name: "Jajca 30kos", sku: "JAJ-001", unit: "pc", quantity: 60, threshold: 30, cost: 0.15 },
+    // Meso
+    { name: "Mleti goveji meso 1kg", sku: "GME-001", unit: "kg", quantity: 12, threshold: 5, cost: 8.50 },
+    { name: "Piščančji file 1kg", sku: "PIS-001", unit: "kg", quantity: 6, threshold: 3, cost: 6.50 },
+    { name: "Salami pepperoni 1kg", sku: "SAL-001", unit: "kg", quantity: 4, threshold: 2, cost: 9.00 },
+    { name: "Prašičja ramstek 1kg", sku: "RAM-001", unit: "kg", quantity: 3, threshold: 2, cost: 7.50 },
+    // Zelenjava
+    { name: "Čebula 10kg", sku: "CEB-001", unit: "kg", quantity: 15, threshold: 5, cost: 0.40 },
+    { name: "Česen 1kg", sku: "CES-001", unit: "kg", quantity: 2, threshold: 1, cost: 3.00 },
+    { name: "Solata ledena 1kg", sku: "SOL-001", unit: "kg", quantity: 3, threshold: 2, cost: 1.50 },
+    { name: "Paradižnik svež 1kg", sku: "PARS-001", unit: "kg", quantity: 5, threshold: 3, cost: 1.80 },
+    { name: "Bazilika sveža 100g", sku: "BAZ-001", unit: "pc", quantity: 8, threshold: 4, cost: 0.80 },
+    // Pijače
+    { name: "Coca-Cola 0.5L", sku: "COCA-001", unit: "pc", quantity: 48, threshold: 24, cost: 0.80 },
+    { name: "Pivo Laško 0.5L", sku: "PIV-001", unit: "pc", quantity: 60, threshold: 24, cost: 0.90 },
+    { name: "Aperol 0.7L", sku: "APE-001", unit: "pc", quantity: 6, threshold: 3, cost: 12.00 },
+    { name: "Prosecco 0.75L", sku: "PRO-001", unit: "pc", quantity: 8, threshold: 4, cost: 8.00 },
+    { name: "Kavna zrna 1kg", sku: "KAV-001", unit: "kg", quantity: 5, threshold: 2, cost: 12.00 },
+    { name: "Sladkor 1kg", sku: "SLA-002", unit: "kg", quantity: 10, threshold: 3, cost: 0.70 },
+    // Mlečni izdelki
+    { name: "Maslo 250g", sku: "MAS-001", unit: "pc", quantity: 12, threshold: 6, cost: 1.20 },
+    { name: "Smiljana sladka 1L", sku: "SMI-001", unit: "pc", quantity: 8, threshold: 4, cost: 1.00 },
+    { name: "Parmezan 200g", sku: "PARM-001", unit: "pc", quantity: 6, threshold: 3, cost: 3.50 },
+    // Olja in omake
+    { name: "Oljčno olje 1L", sku: "OLI-001", unit: "l", quantity: 8, threshold: 3, cost: 4.50 },
+    { name: "Sol 1kg", sku: "SOL-002", unit: "kg", quantity: 5, threshold: 2, cost: 0.20 },
+    { name: "Paprika mleta 100g", sku: "PAP-001", unit: "pc", quantity: 4, threshold: 2, cost: 0.90 },
+    // Embalaža
+    { name: "Pizza škatla 32cm", sku: "EMB-001", unit: "pc", quantity: 100, threshold: 50, cost: 0.15 },
   ];
   const invIds: string[] = [];
   for (const i of inv) { const c = await create("inventoryitem", i); if (c?._id) invIds.push(c._id); }
