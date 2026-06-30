@@ -16,6 +16,7 @@ import {
   Plus,
   Receipt,
   ScanLine,
+  Scale,
   Shield,
   ShieldCheck,
   ShoppingBag,
@@ -1283,6 +1284,189 @@ function RoiCalculator() {
 }
 
 /* ============================================================
+   COMPETITION COMPARISON — Noro Lep vs svetovni liderji
+   ============================================================ */
+const COMPETITORS = [
+  {
+    name: 'Noro Lep POS',
+    tag: 'Naš izdelek',
+    accent: 'from-emerald-500 to-teal-600',
+    badge: 'bg-emerald-600',
+    highlight: true,
+    features: {
+      furs: true,
+      ai: true,
+      kds: true,
+      qr: true,
+      offline: true,
+      sloLang: true,
+      loyalty: true,
+      price: '0€',
+      setup: '15 min',
+      realTimeSync: true,
+      roiCalc: true,
+    },
+  },
+  {
+    name: 'Toast',
+    tag: 'ZDA',
+    accent: 'from-orange-500 to-red-500',
+    badge: 'bg-orange-500',
+    highlight: false,
+    features: {
+      furs: false,
+      ai: false,
+      kds: true,
+      qr: true,
+      offline: 'Omejeno',
+      sloLang: false,
+      loyalty: true,
+      price: '89€+',
+      setup: '2-3 dni',
+      realTimeSync: false,
+      roiCalc: false,
+    },
+  },
+  {
+    name: 'Square',
+    tag: 'ZDA',
+    accent: 'from-blue-500 to-indigo-500',
+    badge: 'bg-blue-500',
+    highlight: false,
+    features: {
+      furs: false,
+      ai: false,
+      kds: 'Dodatak',
+      qr: true,
+      offline: 'Omejeno',
+      sloLang: false,
+      loyalty: true,
+      price: '49€+',
+      setup: '1 dan',
+      realTimeSync: false,
+      roiCalc: false,
+    },
+  },
+  {
+    name: 'Lightspeed',
+    tag: 'Kanada',
+    accent: 'from-red-500 to-rose-500',
+    badge: 'bg-red-500',
+    highlight: false,
+    features: {
+      furs: false,
+      ai: false,
+      kds: true,
+      qr: true,
+      offline: 'Omejeno',
+      sloLang: false,
+      loyalty: true,
+      price: '69€+',
+      setup: '1-2 dni',
+      realTimeSync: false,
+      roiCalc: false,
+    },
+  },
+  {
+    name: 'Shopify POS',
+    tag: 'Kanada',
+    accent: 'from-emerald-600 to-green-600',
+    badge: 'bg-emerald-700',
+    highlight: false,
+    features: {
+      furs: false,
+      ai: false,
+      kds: false,
+      qr: true,
+      offline: 'Omejeno',
+      sloLang: false,
+      loyalty: true,
+      price: '79€+',
+      setup: '1 dan',
+      realTimeSync: false,
+      roiCalc: false,
+    },
+  },
+]
+
+const COMPARISON_ROWS = [
+  { key: 'furs', label: 'FURS ZOI/EOR (Slovenija)', type: 'bool' as const },
+  { key: 'sloLang', label: 'Slovenski jezik', type: 'bool' as const },
+  { key: 'ai', label: 'AI predikcija prometa', type: 'bool' as const },
+  { key: 'kds', label: 'Kuhinjski zaslon (KDS)', type: 'mixed' as const },
+  { key: 'qr', label: 'QR naročanje za goste', type: 'bool' as const },
+  { key: 'offline', label: 'Offline način', type: 'mixed' as const },
+  { key: 'loyalty', label: 'Vernostni program', type: 'bool' as const },
+  { key: 'realTimeSync', label: 'Real-time sync (POS→KDS→Analitika)', type: 'bool' as const },
+  { key: 'roiCalc', label: 'ROI kalkulator na strani', type: 'bool' as const },
+  { key: 'setup', label: 'Čas do prvega računa', type: 'text' as const },
+  { key: 'price', label: 'Cena (mesec)', type: 'text' as const },
+]
+
+function CompetitionComparison() {
+  return (
+    <Card className="overflow-hidden border-slate-200 shadow-xl">
+      {/* Header row */}
+      <div className="grid grid-cols-6 sm:grid-cols-6 bg-slate-50 border-b border-slate-200">
+        <div className="p-4 text-xs font-semibold text-slate-500 sticky left-0 bg-slate-50 z-10">
+          Funkcija
+        </div>
+        {COMPETITORS.map((c) => (
+          <div key={c.name} className={`p-4 text-center border-l border-slate-200 ${c.highlight ? 'bg-emerald-50' : ''}`}>
+            <div className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold text-white mb-1 ${c.badge}`}>
+              {c.tag}
+            </div>
+            <div className={`text-xs sm:text-sm font-bold leading-tight ${c.highlight ? 'text-emerald-700' : 'text-slate-700'}`}>
+              {c.name}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Feature rows */}
+      {COMPARISON_ROWS.map((row, idx) => (
+        <div
+          key={row.key}
+          className={`grid grid-cols-6 border-b border-slate-100 last:border-0 ${idx % 2 === 1 ? 'bg-slate-50/40' : 'bg-white'}`}
+        >
+          <div className="p-3 text-xs sm:text-sm font-medium text-slate-700 sticky left-0 z-10 bg-inherit">
+            {row.label}
+          </div>
+          {COMPETITORS.map((c) => {
+            const value = c.features[row.key as keyof typeof c.features]
+            const isOurs = c.highlight
+            return (
+              <div key={c.name} className={`p-3 flex items-center justify-center border-l border-slate-100 ${isOurs ? 'bg-emerald-50/40' : ''}`}>
+                {row.type === 'bool' ? (
+                  value === true ? (
+                    <CheckCircle2 className={`h-4 w-4 sm:h-5 sm:w-5 ${isOurs ? 'text-emerald-600' : 'text-slate-400'}`} />
+                  ) : (
+                    <Minus className="h-4 w-4 text-slate-300" />
+                  )
+                ) : row.type === 'text' ? (
+                  <span className={`text-xs sm:text-sm font-bold ${isOurs ? 'text-emerald-700' : 'text-slate-600'}`}>
+                    {String(value)}
+                  </span>
+                ) : (
+                  // mixed
+                  value === true ? (
+                    <CheckCircle2 className={`h-4 w-4 sm:h-5 sm:w-5 ${isOurs ? 'text-emerald-600' : 'text-slate-400'}`} />
+                  ) : value === false ? (
+                    <Minus className="h-4 w-4 text-slate-300" />
+                  ) : (
+                    <span className="text-[10px] sm:text-xs text-slate-500 font-medium">{String(value)}</span>
+                  )
+                )}
+              </div>
+            )
+          })}
+        </div>
+      ))}
+    </Card>
+  )
+}
+
+/* ============================================================
    MAIN PAGE
    ============================================================ */
 export default function Home() {
@@ -1305,6 +1489,7 @@ export default function Home() {
             {[
               { label: 'Demo', href: '#demo' },
               { label: 'Funkcije', href: '#funkcije' },
+              { label: 'Primerjava', href: '#primerjava' },
               { label: 'Mnenja', href: '#mnenja' },
               { label: 'ROI', href: '#roi' },
               { label: 'Cene', href: '#cene' },
@@ -1536,6 +1721,63 @@ export default function Home() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ===== COMPETITION COMPARISON ===== */}
+      <section id="primerjava" className="py-20 lg:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <Badge className="mb-4 bg-indigo-100 text-indigo-800 hover:bg-indigo-100">
+              <Scale className="h-3.5 w-3.5 mr-1.5" />
+              Iskrena primerjava
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              Noro Lep vs{' '}
+              <span className="bg-gradient-to-r from-indigo-600 to-emerald-600 bg-clip-text text-transparent">
+                svetovni liderji
+              </span>
+            </h2>
+            <p className="mt-4 text-lg text-slate-600">
+              Poštena primerjava 11 ključnih funkcij. Kjer smo boljši — povemo. Kjer zaostajamo — tudi.
+            </p>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.6 }}
+          >
+            <CompetitionComparison />
+          </motion.div>
+
+          {/* Key wins summary */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="mt-8 grid sm:grid-cols-3 gap-4"
+          >
+            {[
+              { icon: ShieldCheck, title: 'FURS skladnost', desc: 'Edini s popolno slovensko fiskalno skladnostjo', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+              { icon: Zap, title: 'Real-time sync', desc: 'POS→KDS→Analitika v 1 akciji — edini na trgu', color: 'text-amber-600', bg: 'bg-amber-50' },
+              { icon: Globe, title: 'Slovenski jezik', desc: 'Native SLO podpora, lokalni kontekst', color: 'text-sky-600', bg: 'bg-sky-50' },
+            ].map((win, i) => (
+              <Card key={i} className="p-5 border-slate-200/70 hover:shadow-md transition-shadow">
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-lg ${win.bg} flex items-center justify-center shrink-0`}>
+                    <win.icon className={`h-5 w-5 ${win.color}`} />
+                  </div>
+                  <div>
+                    <div className="font-bold text-sm text-slate-900">{win.title}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">{win.desc}</div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </motion.div>
         </div>
       </section>
 
