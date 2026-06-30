@@ -110,3 +110,49 @@ Stage Summary:
 - Vse interakcije delujejo (toggle, cart, FURS gumb)
 - Lint: 0 napak
 - Ključni differentiator: interaktivni demo ki konkurenca nima
+
+---
+Task ID: 8
+Agent: main (Z.ai Code)
+Task: Razširi interaktivni demo v 4-view Product Tour (POS + KDS + Tables + Analytics)
+
+Work Log:
+- Dodal recharts dependency (AreaChart, BarChart, PieChart) za analitiko
+- Zgradil 3 nove komponente:
+  1. KdsView — Kitchen Display System kanban z 3 stolpci (Nova/V pripravi/Pripravljena)
+     * 6 realnih naročil z mizami, artikli, količinami, opombami, časi
+     * Barvno kodirane kartice z left-border (amber/sky/emerald)
+     * Live indicator + povp. čas priprave
+  2. TablesView — vizualni tloris restavracije
+     * 12 miz z 4 statusi (prosta/zasedena/rezervirana/plačilo)
+     * Vsaka miza: št. oseb, natakar, minute, skupni znesek
+     * Hover scale animacija, summary stats na dnu
+  3. AnalyticsView — AI dashboard z graf-i
+     * 4 KPI kartice (Promet €10,270, Naročila 633, Povr. račun €16.22, Zasedenost 78%)
+     * Area chart: promet po urah (13 podatkovnih točk z AI predikcijo badge)
+     * Pie chart: razdelitev po kategorijah (5 kategorij z barvami)
+     * Horizontal bar chart: Top 5 jedi (menu engineering)
+- Zgradil ProductTour wrapper z 4-view tab selectorjem
+  * POS Blagajna (Natakar + Gost)
+  * Kuhinja (KDS) — kanban naročil
+  * Mize — tloris restavracije
+  * Analitika — AI dashboard
+- Posodobil naslov sekcije: "Celoten sistem v akciji" (prej "Dve izkušnji")
+- VLM ocene po pogledih:
+  * POS view: 7/10 (zhuya iz prejšnje naloge)
+  * KDS view: 7/10 ("clear color-coded columns, realistic kanban")
+  * Tables view: 6.5/10 ("color-coded, intuitive grid")
+  * Analytics view: 6/10 ("functional but could be more granular")
+  * Full page (v6): 8/10 ("4-module tour outperforms Square/Shopify screenshots")
+- VLM ključni citat: "interactivity alone gives Noro Lep a competitive edge"
+- Agent-browser: vsi 4 pogledi delujejo, tab switching brez napak
+- Lint: 0 errors, 0 warnings
+
+Stage Summary:
+- Zgrajen 4-view interaktivni Product Tour (POS + KDS + Tables + Analytics)
+- 3 nove komponente (~430 vrstic dodatne kode)
+- Recharts integracija za analitiko (Area, Bar, Pie chart-i)
+- VLM full page: 8/10 (competitive edge zaradi interaktivnosti)
+- Ključni differentiator: edini POS z 4-module interactive tour na landing page
+- Square/Shopify imajo samo statične screenshot-e, mi imamo živo izkušnjo
+- Stran je sedaj ~1450 vrstic TypeScript

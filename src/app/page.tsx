@@ -28,6 +28,20 @@ import {
   Zap,
 } from 'lucide-react'
 import { motion, useInView, animate } from 'framer-motion'
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -179,6 +193,55 @@ const FAQ = [
   { q: 'Kakšna je FURS skladnost?', a: 'Noro Lep je polno skladen z ZDavPR. Avtomatsko generira ZOI in pridobiva EOR od FURS v realnem času. QR koda na računu je vključena.' },
   { q: 'Katero strojno opremo potrebujem?', a: 'Noro Lep deluje na kateremkoli Android tabletu, iPad-u, Windows ali Mac-u. Podpira vse pogoste tiskalnike in QR scannerje.' },
   { q: 'Ali lahko uporabljam sistem v več lokacijah?', a: 'Da. Paket Professional podpira do 3 lokacije z enotnim upravljanjem menija, cen in poročil.' },
+]
+
+/* ============================================================
+   KDS DATA — Kitchen orders
+   ============================================================ */
+interface KitchenOrder {
+  id: string
+  table: string
+  items: { name: string; qty: number; note?: string }[]
+  status: 'nova' | 'v-pripravi' | 'pripravljena'
+  minutes: number
+  server: string
+}
+
+const KITCHEN_ORDERS: KitchenOrder[] = [
+  { id: 'K-014', table: 'Miza 5', status: 'nova', minutes: 1, server: 'Maja', items: [{ name: 'Pizza Margherita', qty: 1, note: 'brez gljiv' }, { name: 'Čevapi', qty: 2 }, { name: 'Becka kava', qty: 1 }] },
+  { id: 'K-015', table: 'Miza 12', status: 'nova', minutes: 3, server: 'Tomaž', items: [{ name: 'Rižota s morskimi sadeži', qty: 1 }, { name: 'Trški pršut', qty: 1 }] },
+  { id: 'K-011', table: 'Miza 3', status: 'v-pripravi', minutes: 7, server: 'Maja', items: [{ name: 'Burger Noro Lep', qty: 2, note: 'medium' }, { name: 'Pizza Capricciosa', qty: 1 }] },
+  { id: 'K-012', table: 'Miza 8', status: 'v-pripravi', minutes: 9, server: 'Luka', items: [{ name: 'Šampinjoni na žaru', qty: 1 }, { name: 'Teleči ražnjiči', qty: 2 }] },
+  { id: 'K-009', table: 'Miza 2', status: 'pripravljena', minutes: 12, server: 'Tomaž', items: [{ name: 'Štruklji', qty: 2 }, { name: 'Tiramisu', qty: 1 }, { name: 'Coca Cola', qty: 2 }] },
+  { id: 'K-010', table: 'Miza 7', status: 'pripravljena', minutes: 14, server: 'Luka', items: [{ name: 'Pizza Quattro Formaggi', qty: 1 }, { name: 'Panna Cotta', qty: 1 }] },
+]
+
+/* ============================================================
+   TABLES DATA — Restaurant floor plan
+   ============================================================ */
+interface TableInfo {
+  id: string
+  label: string
+  seats: number
+  status: 'prosta' | 'zasedena' | 'rezervirana' | 'plačilo'
+  server?: string
+  minutes?: number
+  total?: number
+}
+
+const TABLES: TableInfo[] = [
+  { id: 't1', label: '1', seats: 2, status: 'zasedena', server: 'Maja', minutes: 35, total: 42.5 },
+  { id: 't2', label: '2', seats: 4, status: 'plačilo', server: 'Tomaž', minutes: 78, total: 89.0 },
+  { id: 't3', label: '3', seats: 4, status: 'zasedena', server: 'Maja', minutes: 12, total: 31.0 },
+  { id: 't4', label: '4', seats: 2, status: 'prosta' },
+  { id: 't5', label: '5', seats: 6, status: 'zasedena', server: 'Maja', minutes: 5, total: 18.5 },
+  { id: 't6', label: '6', seats: 2, status: 'rezervirana', server: '—', minutes: 20 },
+  { id: 't7', label: '7', seats: 4, status: 'zasedena', server: 'Luka', minutes: 45, total: 67.0 },
+  { id: 't8', label: '8', seats: 4, status: 'zasedena', server: 'Luka', minutes: 9, total: 22.0 },
+  { id: 't9', label: '9', seats: 8, status: 'rezervirana', server: '—', minutes: 60 },
+  { id: 't10', label: '10', seats: 2, status: 'prosta' },
+  { id: 't11', label: '11', seats: 4, status: 'prosta' },
+  { id: 't12', label: '12', seats: 4, status: 'zasedena', server: 'Tomaž', minutes: 3, total: 0 },
 ]
 
 /* ============================================================
@@ -456,6 +519,431 @@ function PosDemo() {
 }
 
 /* ============================================================
+   KDS VIEW — Kitchen Display System kanban
+   ============================================================ */
+function KdsView() {
+  const columns: { key: KitchenOrder['status']; label: string; color: string; bgColor: string }[] = [
+    { key: 'nova', label: 'Nova naročila', color: 'text-amber-600', bgColor: 'bg-amber-50' },
+    { key: 'v-pripravi', label: 'V pripravi', color: 'text-sky-600', bgColor: 'bg-sky-50' },
+    { key: 'pripravljena', label: 'Pripravljena', color: 'text-emerald-600', bgColor: 'bg-emerald-50' },
+  ]
+
+  return (
+    <div>
+      {/* KDS header */}
+      <div className="flex items-center justify-between mb-4 p-3 bg-slate-900 rounded-xl text-white">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+            <Utensils className="h-4 w-4 text-emerald-400" />
+          </div>
+          <div>
+            <div className="text-sm font-bold">Kuhinjski zaslon · KDS</div>
+            <div className="text-[10px] text-slate-400">6 aktivnih naročil · 2 kuharja</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-4 text-xs">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-slate-300">V živo</span>
+          </span>
+          <span className="text-slate-400">Povp. čas: <strong className="text-white">8.4 min</strong></span>
+        </div>
+      </div>
+
+      {/* Kanban columns */}
+      <div className="grid md:grid-cols-3 gap-4">
+        {columns.map((col) => {
+          const orders = KITCHEN_ORDERS.filter((o) => o.status === col.key)
+          return (
+            <div key={col.key} className={`${col.bgColor} rounded-xl p-3 min-h-[400px]`}>
+              <div className="flex items-center justify-between mb-3">
+                <div className={`text-xs font-bold ${col.color} uppercase tracking-wide flex items-center gap-1.5`}>
+                  <span className={`w-2 h-2 rounded-full ${col.color.replace('text-', 'bg-')}`} />
+                  {col.label}
+                </div>
+                <span className={`px-2 py-0.5 rounded-full bg-white ${col.color} text-xs font-bold`}>
+                  {orders.length}
+                </span>
+              </div>
+              <div className="space-y-2">
+                {orders.map((order) => (
+                  <motion.div
+                    key={order.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white rounded-lg p-3 shadow-sm border-l-4"
+                    style={{
+                      borderLeftColor:
+                        order.status === 'nova' ? '#f59e0b' : order.status === 'v-pripravi' ? '#0ea5e9' : '#10b981',
+                    }}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <div className="text-xs font-bold text-slate-900">{order.table}</div>
+                        <div className="text-[10px] text-slate-400">#{order.id} · {order.server}</div>
+                      </div>
+                      <div className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${order.minutes > 10 ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-600'}`}>
+                        {order.minutes} min
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      {order.items.map((item, i) => (
+                        <div key={i} className="text-xs text-slate-700 flex items-start gap-1.5">
+                          <span className="font-bold text-emerald-600 tabular-nums shrink-0">{item.qty}×</span>
+                          <span className="flex-1">{item.name}</span>
+                          {item.note && (
+                            <span className="text-[9px] text-amber-600 italic bg-amber-50 px-1 rounded shrink-0">{item.note}</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+/* ============================================================
+   TABLES VIEW — Restaurant floor plan
+   ============================================================ */
+function TablesView() {
+  const statusConfig = {
+    prosta: { label: 'Prosta', bgColor: 'bg-white', borderColor: 'border-slate-300', textColor: 'text-slate-500', dot: 'bg-slate-300' },
+    zasedena: { label: 'Zasedena', bgColor: 'bg-emerald-50', borderColor: 'border-emerald-400', textColor: 'text-emerald-700', dot: 'bg-emerald-500' },
+    rezervirana: { label: 'Rezervirana', bgColor: 'bg-amber-50', borderColor: 'border-amber-400', textColor: 'text-amber-700', dot: 'bg-amber-500' },
+    plačilo: { label: 'Plačilo', bgColor: 'bg-sky-50', borderColor: 'border-sky-400', textColor: 'text-sky-700', dot: 'bg-sky-500' },
+  }
+
+  const stats = {
+    prosta: TABLES.filter((t) => t.status === 'prosta').length,
+    zasedena: TABLES.filter((t) => t.status === 'zasedena').length,
+    rezervirana: TABLES.filter((t) => t.status === 'rezervirana').length,
+    plačilo: TABLES.filter((t) => t.status === 'plačilo').length,
+  }
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4 p-3 bg-slate-900 rounded-xl text-white">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+            <LayoutGrid className="h-4 w-4 text-emerald-400" />
+          </div>
+          <div>
+            <div className="text-sm font-bold">Tloris restavracije</div>
+            <div className="text-[10px] text-slate-400">12 miz · 8 zasedenih · 4 natakarji</div>
+          </div>
+        </div>
+        <div className="hidden sm:flex items-center gap-3 text-xs">
+          {(Object.keys(statusConfig) as Array<keyof typeof statusConfig>).map((key) => (
+            <span key={key} className="flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${statusConfig[key].dot}`} />
+              <span className="text-slate-300">{statusConfig[key].label} ({stats[key]})</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Floor plan grid */}
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 p-4 bg-slate-50 rounded-xl min-h-[400px]">
+        {TABLES.map((table) => {
+          const cfg = statusConfig[table.status]
+          return (
+            <motion.div
+              key={table.id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ scale: 1.05 }}
+              className={`${cfg.bgColor} ${cfg.borderColor} border-2 rounded-xl p-3 cursor-pointer transition-all hover:shadow-md`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-bold text-slate-900">Miza {table.label}</span>
+                <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
+              </div>
+              <div className="text-[10px] text-slate-500 mb-2">{table.seats} oseb</div>
+              {table.status !== 'prosta' && (
+                <>
+                  <div className={`text-[10px] ${cfg.textColor} font-semibold mb-0.5`}>
+                    {table.status === 'rezervirana' ? 'Rezervirana' : table.server}
+                  </div>
+                  {table.minutes !== undefined && (
+                    <div className="text-[9px] text-slate-400">
+                      {table.status === 'rezervirana' ? `čez ${table.minutes} min` : `${table.minutes} min`}
+                    </div>
+                  )}
+                  {table.total !== undefined && table.total > 0 && (
+                    <div className="text-xs font-bold text-slate-900 mt-1 tabular-nums">
+                      {table.total.toFixed(2)} €
+                    </div>
+                  )}
+                </>
+              )}
+            </motion.div>
+          )
+        })}
+      </div>
+
+      {/* Summary */}
+      <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {(Object.keys(statusConfig) as Array<keyof typeof statusConfig>).map((key) => (
+          <div key={key} className={`${statusConfig[key].bgColor} border ${statusConfig[key].borderColor} rounded-lg p-2.5 text-center`}>
+            <div className={`text-2xl font-bold ${statusConfig[key].textColor} tabular-nums`}>{stats[key]}</div>
+            <div className="text-[10px] text-slate-500">{statusConfig[key].label}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ============================================================
+   ANALYTICS VIEW — Dashboard z graf-i
+   ============================================================ */
+const HOURLY_DATA = [
+  { hour: '10h', promet: 120, naročila: 8 },
+  { hour: '11h', promet: 280, naročila: 18 },
+  { hour: '12h', promet: 890, naročila: 52 },
+  { hour: '13h', promet: 1240, naročila: 78 },
+  { hour: '14h', promet: 680, naročila: 41 },
+  { hour: '15h', promet: 320, naročila: 22 },
+  { hour: '16h', promet: 410, naročila: 28 },
+  { hour: '17h', promet: 720, naročila: 45 },
+  { hour: '18h', promet: 1380, naročila: 82 },
+  { hour: '19h', promet: 1680, naročila: 95 },
+  { hour: '20h', promet: 1420, naročila: 84 },
+  { hour: '21h', promet: 890, naročila: 56 },
+  { hour: '22h', promet: 420, naročila: 24 },
+]
+
+const TOP_ITEMS = [
+  { name: 'Pizza Margherita', količina: 48, promet: 528 },
+  { name: 'Čevapi', količina: 42, promet: 609 },
+  { name: 'Burger Noro Lep', količina: 35, promet: 525 },
+  { name: 'Rižota s sadeži', količina: 28, promet: 448 },
+  { name: 'Pizza Capricciosa', količina: 24, promet: 312 },
+]
+
+const CATEGORY_SPLIT = [
+  { name: 'Glavne jedi', value: 38, color: '#10b981' },
+  { name: 'Pice', value: 28, color: '#f43f5e' },
+  { name: 'Pijače', value: 18, color: '#0ea5e9' },
+  { name: 'Predjedi', value: 10, color: '#f59e0b' },
+  { name: 'Sladice', value: 6, color: '#a855f7' },
+]
+
+function AnalyticsView() {
+  return (
+    <div>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4 p-3 bg-slate-900 rounded-xl text-white">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+            <BarChart3 className="h-4 w-4 text-emerald-400" />
+          </div>
+          <div>
+            <div className="text-sm font-bold">Analitika · Danes</div>
+            <div className="text-[10px] text-slate-400">{new Date().toLocaleDateString('sl-SI', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-lg font-bold text-emerald-400 tabular-nums">€10,270</div>
+          <div className="text-[10px] text-slate-400">+18% vs včeraj</div>
+        </div>
+      </div>
+
+      {/* KPI row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+        {[
+          { label: 'Promet', value: '€10,270', change: '+18%', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+          { label: 'Naročila', value: '633', change: '+12%', icon: Receipt, color: 'text-sky-600', bg: 'bg-sky-50' },
+          { label: 'Povr. račun', value: '€16.22', change: '+5%', icon: CreditCard, color: 'text-amber-600', bg: 'bg-amber-50' },
+          { label: 'Zasedenost', value: '78%', change: '+8%', icon: Users, color: 'text-purple-600', bg: 'bg-purple-50' },
+        ].map((kpi, i) => (
+          <Card key={i} className="p-3 border-slate-200">
+            <div className="flex items-center justify-between mb-1">
+              <div className={`w-7 h-7 rounded-lg ${kpi.bg} flex items-center justify-center`}>
+                <kpi.icon className={`h-3.5 w-3.5 ${kpi.color}`} />
+              </div>
+              <span className="text-[10px] text-emerald-600 font-bold">{kpi.change}</span>
+            </div>
+            <div className="text-lg font-bold text-slate-900 tabular-nums">{kpi.value}</div>
+            <div className="text-[10px] text-slate-500">{kpi.label}</div>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-4">
+        {/* Hourly revenue chart */}
+        <Card className="lg:col-span-2 p-4 border-slate-200">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <div className="text-sm font-bold text-slate-900">Promet po urah</div>
+              <div className="text-[10px] text-slate-500">Dnevni trend z AI predikcijo za 22h</div>
+            </div>
+            <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-0 text-[10px]">
+              <Sparkles className="h-2.5 w-2.5 mr-1" />
+              AI predikcija
+            </Badge>
+          </div>
+          <ResponsiveContainer width="100%" height={200}>
+            <AreaChart data={HOURLY_DATA} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorPromet" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+              <XAxis dataKey="hour" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'white',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                }}
+              />
+              <Area type="monotone" dataKey="promet" stroke="#10b981" strokeWidth={2} fill="url(#colorPromet)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </Card>
+
+        {/* Category pie */}
+        <Card className="p-4 border-slate-200">
+          <div className="text-sm font-bold text-slate-900 mb-1">Razdelitev po kategorijah</div>
+          <div className="text-[10px] text-slate-500 mb-2">Delež prometa</div>
+          <ResponsiveContainer width="100%" height={150}>
+            <PieChart>
+              <Pie
+                data={CATEGORY_SPLIT}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={35}
+                outerRadius={60}
+                paddingAngle={2}
+              >
+                {CATEGORY_SPLIT.map((entry, i) => (
+                  <Cell key={i} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'white',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="space-y-1 mt-2">
+            {CATEGORY_SPLIT.map((cat, i) => (
+              <div key={i} className="flex items-center justify-between text-[10px]">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }} />
+                  <span className="text-slate-600">{cat.name}</span>
+                </span>
+                <span className="font-bold text-slate-900 tabular-nums">{cat.value}%</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      {/* Top items */}
+      <Card className="mt-4 p-4 border-slate-200">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="text-sm font-bold text-slate-900">Top 5 jedi (menu engineering)</div>
+            <div className="text-[10px] text-slate-500">Najbolj donosni artikli danes</div>
+          </div>
+          <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-0 text-[10px]">
+            <Star className="h-2.5 w-2.5 mr-1 fill-amber-500" />
+            Zmagovalci
+          </Badge>
+        </div>
+        <ResponsiveContainer width="100%" height={160}>
+          <BarChart data={TOP_ITEMS} layout="vertical" margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
+            <XAxis type="number" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+            <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: '#475569' }} axisLine={false} tickLine={false} width={120} />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'white',
+                border: '1px solid #e2e8f0',
+                borderRadius: '8px',
+                fontSize: '12px',
+              }}
+            />
+            <Bar dataKey="promet" fill="#10b981" radius={[0, 4, 4, 0]} barSize={18} />
+          </BarChart>
+        </ResponsiveContainer>
+      </Card>
+    </div>
+  )
+}
+
+/* ============================================================
+   PRODUCT TOUR — 4-view interactive showcase
+   ============================================================ */
+function ProductTour() {
+  const [activeView, setActiveView] = useState<'pos' | 'kds' | 'tables' | 'analytics'>('pos')
+
+  const views = [
+    { key: 'pos' as const, label: 'POS Blagajna', icon: Receipt, desc: 'Natakar + Gost' },
+    { key: 'kds' as const, label: 'Kuhinja (KDS)', icon: Utensils, desc: 'Kanban naročil' },
+    { key: 'tables' as const, label: 'Mize', icon: LayoutGrid, desc: 'Tloris restavracije' },
+    { key: 'analytics' as const, label: 'Analitika', icon: BarChart3, desc: 'AI dashboard' },
+  ]
+
+  return (
+    <div>
+      {/* View selector tabs */}
+      <div className="flex justify-center mb-8">
+        <div className="inline-flex items-center bg-slate-100 rounded-xl p-1 gap-1 flex-wrap justify-center">
+          {views.map((v) => (
+            <button
+              key={v.key}
+              onClick={() => setActiveView(v.key)}
+              className={`px-4 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
+                activeView === v.key
+                  ? 'bg-white text-emerald-700 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              <v.icon className="h-4 w-4" />
+              <span>{v.label}</span>
+              <span className="hidden sm:inline text-[10px] text-slate-400 font-normal">· {v.desc}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Active view */}
+      <motion.div
+        key={activeView}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        {activeView === 'pos' && <PosDemo />}
+        {activeView === 'kds' && <KdsView />}
+        {activeView === 'tables' && <TablesView />}
+        {activeView === 'analytics' && <AnalyticsView />}
+      </motion.div>
+    </div>
+  )
+}
+
+/* ============================================================
    MAIN PAGE
    ============================================================ */
 export default function Home() {
@@ -615,25 +1103,25 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== INTERACTIVE POS DEMO ===== */}
+      {/* ===== INTERACTIVE PRODUCT TOUR ===== */}
       <section id="demo" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/40 to-white border-y border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <Badge className="mb-4 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
               <ScanLine className="h-3.5 w-3.5 mr-1.5" />
-              Poskusi živo · brez registracije
+              4 moduli v živo · brez registracije
             </Badge>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
-              Dve izkušnji,{' '}
-              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">ena platforma</span>
+              Celoten sistem{' '}
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">v akciji</span>
             </h2>
             <p className="mt-4 text-lg text-slate-600">
-              Preklopi med <strong>natakarjem</strong> (TEXT — kot Toast/Lightspeed) in <strong>gostom</strong> (SLIKE — upselling).
-              Klikni artikel in ga dodaj v naročilo.
+              Preklopi med <strong>POS blagajno</strong> (Natakar + Gost), <strong>kuhinjskim zaslonom</strong>,
+              <strong> tlorisom miz</strong> in <strong>AI analitiko</strong>. Vse kar potrebuješ na enem mestu.
             </p>
           </div>
 
-          <PosDemo />
+          <ProductTour />
 
           {/* Research insight */}
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }} className="mt-12">
