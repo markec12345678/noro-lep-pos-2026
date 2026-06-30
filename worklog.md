@@ -292,3 +292,59 @@ Stage Summary:
 - 12 sekcij: Header, Hero, Stats, Product Tour (real-time sync), Features, Comparison, Testimonials, ROI, Pricing, FAQ, CTA, Footer
 - Stran je ~2050 vrstic TypeScript
 - Vse funkcionalnosti delujejo (agent-browser verificirano)
+
+---
+Task ID: 12
+Agent: main (Z.ai Code)
+Task: Analiziraj in primerjaj 4 vmesnike (POS, KDS, Tables, Gost) z najboljšimi na svetu
+
+Work Log:
+- Posnel sveže screenshot-e naših 4 vmesnikov:
+  * ours-pos-natakar.png (TEXT gumbi, 24 artiklov)
+  * ours-pos-gost.png (SLIKE jedi, online ordering)
+  * ours-kds.png (3-column kanban)
+  * ours-tables.png (12 miz, 4 statusi)
+- VLM side-by-side primerjave (GLM-4.6V):
+  1. POS natakar vs Toast (svetovni #1):
+     - Naš: 6.3/10 (clean minimal, a sparse)
+     - Toast: 8.5/10 (modular, color-coded, split-screen)
+     - Zmagovalca: Toast (a primerjamo demo z 10-letnim produktom)
+  2. KDS vs Lightspeed:
+     - Naš: 9.0/10 (3-column kanban, timers, advance gumbi)
+     - Lightspeed: 5.5/10 (POS-centric, brez workflow-a)
+     - Zmagovalca: NORO LEP! 🏆
+  3. Gost view vs Shopify:
+     - Naš: 7.5/10 (AI slike jedi, kategorije, cart)
+     - Shopify: 8.5/10 (vibrant brand, integrated checkout, promo tiles)
+     - Zmagovalca: Shopify (a je retail ne restaurant)
+  4. Tables vs TouchBistro:
+     - Naš: 8.5/10 (12 miz grid, 4 statusi, server+čas+znesek)
+     - TouchBistro: 6.0/10 (order-centric, small table map)
+     - Zmagovalca: NORO LEP! 🏆
+- Zgradil InterfaceComparison komponento:
+  * 4 kartice z side-by-side screenshot-i
+  * Vsaka: naš score + konkurent score + strengths + verdict
+  * Emerald highlight za zmagovalne (KDS, Tables)
+  * Score summary bar (2 zmage vs 2 poraza)
+  * Honest verdict card (dark gradient) z badges
+- Dodal "Vmesniki" navigacijski link
+- VLM ocene nove sekcije:
+  * Interface comparison: 8/10 ("refreshingly honest, transparently showing wins and losses")
+  * Full page (v9): 9/10 (ohranjeno)
+- Push na GitHub: commit 94f5faf na nextjs-branch
+
+Ključne ugotovitve:
+- ZMAGA: KDS (9/10) — kitchen-centric > POS-centric (Lightspeed)
+- ZMAGA: Tables (8.5/10) — floor-plan-centric > order-centric (TouchBistro)
+- PORAZ: POS natakar (6.3 vs 8.5) — Toast ima 10 let prednosti
+- PORAZ: Gost view (7.5 vs 8.5) — Shopify je retail-focused
+- Naša prednost: kitchen-centric in floor-plan-centric design
+- Naša slabost: POS natakar še ni modularen (demo omejitev)
+
+Stage Summary:
+- Zgrajena "Vmesniki v primerjavi" sekcija z 4 VLM primerjavami
+- 2 zmagi (KDS 9/10, Tables 8.5/10) + 2 poraza (POS 6.3, Gost 7.5)
+- VLM: "refreshingly honest, builds trust through transparency"
+- Push na GitHub (nextjs-landing, commit 94f5faf)
+- Stran ima sedaj 13 sekcij, ~2280 vrstic TypeScript
+- VLM full page: 9/10 (ohranjeno)
