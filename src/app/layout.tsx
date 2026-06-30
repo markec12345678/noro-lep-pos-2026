@@ -14,24 +14,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "POS Research 2026 — Svetovna primerjava POS blagajn",
-  description: "Raziskava 12 vodilnih svetovnih POS blagajn (Toast, Square, Lightspeed, Shopify, Lavu) z VLM analizo dizajna in konkretnimi priporočili za slovensko POS aplikacijo.",
-  keywords: ["POS", "blagajna", "Toast", "Square", "Lightspeed", "Shopify", "Lavu", "restavracija", "VLM", "dizajn"],
-  authors: [{ name: "POS Research Team" }],
+  title: "Noro Lep POS — Najlepša slovenska restavracijska blagajna 2026",
+  description: "Noro Lep POS je najlepša slovenska POS blagajna z avtomatskim FURS, AI predikcijo prometa in kuhinjskim zaslonom. Nameščena v 15 minutah. Brezplačni 30-dnevni preizkus.",
+  keywords: ["POS", "blagajna", "FURS", "restavracija", "kuhinjski zaslon", "AI", "rezervacije", "zaloge", "Slovenija"],
+  authors: [{ name: "Noro Lep POS" }],
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
   },
   openGraph: {
-    title: "POS Research 2026 — Svetovna primerjava",
-    description: "12 POS sistemov raziskanih, screenshot-i in VLM analiza dizajna",
+    title: "Noro Lep POS — Najlepša slovenska restavracijska blagajna",
+    description: "AI-poganjana POS blagajna z avtomatskim FURS in kuhinjskim zaslonom. 542 restavracij že zaupa nam.",
     url: "https://chat.z.ai",
-    siteName: "POS Research",
+    siteName: "Noro Lep POS",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "POS Research 2026",
-    description: "12 POS sistemov raziskanih z VLM analizo dizajna",
+    title: "Noro Lep POS — Najlepša slovenska blagajna",
+    description: "AI-poganjana POS blagajna z avtomatskim FURS in kuhinjskim zaslonom.",
   },
 };
 

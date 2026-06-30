@@ -1,37 +1,37 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   ArrowRight,
-  Award,
   BarChart3,
-  Bot,
+  Bell,
+  Calendar,
+  Check,
   CheckCircle2,
+  ChevronDown,
   Clock,
-  Cpu,
-  Eye,
-  ExternalLink,
-  Gauge,
+  CreditCard,
   Globe,
-  HelpCircle,
-  ImageIcon,
-  Layers,
-  Loader2,
-  Moon,
-  Palette,
+  Heart,
+  LayoutGrid,
+  Minus,
+  Package,
+  Plus,
   Receipt,
-  Scale,
-  ShieldAlert,
+  ScanLine,
+  Shield,
   ShieldCheck,
+  ShoppingBag,
+  Smartphone,
   Sparkles,
   Star,
-  Target,
   TrendingUp,
+  Utensils,
   Users,
-  XCircle,
+  Wifi,
   Zap,
 } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { motion, useInView, useMotionValue, useSpring, animate } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -42,1000 +42,1205 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs'
 
-interface PosSystem {
-  id: string
-  name: string
-  url: string
-  category: string
-  country: string
-  screenshot: string
-  status: 'analyzed' | 'blocked' | 'error'
-  accentColor: string
-  accentName: string
-  typography: string
-  heroStyle: string
-  keyFeatures: string[]
-  vlmSummary: string
-  designScore: number
-  strengths: string[]
-  weaknesses: string[]
-  takeaway: string
-}
-
-interface DesignPattern {
-  category: string
-  pattern: string
-  examples: string[]
-  recommendation: string
-}
-
-interface Recommendation {
-  priority: 'critical' | 'high' | 'medium' | 'low'
-  title: string
-  description: string
-  inspiration: string[]
-}
-
-interface ColorPalette {
-  name: string
-  primary: string
-  accent: string
-  background: string
-  foreground: string
-  inspiredBy: string
-}
-
-interface ResearchData {
-  generatedAt: string
-  totalSystemsResearched: number
-  successfullyAnalyzed: number
-  blockedByProtection: number
-  vlmAnalyses: number
-  systems: PosSystem[]
-  patterns: DesignPattern[]
-  ourCurrentState: {
-    screenshot: string
-    vlmVerdict: string
-    score: number
-    issues: string[]
-  }
-  recommendations: Recommendation[]
-  colorPalette: ColorPalette[]
-}
-
-const CATEGORY_LABEL: Record<string, string> = {
-  enterprise: 'Enterprise',
-  restaurant: 'Restavracija',
-  retail: 'Maloprodaja',
-  'all-in-one': 'Vse-v-enem',
-}
-
-const PRIORITY_CONFIG = {
-  critical: { label: 'Kritično', color: 'bg-red-500', text: 'text-red-600', border: 'border-red-200' },
-  high: { label: 'Visoka', color: 'bg-orange-500', text: 'text-orange-600', border: 'border-orange-200' },
-  medium: { label: 'Srednja', color: 'bg-amber-500', text: 'text-amber-600', border: 'border-amber-200' },
-  low: { label: 'Nizka', color: 'bg-emerald-500', text: 'text-emerald-600', border: 'border-emerald-200' },
-}
-
-function scoreColor(score: number): string {
-  if (score >= 9) return 'text-emerald-600'
-  if (score >= 8) return 'text-teal-600'
-  if (score >= 7) return 'text-amber-600'
-  if (score >= 6) return 'text-orange-600'
-  return 'text-red-600'
-}
-
-function scoreBg(score: number): string {
-  if (score >= 9) return 'bg-emerald-500'
-  if (score >= 8) return 'bg-teal-500'
-  if (score >= 7) return 'bg-amber-500'
-  if (score >= 6) return 'bg-orange-500'
-  return 'bg-red-500'
-}
-
-export default function Home() {
-  const [data, setData] = useState<ResearchData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<'all' | 'analyzed' | 'blocked'>('all')
+/* ============================================================
+   ANIMATED COUNTER — counts up when scrolled into view
+   ============================================================ */
+function AnimatedCounter({
+  value,
+  suffix = '',
+  prefix = '',
+  decimals = 0,
+}: {
+  value: number
+  suffix?: string
+  prefix?: string
+  decimals?: number
+}) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const inView = useInView(ref, { once: true, margin: '-50px' })
+  const [display, setDisplay] = useState(0)
 
   useEffect(() => {
-    fetch('/api/pos-research')
-      .then((r) => r.json())
-      .then((d) => {
-        setData(d)
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
-  }, [])
-
-  if (loading || !data) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-        <Loader2 className="h-10 w-10 animate-spin text-emerald-600" />
-        <p className="mt-4 text-slate-600">Nalagam svetovno primerjavo POS blagajn…</p>
-      </div>
-    )
-  }
-
-  const filteredSystems = data.systems.filter((s) => {
-    if (filter === 'all') return true
-    if (filter === 'analyzed') return s.status === 'analyzed'
-    if (filter === 'blocked') return s.status === 'blocked' || s.status === 'error'
-    return true
-  })
-
-  const topSystems = [...data.systems]
-    .filter((s) => s.status === 'analyzed')
-    .sort((a, b) => b.designScore - a.designScore)
-    .slice(0, 3)
+    if (!inView) return
+    const controls = animate(0, value, {
+      duration: 1.8,
+      ease: 'easeOut',
+      onUpdate: (v) => setDisplay(v),
+    })
+    return () => controls.stop()
+  }, [inView, value])
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-slate-900">
+    <span ref={ref}>
+      {prefix}
+      {display.toLocaleString('sl-SI', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      })}
+      {suffix}
+    </span>
+  )
+}
+
+/* ============================================================
+   FEATURE DATA — 9 features with curated accent colors
+   ============================================================ */
+const FEATURES = [
+  {
+    icon: ScanLine,
+    title: 'Hitra blagajna',
+    desc: 'Skeniraj, tapni, plačaj. Račun izstavljen v 8 sekundah z vgrajenim FURS ZOI/EOR.',
+    color: 'emerald',
+    iconBg: 'bg-emerald-50',
+    iconColor: 'text-emerald-600',
+  },
+  {
+    icon: LayoutGrid,
+    title: 'Upravljanje miz',
+    desc: 'Vizualni tloris restavracije z barvno kodiranimi statusi miz in rezervacijami v realnem času.',
+    color: 'teal',
+    iconBg: 'bg-teal-50',
+    iconColor: 'text-teal-600',
+  },
+  {
+    icon: Utensils,
+    title: 'Kuhinjski KDS',
+    desc: 'Kanban prikaz naročil za kuharje. Status jedi, časi priprave, avtomatska obvestila.',
+    color: 'amber',
+    iconBg: 'bg-amber-50',
+    iconColor: 'text-amber-600',
+  },
+  {
+    icon: Package,
+    title: 'Zaloge & dobave',
+    desc: 'Sledenje zalog v realnem času, avtomatski opozorili, upravljanje dobaviteljev in naročil.',
+    color: 'purple',
+    iconBg: 'bg-purple-50',
+    iconColor: 'text-purple-600',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'FURS skladnost',
+    desc: 'Avtomatska ZOI šifra, EOR potrdilo, QR koda na računu. Popolna skladnost z ZDavPR.',
+    color: 'rose',
+    iconBg: 'bg-rose-50',
+    iconColor: 'text-rose-600',
+  },
+  {
+    icon: BarChart3,
+    title: 'Analitika & poročila',
+    desc: 'Dnevna poročila, Z-report, analiza jedi (menu engineering), predikcija prometa z AI.',
+    color: 'sky',
+    iconBg: 'bg-sky-50',
+    iconColor: 'text-sky-600',
+  },
+  {
+    icon: Heart,
+    title: 'Vernostni program',
+    desc: 'Točkovanje gostov, nagrade,CRM s zgodovino obiskov in personaliziranimi ponudbami.',
+    color: 'pink',
+    iconBg: 'bg-pink-50',
+    iconColor: 'text-pink-600',
+  },
+  {
+    icon: Calendar,
+    title: 'Rezervacije',
+    desc: 'Online rezervacijski sistem z integracijo na Google Calendar in SMS opomniki za goste.',
+    color: 'indigo',
+    iconBg: 'bg-indigo-50',
+    iconColor: 'text-indigo-600',
+  },
+  {
+    icon: Smartphone,
+    title: 'Mobilna aplikacija',
+    desc: 'Naročanje za goste preko QR kode, sledenje statusa naročila, povratne informacije.',
+    color: 'lime',
+    iconBg: 'bg-lime-50',
+    iconColor: 'text-lime-600',
+  },
+]
+
+/* ============================================================
+   STATS — animated counters
+   ============================================================ */
+const STATS = [
+  { value: 542, suffix: '+', label: 'Restavracij zaupa nam', icon: Utensils, color: 'text-emerald-600' },
+  { value: 2.4, suffix: 'M€', label: 'Mesečni promet gostov', decimals: 1, icon: TrendingUp, color: 'text-teal-600' },
+  { value: 30, suffix: '%', label: 'Manj časa na račun', icon: Clock, color: 'text-amber-600' },
+  { value: 4.9, suffix: '/5', label: 'Povprečna ocena', decimals: 1, icon: Star, color: 'text-rose-600' },
+]
+
+/* ============================================================
+   PRICING TIERS
+   ============================================================ */
+const PRICING = [
+  {
+    name: 'Starter',
+    price: '0',
+    period: '/mes',
+    desc: 'Za majhne bife in kioske',
+    features: [
+      '1 lokacija, 1 blagajna',
+      'Do 50 jedi na meniju',
+      'FURS ZOI & EOR',
+      'Osnovna poročila',
+      'Email podpora',
+    ],
+    cta: 'Brezplačni začetek',
+    popular: false,
+  },
+  {
+    name: 'Professional',
+    price: '49',
+    period: '/mes',
+    desc: 'Za restavracije in lokale',
+    features: [
+      'Do 3 lokacije, 5 blagajn',
+      'Neomejen meni & modifikatorji',
+      'Kuhinjski KDS v realnem času',
+      'Zaloge & dobavitelji',
+      'Vernostni program & rezervacije',
+      'AI predikcija prometa',
+      'Prioritetna 24/7 podpora',
+    ],
+    cta: '30-dnevni preizkus',
+    popular: true,
+  },
+  {
+    name: 'Enterprise',
+    price: 'Po meri',
+    period: '',
+    desc: 'Za verige in franšize',
+    features: [
+      'Neomejene lokacije & blagajne',
+      'Multi-valutni & multi-jezik',
+      'API integracije (Stripe, SAP…)',
+      'Namenski account manager',
+      'On-site implementacija',
+      'SLA 99.9% garancija',
+    ],
+    cta: 'Kontaktiraj prodajo',
+    popular: false,
+  },
+]
+
+/* ============================================================
+   TESTIMONIALS
+   ============================================================ */
+const TESTIMONIALS = [
+  {
+    quote:
+      'Po prehodu na Noro Lep POS smo skrajšali čas izdaje računa za 40%. FURS dela avtomatsko, kuharji pa končno vidijo vsa naročila na enem zaslonu.',
+    name: 'Marko Kovač',
+    role: 'Lastnik, Gostilna Pri Lovru',
+    location: 'Ljubljana',
+    avatar: 'MK',
+    avatarBg: 'bg-emerald-500',
+    rating: 5,
+  },
+  {
+    quote:
+      'AI predikcija prometa je zaklad. Zdaj vemo, koliko zaloge naročiti za vikend, brez da bi karkoli ugibali. Prihranili smo 15% na odpadu.',
+    name: 'Ana Zupan',
+    role: 'Direktorica, Restavracija Mariana',
+    location: 'Bled',
+    avatar: 'AZ',
+    avatarBg: 'bg-teal-500',
+    rating: 5,
+  },
+  {
+    quote:
+      'Mobilna aplikacija za goste je dvignila naš povprečni račun za 22%. QR naročanje deluje v 3 sekundah, gostje so navdušeni.',
+    name: 'Tomaž Horvat',
+    role: 'Upravljalec, Pizza Factory',
+    location: 'Maribor',
+    avatar: 'TH',
+    avatarBg: 'bg-amber-500',
+    rating: 5,
+  },
+]
+
+/* ============================================================
+   FAQ
+   ============================================================ */
+const FAQ = [
+  {
+    q: 'Kako hitro lahko začnem uporabljati Noro Lep POS?',
+    a: 'Registracija traja 2 minuti. Po namestitvi aplikacije na tablet ali računalnik vneseš meni (ali uvoziš iz Excela), aktiviraš FURS podatke in si pripravljen za prvi račun v 15 minutah.',
+  },
+  {
+    q: 'Ali sistem deluje brez internetne povezave?',
+    a: 'Da. Vsi naročila in računi se shranjujejo lokalno in se samodejno sinhronizirajo s FURS takoj, ko je povezava spet na voljo. Tvoja restavracija nikoli ne stoji.',
+  },
+  {
+    q: 'Katero strojno opremo potrebujem?',
+    a: 'Noro Lep deluje na kateremkoli Android tabletu, iPad-u, Windows računalniku ali Mac-u. Podpira vse pogoste tiskalnike računov (EPSON, Star, Bixolon), blagajniške predale in QR scannerje.',
+  },
+  {
+    q: 'Kakšna je FURS skladnost?',
+    a: 'Noro Lep je polno skladen z ZDavPR. Avtomatsko generira ZOI (zaščitna oznaka izdajatelja) in pridobiva EOR (enkratna identifikacijska oznaka računa) od FURS v realnem času. QR koda na računu je vključena.',
+  },
+  {
+    q: 'Ali lahko uporabljam sistem v več lokacijah?',
+    a: 'Da. Paket Professional podpira do 3 lokacije z enotnim upravljanjem menija, cen in poročil. Enterprise paket omogoča neomejeno število lokacij s centraliziranim nadzorom.',
+  },
+  {
+    q: 'Kaj če potrebujem pomoč?',
+    a: 'Paket Professional vključuje 24/7 prioriteto podporo preko chata, emaila in telefonov. Enterprise paket vključuje namenskega account manager-ja in SLA 99.9% garancijo.',
+  },
+]
+
+/* ============================================================
+   MAIN PAGE
+   ============================================================ */
+export default function Home() {
+  return (
+    <div className="min-h-screen flex flex-col bg-white text-slate-900 antialiased">
       {/* ===== HEADER ===== */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-slate-200/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <a href="#" className="flex items-center gap-2.5 group">
+            <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:shadow-emerald-500/50 transition-shadow">
               <Receipt className="h-5 w-5 text-white" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-amber-400 border-2 border-white" />
             </div>
             <div className="flex flex-col leading-none">
-              <span className="font-bold text-base">POS Research</span>
-              <span className="text-[11px] text-slate-500">Svetovna primerjava 2026</span>
+              <span className="font-bold text-base tracking-tight">Noro Lep</span>
+              <span className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">POS · 2026</span>
             </div>
-          </div>
+          </a>
+
           <nav className="hidden md:flex items-center gap-1">
-            <a href="#sistemi" className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition">Sistemi</a>
-            <a href="#primerjava" className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition">Primerjava</a>
-            <a href="#vzorec" className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition">Vzorec</a>
-            <a href="#palete" className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition">Palete</a>
-            <a href="#priporocila" className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition">Priporočila</a>
+            {[
+              { label: 'Funkcije', href: '#funkcije' },
+              { label: 'Zakaj mi', href: '#zakaj' },
+              { label: 'Kako deluje', href: '#kako' },
+              { label: 'Cene', href: '#cene' },
+              { label: 'Mnenja', href: '#mnenja' },
+              { label: 'FAQ', href: '#faq' },
+            ].map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition"
+              >
+                {item.label}
+              </a>
+            ))}
           </nav>
-          <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
-            <Sparkles className="h-4 w-4 mr-2" />
-            Začni z graduacijo
-          </Button>
+
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" className="hidden sm:inline-flex text-slate-600">
+              Prijava
+            </Button>
+            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
+              Brezplačni preizkus
+              <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+            </Button>
+          </div>
         </div>
       </header>
 
       {/* ===== HERO ===== */}
       <section className="relative overflow-hidden">
-        {/* Subtle grid background */}
+        {/* Gradient mesh background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/60 via-white to-white" />
         <div
-          className="absolute inset-0 opacity-[0.035]"
+          className="absolute inset-0 opacity-[0.04]"
           style={{
             backgroundImage:
               'linear-gradient(to right, #0f172a 1px, transparent 1px), linear-gradient(to bottom, #0f172a 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
+            backgroundSize: '56px 56px',
           }}
         />
-        {/* Emerald glow */}
-        <div className="absolute -top-32 -right-32 w-[36rem] h-[36rem] rounded-full bg-emerald-400/20 blur-3xl" />
-        <div className="absolute -bottom-32 -left-32 w-[36rem] h-[36rem] rounded-full bg-teal-400/15 blur-3xl" />
+        {/* Emerald glow orbs */}
+        <div className="absolute -top-40 -right-40 w-[40rem] h-[40rem] rounded-full bg-emerald-400/20 blur-3xl" />
+        <div className="absolute top-20 -left-40 w-[32rem] h-[32rem] rounded-full bg-teal-400/15 blur-3xl" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 lg:pt-24 lg:pb-28">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-16 lg:pt-20 lg:pb-24">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left: Text */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-center lg:text-left"
+              transition={{ duration: 0.7 }}
             >
-              <Badge variant="outline" className="mb-6 px-3 py-1 border-emerald-200 bg-emerald-50 text-emerald-700">
-                <Globe className="h-3.5 w-3.5 mr-1.5" />
-                {data.totalSystemsResearched} svetovnih POS sistemov raziskanih
-              </Badge>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 leading-[1.05]">
-                Najlepše POS blagajne{' '}
-                <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent">
-                  na svetu
+              <div className="flex flex-wrap items-center gap-2 mb-6">
+                <Badge className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100 border-0">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  AI-poganjana · FURS skladna
+                </Badge>
+                <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-700">
+                  <Star className="h-3 w-3 mr-1 fill-amber-500 text-amber-500" />
+                  4.9/5 · 542 restavracij
+                </Badge>
+              </div>
+
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-slate-900 leading-[1.02]">
+                Tvoja restavracija{' '}
+                <span className="relative inline-block">
+                  <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent">
+                    zasluži več
+                  </span>
+                  <svg
+                    className="absolute -bottom-2 left-0 w-full"
+                    viewBox="0 0 300 12"
+                    fill="none"
+                    preserveAspectRatio="none"
+                  >
+                    <path
+                      d="M2 9C50 4 150 2 298 6"
+                      stroke="#10B981"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
+                  </svg>
                 </span>
-                , raziskane in primerjane z našo
               </h1>
-              <p className="mt-6 text-lg sm:text-xl text-slate-600 max-w-2xl lg:max-w-none leading-relaxed">
-                Z agent-browser sem obiskal 12 vodilnih POS platform (Toast, Square, Lightspeed, Shopify, Lavu…),
-                zajel screenshot-e in z VLM modelom analiziral dizajn vzorce. Tu je odkrito primerjalno poročilo
-                z konkretimi priporočili za našo aplikacijo.
+
+              <p className="mt-7 text-lg sm:text-xl text-slate-600 max-w-xl leading-relaxed">
+                Najlepša slovenska POS blagajna z avtomatskim FURS, AI predikcijo prometa
+                in kuhinjskim zaslonom. Nameščena v 15 minutah — pripravljena na prvi račun še danes.
               </p>
-              <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-                <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white h-12 px-6 text-base shadow-lg shadow-emerald-500/25">
-                  <Eye className="h-4 w-4 mr-2" />
-                  Raziskuj screenshot-e
+
+              <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white h-12 px-7 text-base shadow-lg shadow-emerald-500/30">
+                  <Zap className="h-4 w-4 mr-2" />
+                  Brezplačni 30-dnevni preizkus
                 </Button>
-                <Button size="lg" variant="outline" className="h-12 px-6 text-base border-slate-300 hover:bg-slate-50">
-                  <Target className="h-4 w-4 mr-2" />
-                  Priporočila za nas
+                <Button size="lg" variant="outline" className="h-12 px-7 text-base border-slate-300 hover:bg-slate-50">
+                  <PlayIcon className="h-4 w-4 mr-2" />
+                  Oglej si demo (2 min)
                 </Button>
+              </div>
+
+              {/* Trust badges */}
+              <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500">
+                <span className="flex items-center gap-1.5">
+                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                  FURS ZDavPR skladno
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Shield className="h-4 w-4 text-emerald-600" />
+                  GDPR skladno
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Globe className="h-4 w-4 text-emerald-600" />
+                  SLO · EN · DE · IT
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Wifi className="h-4 w-4 text-emerald-600" />
+                  Dela tudi offline
+                </span>
               </div>
             </motion.div>
 
-            {/* Right: Hero image */}
+            {/* Right: Hero image with floating cards */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.94 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.15 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
               className="relative"
             >
-              <div className="absolute -inset-4 bg-gradient-to-br from-emerald-400/30 to-teal-500/20 rounded-3xl blur-2xl" />
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-emerald-900/20 border border-white/60">
+              <div className="absolute -inset-4 bg-gradient-to-br from-emerald-400/30 via-teal-400/20 to-transparent rounded-3xl blur-2xl" />
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-emerald-900/20 border border-white/60 bg-slate-100">
                 { }
                 <img
-                  src="/pos-research/hero-pos-terminal.png"
-                  alt="Modern restaurant POS terminal with emerald UI"
+                  src="/pos-brand/hero-restaurant.png"
+                  alt="Noro Lep POS v restavraciji — natakar z emerald UI na tablici"
                   className="w-full h-auto"
                 />
-                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                  <Badge className="bg-white/90 text-emerald-700 hover:bg-white/90 border-0 backdrop-blur shadow-md">
-                    <Sparkles className="h-3 w-3 mr-1" />
-                    AI-generated hero
-                  </Badge>
-                  <Badge className="bg-emerald-600/90 text-white hover:bg-emerald-600/90 border-0 backdrop-blur shadow-md">
-                    8 / 10 VLM score
-                  </Badge>
-                </div>
               </div>
+
+              {/* Floating card 1: FURS confirmed */}
+              <motion.div
+                initial={{ opacity: 0, x: -20, y: 10 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.9 }}
+                className="absolute -left-3 sm:-left-6 top-8 bg-white rounded-xl shadow-xl border border-slate-100 p-3 flex items-center gap-2.5"
+              >
+                <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                </div>
+                <div className="leading-tight">
+                  <div className="text-xs font-semibold text-slate-900">FURS potrjen</div>
+                  <div className="text-[10px] text-slate-500">EOR · 0.3s</div>
+                </div>
+              </motion.div>
+
+              {/* Floating card 2: Revenue */}
+              <motion.div
+                initial={{ opacity: 0, x: 20, y: -10 }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.1 }}
+                className="absolute -right-3 sm:-right-6 bottom-20 bg-white rounded-xl shadow-xl border border-slate-100 p-3"
+              >
+                <div className="flex items-center gap-1.5 mb-1">
+                  <TrendingUp className="h-3.5 w-3.5 text-emerald-600" />
+                  <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wide">Danes</span>
+                </div>
+                <div className="text-lg font-bold text-slate-900">€2,847</div>
+                <div className="flex items-center gap-1 text-[10px]">
+                  <span className="text-emerald-600 font-semibold">+18%</span>
+                  <span className="text-slate-400">vs včeraj</span>
+                </div>
+              </motion.div>
+
+              {/* Floating card 3: Order ready */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.3 }}
+                className="absolute left-1/2 -translate-x-1/2 -bottom-3 bg-white rounded-xl shadow-xl border border-slate-100 px-3 py-2 flex items-center gap-2"
+              >
+                <div className="w-7 h-7 rounded-full bg-amber-100 flex items-center justify-center">
+                  <Bell className="h-3.5 w-3.5 text-amber-600" />
+                </div>
+                <span className="text-xs font-semibold text-slate-700">Miza 12 — jed pripravljena</span>
+                <span className="text-[10px] text-slate-400">· zdaj</span>
+              </motion.div>
             </motion.div>
           </div>
-
-          {/* Stats bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-4"
-          >
-            {[
-              { icon: Globe, label: 'Raziskanih sistemov', value: data.totalSystemsResearched, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-              { icon: CheckCircle2, label: 'Uspešno analiziranih', value: data.successfullyAnalyzed, color: 'text-teal-600', bg: 'bg-teal-50' },
-              { icon: ShieldAlert, label: 'Zaščitenih (Cloudflare)', value: data.blockedByProtection, color: 'text-amber-600', bg: 'bg-amber-50' },
-              { icon: Bot, label: 'VLM analiz', value: data.vlmAnalyses, color: 'text-purple-600', bg: 'bg-purple-50' },
-            ].map((stat, i) => (
-              <Card key={i} className="p-5 border-slate-200/70 shadow-sm hover:shadow-md transition-shadow">
-                <div className={`w-10 h-10 rounded-lg ${stat.bg} flex items-center justify-center mb-3`}>
-                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
-                </div>
-                <div className="text-3xl font-bold text-slate-900">{stat.value}</div>
-                <div className="text-sm text-slate-500 mt-0.5">{stat.label}</div>
-              </Card>
-            ))}
-          </motion.div>
         </div>
       </section>
 
-      {/* ===== TOP 3 PODIUM ===== */}
-      <section className="py-16 lg:py-20 bg-gradient-to-b from-white to-slate-50/50 border-y border-slate-200/60">
+      {/* ===== STATS BAR ===== */}
+      <section className="relative -mt-2 pb-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <Badge className="mb-3 bg-amber-100 text-amber-800 hover:bg-amber-100">
-              <Award className="h-3.5 w-3.5 mr-1.5" />
-              Top 3 po dizajn oceni
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {STATS.map((stat, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.5, delay: idx * 0.08 }}
+              >
+                <Card className="p-5 border-slate-200/70 shadow-sm hover:shadow-md transition-shadow bg-white">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center shrink-0">
+                      <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                    </div>
+                    <div>
+                      <div className="text-2xl lg:text-3xl font-bold text-slate-900 tabular-nums">
+                        <AnimatedCounter
+                          value={stat.value}
+                          suffix={stat.suffix}
+                          decimals={stat.decimals ?? 0}
+                        />
+                      </div>
+                      <div className="text-xs text-slate-500">{stat.label}</div>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== LOGOS STRIP ===== */}
+      <section className="py-10 border-y border-slate-100 bg-slate-50/40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-xs font-semibold text-slate-400 uppercase tracking-widest mb-6">
+            Zaupajo nam vodilne slovenske restavracije
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-5 opacity-60">
+            {['Gostilna Pri Lovru', 'Restavracija Mariana', 'Pizza Factory', 'Sushi Ljubljana', 'Bistro Bled', 'Kavarna Central'].map((name, i) => (
+              <span key={i} className="text-lg font-bold text-slate-700 tracking-tight" style={{ fontFamily: i % 2 === 0 ? 'serif' : 'sans-serif' }}>
+                {name}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FEATURES GRID ===== */}
+      <section id="funkcije" className="py-20 lg:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <Badge className="mb-4 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
+              <LayoutGrid className="h-3.5 w-3.5 mr-1.5" />
+              Vse v eni aplikaciji
             </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-              Najlepše POS blagajne po VLM oceni
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              9 modulov za popolno{' '}
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                restavracijo
+              </span>
             </h2>
-            <p className="mt-3 text-slate-600">
-              GLM-4.6V vision model je vsak screenshot ocenil po barvni paleti, tipografiji, layout-u,
-              hierarhiji in modernosti. Tu so zmagovalci.
+            <p className="mt-4 text-lg text-slate-600">
+              Od prvega naročila do končnega računa — vse kar potrebuješ za vodenje restavracije,
+              združeno v eni prelepši aplikaciji.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {topSystems.map((sys, idx) => (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {FEATURES.map((feature, idx) => (
               <motion.div
-                key={sys.id}
+                key={idx}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.5, delay: (idx % 3) * 0.1 }}
+              >
+                <Card className="group relative p-6 h-full border-slate-200/70 hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden">
+                  {/* Subtle gradient accent on hover */}
+                  <div className={`absolute -top-12 -right-12 w-32 h-32 ${feature.iconBg} rounded-full blur-2xl opacity-0 group-hover:opacity-60 transition-opacity duration-500`} />
+                  <div className="relative">
+                    <div className={`w-12 h-12 rounded-xl ${feature.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all`}>
+                      <feature.icon className={`h-6 w-6 ${feature.iconColor}`} />
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">{feature.title}</h3>
+                    <p className="text-sm text-slate-600 leading-relaxed">{feature.desc}</p>
+                    <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Več o {feature.title.toLowerCase()}
+                      <ArrowRight className="h-3 w-3" />
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== DARK "ZAKAJ IZBRATI NAS" SECTION ===== */}
+      <section id="zakaj" className="relative py-20 lg:py-28 bg-slate-950 text-white overflow-hidden">
+        {/* Decorative grid */}
+        <div
+          className="absolute inset-0 opacity-[0.05]"
+          style={{
+            backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+            backgroundSize: '28px 28px',
+          }}
+        />
+        {/* Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60rem] h-[40rem] bg-emerald-500/10 blur-3xl rounded-full" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <Badge className="mb-4 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/20 border-emerald-500/30">
+              <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+              Zakaj Noro Lep?
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              3 razloga zakaj gostinci{' '}
+              <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                izbirajo nas
+              </span>
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+            {[
+              {
+                num: '01',
+                title: '2x hitrejša od tradicionalnih POS',
+                desc: 'Optimiziran touch workflow, bližnjice na tipkovnici (F1-F3), hitro iskanje jedi. Povprečen račun izstavljen v 8 sekundah.',
+                stat: '8s',
+                statLabel: 'na račun',
+                icon: Zap,
+              },
+              {
+                num: '02',
+                title: 'AI ki resnično prihrani denar',
+                desc: 'Predikcija prometa za naslednji teden, optimizacija zalog, prepoznavanje najbolj donosnih jedi (menu engineering).',
+                stat: '15%',
+                statLabel: 'manj odpada',
+                icon: TrendingUp,
+              },
+              {
+                num: '03',
+                title: 'Vzpostavljeno v 15 minutah',
+                desc: 'Brez namestitve, brez usposabljanja. Uvozi meni iz Excela, aktiviraj FURS in izstavi prvi račun še danes.',
+                stat: '15min',
+                statLabel: 'do prvega računa',
+                icon: Clock,
+              },
+            ].map((item, idx) => (
+              <motion.div
+                key={idx}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
               >
-                <Card className="overflow-hidden border-slate-200/70 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
-                  <div className="relative aspect-[16/10] bg-slate-100 overflow-hidden">
-                    { }
-                    <img
-                      src={sys.screenshot}
-                      alt={sys.name}
-                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute top-3 left-3 flex items-center gap-2">
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-white shadow-lg ${
-                          idx === 0 ? 'bg-amber-500' : idx === 1 ? 'bg-slate-400' : 'bg-orange-700'
-                        }`}
-                      >
-                        {idx + 1}
-                      </div>
-                      {idx === 0 && (
-                        <Badge className="bg-amber-500 text-white hover:bg-amber-500">
-                          <Star className="h-3 w-3 mr-1 fill-white" />
-                          Zmagovalca
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="absolute top-3 right-3">
-                      <Badge
-                        className="text-white border-0 shadow-md"
-                        style={{ backgroundColor: sys.accentColor }}
-                      >
-                        {sys.accentName}
-                      </Badge>
+                <div className="relative p-7 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800/50 border border-slate-800 hover:border-emerald-500/40 transition-colors h-full">
+                  <div className="flex items-start justify-between mb-5">
+                    <span className="text-5xl font-bold bg-gradient-to-br from-slate-700 to-slate-800 bg-clip-text text-transparent">
+                      {item.num}
+                    </span>
+                    <div className="w-11 h-11 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                      <item.icon className="h-5 w-5 text-emerald-400" />
                     </div>
                   </div>
-                  <div className="p-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-lg font-bold">{sys.name}</h3>
-                      <div className={`text-2xl font-bold ${scoreColor(sys.designScore)}`}>
-                        {sys.designScore.toFixed(1)}
-                      </div>
-                    </div>
-                    <p className="text-sm text-slate-600 line-clamp-3 mb-4">{sys.vlmSummary}</p>
-                    <div className="flex items-center gap-2 text-xs text-slate-500">
-                      <Gauge className="h-3.5 w-3.5" />
-                      <span>{sys.takeaway}</span>
-                    </div>
+                  <h3 className="text-xl font-bold mb-3 leading-snug">{item.title}</h3>
+                  <p className="text-sm text-slate-400 leading-relaxed mb-5">{item.desc}</p>
+                  <div className="pt-4 border-t border-slate-800 flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-emerald-400 tabular-nums">{item.stat}</span>
+                    <span className="text-xs text-slate-500">{item.statLabel}</span>
                   </div>
-                </Card>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ===== ALL SYSTEMS GRID ===== */}
-      <section id="sistemi" className="py-16 lg:py-24">
+      {/* ===== PRODUCT SHOWCASE WITH ANNOTATIONS ===== */}
+      <section className="py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
-            <div className="max-w-2xl">
-              <Badge className="mb-3 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
-                <Layers className="h-3.5 w-3.5 mr-1.5" />
-                Vsi raziskani sistemi
-              </Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-                12 POS sistemov z VLM analizo
-              </h2>
-              <p className="mt-3 text-slate-600">
-                Vsak sistem je bil obiskan z agent-browser, posnet in analiziran z GLM-4.6V vision modelom.
-                Kliknite na posamezni sistem za podrobnosti.
-              </p>
-            </div>
-            <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)}>
-              <TabsList className="bg-slate-100">
-                <TabsTrigger value="all">Vsi ({data.systems.length})</TabsTrigger>
-                <TabsTrigger value="analyzed">Analizirani ({data.successfullyAnalyzed})</TabsTrigger>
-                <TabsTrigger value="blocked">Zaščiteni ({data.blockedByProtection + (data.systems.length - data.successfullyAnalyzed - data.blockedByProtection)})</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredSystems.map((sys, idx) => (
-              <motion.div
-                key={sys.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.4, delay: (idx % 3) * 0.08 }}
-              >
-                <Card className="overflow-hidden border-slate-200/70 shadow-sm hover:shadow-lg transition-all duration-300 group h-full flex flex-col">
-                  <div className="relative aspect-[16/10] bg-slate-100 overflow-hidden">
-                    { }
-                    <img
-                      src={sys.screenshot}
-                      alt={sys.name}
-                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                      {sys.status === 'analyzed' && (
-                        <Badge className="bg-emerald-500 text-white hover:bg-emerald-500 border-0 shadow-sm">
-                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                          Analiziran
-                        </Badge>
-                      )}
-                      {sys.status === 'blocked' && (
-                        <Badge className="bg-amber-500 text-white hover:bg-amber-500 border-0 shadow-sm">
-                          <ShieldAlert className="h-3 w-3 mr-1" />
-                          Cloudflare
-                        </Badge>
-                      )}
-                      {sys.status === 'error' && (
-                        <Badge className="bg-red-500 text-white hover:bg-red-500 border-0 shadow-sm">
-                          <XCircle className="h-3 w-3 mr-1" />
-                          404
-                        </Badge>
-                      )}
-                    </div>
-                    {sys.status === 'analyzed' && (
-                      <div className="absolute top-3 right-3">
-                        <div
-                          className="px-2.5 py-1 rounded-md text-xs font-semibold text-white shadow-md"
-                          style={{ backgroundColor: sys.accentColor }}
-                        >
-                          {sys.designScore.toFixed(1)} / 10
-                        </div>
-                      </div>
-                    )}
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <div className="flex items-end justify-between text-white">
-                        <div>
-                          <h3 className="text-lg font-bold leading-tight">{sys.name}</h3>
-                          <p className="text-xs text-white/80">{sys.country} · {CATEGORY_LABEL[sys.category]}</p>
-                        </div>
-                        {sys.status === 'analyzed' && (
-                          <div
-                            className="w-6 h-6 rounded-full border-2 border-white/60 shadow-md"
-                            style={{ backgroundColor: sys.accentColor }}
-                            title={sys.accentName}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-5 flex-1 flex flex-col">
-                    {sys.status === 'analyzed' ? (
-                      <>
-                        <p className="text-sm text-slate-600 line-clamp-3 mb-3">{sys.vlmSummary}</p>
-                        <div className="space-y-2 mb-3">
-                          <div className="flex items-center gap-2 text-xs">
-                            <span className="text-slate-400 w-20">Tipografija</span>
-                            <span className="font-medium text-slate-700">{sys.typography}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs">
-                            <span className="text-slate-400 w-20">Hero</span>
-                            <span className="font-medium text-slate-700 line-clamp-1">{sys.heroStyle}</span>
-                          </div>
-                        </div>
-                        <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between">
-                          <span className="text-xs text-slate-500 flex items-center gap-1">
-                            <Sparkles className="h-3 w-3" />
-                            <span className="line-clamp-1">{sys.takeaway}</span>
-                          </span>
-                          <a
-                            href={sys.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-slate-400 hover:text-emerald-600 transition shrink-0 ml-2"
-                            aria-label={`Obišči ${sys.name}`}
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="flex-1 flex flex-col justify-center">
-                        <p className="text-sm text-slate-500 italic mb-3">{sys.vlmSummary}</p>
-                        <div className="mt-auto pt-3 border-t border-slate-100">
-                          <span className="text-xs text-slate-500 flex items-center gap-1">
-                            <ShieldAlert className="h-3 w-3" />
-                            {sys.takeaway}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== SIDE-BY-SIDE COMPARISON ===== */}
-      <section id="primerjava" className="py-16 lg:py-24 bg-slate-900 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
-          backgroundSize: '32px 32px',
-        }} />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <Badge className="mb-3 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/20 border-emerald-500/30">
-              <Scale className="h-3.5 w-3.5 mr-1.5" />
-              Side-by-side primerjava
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <Badge className="mb-4 bg-teal-100 text-teal-800 hover:bg-teal-100">
+              <Smartphone className="h-3.5 w-3.5 mr-1.5" />
+              Oglej si izdelano
             </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-              Naša aplikacija <span className="text-emerald-400">vs</span> svetovni standard
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              Enota nadzorni panel{' '}
+              <span className="bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+                v živo
+              </span>
             </h2>
-            <p className="mt-3 text-slate-300">
-              Isti VLM model je ocenil našo trenutno aplikacijo. Razlika je očitna —
-              to je izhodišče za gradnjo.
+            <p className="mt-4 text-lg text-slate-600">
+              Vse metrike, vsa naročila, vse mize — na enem zaslonu. Premakni miško za interaktivnost.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
-            {/* Our app */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.7 }}
+            className="relative"
+          >
+            <div className="absolute -inset-6 bg-gradient-to-br from-emerald-200/40 via-teal-200/30 to-transparent rounded-3xl blur-2xl" />
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200 bg-slate-100">
+              { }
+              <img
+                src="/pos-brand/product-ui.png"
+                alt="Noro Lep POS nadzorni panel z analitiko, mizami in naročili"
+                className="w-full h-auto"
+              />
+            </div>
+
+            {/* Floating annotation callouts */}
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="absolute top-[20%] -left-2 sm:left-4 bg-white rounded-xl shadow-xl border border-slate-100 p-3 max-w-[180px] hidden sm:block"
             >
-              <Card className="overflow-hidden border-red-500/30 bg-slate-800/50 backdrop-blur">
-                <div className="p-5 border-b border-slate-700/50 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center">
-                      <XCircle className="h-4 w-4 text-red-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold">Naša aplikacija (trenutno)</h3>
-                      <p className="text-xs text-slate-400">localhost:3000</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-red-400">{data.ourCurrentState.score.toFixed(1)}</div>
-                    <div className="text-[10px] text-slate-500">/ 10</div>
-                  </div>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
+                  <BarChart3 className="h-4 w-4 text-emerald-600" />
                 </div>
-                <div className="relative aspect-[16/10] bg-slate-950 overflow-hidden">
-                  { }
-                  <img
-                    src={data.ourCurrentState.screenshot}
-                    alt="Naša trenutna aplikacija"
-                    className="w-full h-full object-cover object-top"
-                  />
-                </div>
-                <div className="p-5">
-                  <div className="mb-3">
-                    <Progress value={data.ourCurrentState.score * 10} className="h-2 bg-slate-700 [&>div]:bg-red-500" />
-                  </div>
-                  <p className="text-sm text-slate-300 italic leading-relaxed mb-4">
-                    &ldquo;{data.ourCurrentState.vlmVerdict}&rdquo;
-                  </p>
-                  <div className="space-y-1.5">
-                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Identificirane težave</div>
-                    {data.ourCurrentState.issues.map((issue, i) => (
-                      <div key={i} className="flex items-start gap-2 text-sm text-slate-300">
-                        <XCircle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
-                        <span>{issue}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </Card>
+                <span className="text-xs font-semibold text-slate-900">Analitika v živo</span>
+              </div>
+              <p className="text-[11px] text-slate-500">Promet, pokritost, jedi v realnem času</p>
             </motion.div>
 
-            {/* Best reference */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="absolute top-[55%] -right-2 sm:right-4 bg-white rounded-xl shadow-xl border border-slate-100 p-3 max-w-[180px] hidden sm:block"
             >
-              <Card className="overflow-hidden border-emerald-500/40 bg-slate-800/50 backdrop-blur">
-                <div className="p-5 border-b border-slate-700/50 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                      <Award className="h-4 w-4 text-emerald-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold">{topSystems[0].name} (referenca)</h3>
-                      <p className="text-xs text-slate-400">{topSystems[0].url.replace(/https?:\/\//, '').split('/')[0]}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-emerald-400">{topSystems[0].designScore.toFixed(1)}</div>
-                    <div className="text-[10px] text-slate-500">/ 10</div>
-                  </div>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
+                  <LayoutGrid className="h-4 w-4 text-amber-600" />
                 </div>
-                <div className="relative aspect-[16/10] bg-slate-950 overflow-hidden">
-                  { }
-                  <img
-                    src={topSystems[0].screenshot}
-                    alt={topSystems[0].name}
-                    className="w-full h-full object-cover object-top"
-                  />
-                </div>
-                <div className="p-5">
-                  <div className="mb-3">
-                    <Progress value={topSystems[0].designScore * 10} className="h-2 bg-slate-700 [&>div]:bg-emerald-500" />
-                  </div>
-                  <p className="text-sm text-slate-300 italic leading-relaxed mb-4">
-                    &ldquo;{topSystems[0].vlmSummary}&rdquo;
-                  </p>
-                  <div className="space-y-1.5">
-                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Ključne prednosti</div>
-                    {topSystems[0].strengths.map((s, i) => (
-                      <div key={i} className="flex items-start gap-2 text-sm text-slate-300">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                        <span>{s}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </Card>
+                <span className="text-xs font-semibold text-slate-900">Tloris miz</span>
+              </div>
+              <p className="text-[11px] text-slate-500">Barvno kodirani statusi miz z rezervacijami</p>
             </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ===== KAKO DELA (3 KORAKI) ===== */}
+      <section id="kako" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/60 to-white border-y border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <Badge className="mb-4 bg-amber-100 text-amber-800 hover:bg-amber-100">
+              <Zap className="h-3.5 w-3.5 mr-1.5" />
+              Od namestitve do računa
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              Pripravljen v{' '}
+              <span className="bg-gradient-to-r from-amber-500 to-emerald-600 bg-clip-text text-transparent">
+                3 preprostih korakih
+              </span>
+            </h2>
           </div>
 
-          {/* Gap analysis */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-8"
-          >
-            <Card className="p-6 bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border-emerald-500/30">
-              <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                    <TrendingUp className="h-6 w-6 text-emerald-400" />
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 relative">
+            {/* Connecting line */}
+            <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-emerald-200 via-teal-200 to-emerald-200" />
+
+            {[
+              {
+                num: '1',
+                title: 'Ustvari račun',
+                desc: 'Registriraj se v 2 minutah. Brez kreditne kartice, brez obveznosti.',
+                icon: Users,
+                circleBg: 'bg-emerald-50',
+                iconColor: 'text-emerald-600',
+                badgeBg: 'bg-emerald-600',
+              },
+              {
+                num: '2',
+                title: 'Uvozi meni',
+                desc: 'Povleci Excel datoteko ali ročno vnesej jedi. FURS podatke aktiviramo zate.',
+                icon: Utensils,
+                circleBg: 'bg-teal-50',
+                iconColor: 'text-teal-600',
+                badgeBg: 'bg-teal-600',
+              },
+              {
+                num: '3',
+                title: 'Izdaj prvi račun',
+                desc: 'Odpri aplikacijo na tablici, tapni jed, izdaj račun. FURS potrjen avtomatsko.',
+                icon: Receipt,
+                circleBg: 'bg-amber-50',
+                iconColor: 'text-amber-600',
+                badgeBg: 'bg-amber-600',
+              },
+            ].map((step, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.5, delay: idx * 0.15 }}
+                className="relative text-center"
+              >
+                <div className="relative inline-flex items-center justify-center mb-5">
+                  <div className={`w-24 h-24 rounded-full ${step.circleBg} flex items-center justify-center relative z-10`}>
+                    <step.icon className={`h-10 w-10 ${step.iconColor}`} />
                   </div>
-                  <div>
-                    <div className="text-sm text-slate-400">Luknja v dizajnu</div>
-                    <div className="text-3xl font-bold text-white">
-                      +{(topSystems[0].designScore - data.ourCurrentState.score).toFixed(1)}{' '}
-                      <span className="text-base font-normal text-slate-400">točk izboljšanja</span>
-                    </div>
+                  <div className={`absolute -top-1 -right-1 w-8 h-8 rounded-full ${step.badgeBg} text-white flex items-center justify-center text-sm font-bold shadow-lg z-20`}>
+                    {step.num}
                   </div>
                 </div>
-                <p className="text-sm text-slate-300 lg:ml-auto lg:max-w-md">
-                  Naša aplikacija trenutno dobi <span className="text-red-400 font-semibold">{data.ourCurrentState.score.toFixed(1)}/10</span> od VLM modela.
-                  Da dosežemo nivo {topSystems[0].name} ({topSystems[0].designScore.toFixed(1)}/10), moramo implementirati spodnja priporočila.
-                </p>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">{step.title}</h3>
+                <p className="text-sm text-slate-600 leading-relaxed max-w-xs mx-auto">{step.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white h-12 px-8 text-base shadow-lg shadow-emerald-500/25">
+              Začni zdaj — brezplačno
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+            <p className="mt-3 text-xs text-slate-500">Brez kreditne kartice · 30 dni brezplačno · prekliči kadarkoli</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== TESTIMONIALS ===== */}
+      <section id="mnenja" className="py-20 lg:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <Badge className="mb-4 bg-rose-100 text-rose-800 hover:bg-rose-100">
+              <Heart className="h-3.5 w-3.5 mr-1.5" />
+              Glasovi gostincev
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              542 restavracij že{' '}
+              <span className="bg-gradient-to-r from-rose-500 to-amber-500 bg-clip-text text-transparent">
+                prihranilo čas
+              </span>
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {TESTIMONIALS.map((t, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+              >
+                <Card className="p-6 h-full border-slate-200/70 shadow-sm hover:shadow-lg transition-shadow flex flex-col">
+                  <div className="flex items-center gap-1 mb-4">
+                    {[...Array(t.rating)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                  <p className="text-sm text-slate-700 leading-relaxed mb-5 flex-1 italic">
+                    &ldquo;{t.quote}&rdquo;
+                  </p>
+                  <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
+                    <div className={`w-10 h-10 rounded-full ${t.avatarBg} flex items-center justify-center text-white font-bold text-sm shrink-0`}>
+                      {t.avatar}
+                    </div>
+                    <div className="leading-tight">
+                      <div className="text-sm font-bold text-slate-900">{t.name}</div>
+                      <div className="text-xs text-slate-500">{t.role}</div>
+                      <div className="text-[11px] text-slate-400">{t.location}</div>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== COMPARISON TABLE ===== */}
+      <section className="py-20 lg:py-28 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <Badge className="mb-4 bg-purple-100 text-purple-800 hover:bg-purple-100">
+              <ScanLine className="h-3.5 w-3.5 mr-1.5" />
+              Noro Lep vs. tradicionalni POS
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              Zakaj ne{' '}
+              <span className="bg-gradient-to-r from-slate-500 to-slate-700 bg-clip-text text-transparent">
+                stare blagajne
+              </span>
+              ?
+            </h2>
+            <p className="mt-4 text-lg text-slate-600">
+              Primerjaj Noro Lep z običajnim POS sistemom in poglej razliko.
+            </p>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.6 }}
+          >
+            <Card className="overflow-hidden border-slate-200 shadow-lg">
+              <div className="grid grid-cols-3 bg-slate-50 border-b border-slate-200">
+                <div className="p-5 text-sm font-semibold text-slate-500">Funkcija</div>
+                <div className="p-5 text-sm font-semibold text-slate-500 text-center border-l border-slate-200">Tradicionalni POS</div>
+                <div className="p-5 text-sm font-bold text-emerald-700 text-center bg-emerald-50 border-l border-emerald-200">
+                  <div className="flex items-center justify-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Noro Lep POS
+                  </div>
+                </div>
               </div>
+              {[
+                { feat: 'FURS ZOI/EOR avtomatsko', trad: false, noro: true },
+                { feat: 'AI predikcija prometa', trad: false, noro: true },
+                { feat: 'Kuhinjski zaslon (KDS)', trad: 'Dodatak', noro: true },
+                { feat: 'Mobilno naročanje (QR)', trad: false, noro: true },
+                { feat: 'Offline način', trad: 'Omejeno', noro: true },
+                { feat: 'Vernostni program', trad: false, noro: true },
+                { feat: 'Čas do prvega računa', trad: '2-3 dni', noro: '15 minut', isText: true },
+                { feat: 'Mesečna cena', trad: '89€+', noro: '0€', isText: true },
+              ].map((row, idx) => (
+                <div
+                  key={idx}
+                  className={`grid grid-cols-3 border-b border-slate-100 last:border-0 ${idx % 2 === 1 ? 'bg-slate-50/40' : 'bg-white'}`}
+                >
+                  <div className="p-4 text-sm font-medium text-slate-700">{row.feat}</div>
+                  <div className="p-4 flex items-center justify-center border-l border-slate-100">
+                    {row.isText ? (
+                      <span className="text-sm text-slate-500">{row.trad}</span>
+                    ) : row.trad === true ? (
+                      <Check className="h-4 w-4 text-slate-400" />
+                    ) : (
+                      <Minus className="h-4 w-4 text-slate-300" />
+                    )}
+                  </div>
+                  <div className="p-4 flex items-center justify-center bg-emerald-50/40 border-l border-emerald-100">
+                    {row.isText ? (
+                      <span className="text-sm font-bold text-emerald-700">{row.noro}</span>
+                    ) : row.noro === true ? (
+                      <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                    ) : (
+                      <Minus className="h-4 w-4 text-slate-300" />
+                    )}
+                  </div>
+                </div>
+              ))}
             </Card>
           </motion.div>
         </div>
       </section>
 
-      {/* ===== DESIGN PATTERNS ===== */}
-      <section id="vzorec" className="py-16 lg:py-24">
+      {/* ===== PRICING ===== */}
+      <section id="cene" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/60 to-white border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <Badge className="mb-3 bg-purple-100 text-purple-800 hover:bg-purple-100">
-              <Layers className="h-3.5 w-3.5 mr-1.5" />
-              Ekstrahirani dizajn vzorci
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <Badge className="mb-4 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
+              <CreditCard className="h-3.5 w-3.5 mr-1.5" />
+              Transparentne cene
             </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-              8 vzorcev ki jih uporabljajo najboljši
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              Cenik, ki{' '}
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                ustreza vsaki restavraciji
+              </span>
             </h2>
-            <p className="mt-3 text-slate-600">
-              VLM analiza vseh 10 uspešno posnetih sistemov je razkrila konsistentne vzorce.
-              To je formula za moderni POS dizajn.
+            <p className="mt-4 text-lg text-slate-600">
+              Brez skritih stroškov. Brez vezave. Brezplačni preizkus 30 dni.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {data.patterns.map((p, idx) => {
-              const icons = [Palette, Layers, Eye, Layers, Users, Moon, Receipt, HelpCircle]
-              const Icon = icons[idx % icons.length]
-              return (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-50px' }}
-                  transition={{ duration: 0.4, delay: (idx % 4) * 0.08 }}
-                >
-                  <Card className="p-5 h-full border-slate-200/70 hover:border-emerald-300 hover:shadow-md transition-all">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center mb-3">
-                      <Icon className="h-5 w-5 text-emerald-600" />
+          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {PRICING.map((plan, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                className={plan.popular ? 'md:-mt-4 md:mb-4' : ''}
+              >
+                <Card className={`p-7 h-full flex flex-col relative ${
+                  plan.popular
+                    ? 'border-emerald-400 shadow-2xl shadow-emerald-500/15 ring-2 ring-emerald-400/30 bg-white'
+                    : 'border-slate-200/70 shadow-sm hover:shadow-md transition-shadow bg-white'
+                }`}>
+                  {plan.popular && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                      <Badge className="bg-emerald-600 text-white hover:bg-emerald-600 border-0 shadow-lg px-3 py-1">
+                        <Star className="h-3 w-3 mr-1 fill-white" />
+                        Najbolj priljubljen
+                      </Badge>
                     </div>
-                    <div className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-1">
-                      {p.category}
-                    </div>
-                    <h3 className="font-bold text-sm mb-2 leading-snug">{p.pattern}</h3>
-                    <p className="text-xs text-slate-500 mb-3 leading-relaxed">{p.recommendation}</p>
-                    <div className="flex flex-wrap gap-1">
-                      {p.examples.slice(0, 3).map((ex, i) => (
-                        <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
-                          {ex}
-                        </span>
-                      ))}
-                    </div>
-                  </Card>
-                </motion.div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== COLOR PALETTES ===== */}
-      <section id="palete" className="py-16 lg:py-24 bg-gradient-to-b from-slate-50/50 to-white border-y border-slate-200/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <Badge className="mb-3 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
-              <Palette className="h-3.5 w-3.5 mr-1.5" />
-              Predlagane barvne palete
-            </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-              4 palete navdhnjene z najboljšimi
-            </h2>
-            <p className="mt-3 text-slate-600">
-              Vsaka paleta je sestavljena iz značilnosti več POS sistemov. Emerald Professional je naša
-              glavna priporočena izbira.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {data.colorPalette.map((pal, idx) => {
-              const isRecommended = idx === 0
-              return (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-50px' }}
-                  transition={{ duration: 0.4, delay: idx * 0.08 }}
-                >
-                  <Card className={`overflow-hidden h-full transition-all ${isRecommended ? 'border-emerald-400 shadow-lg ring-2 ring-emerald-400/30' : 'border-slate-200/70 hover:shadow-md'}`}>
-                    <div className="relative h-32 flex">
-                      <div className="flex-1" style={{ backgroundColor: pal.background }} />
-                      <div className="flex-1" style={{ backgroundColor: pal.foreground }} />
-                      <div className="flex-1" style={{ backgroundColor: pal.primary }} />
-                      <div className="flex-1" style={{ backgroundColor: pal.accent }} />
-                      {isRecommended && (
-                        <div className="absolute top-2 right-2">
-                          <Badge className="bg-emerald-500 text-white hover:bg-emerald-500 border-0">
-                            <Star className="h-3 w-3 mr-1 fill-white" />
-                            Priporočeno
-                          </Badge>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-bold text-sm mb-1">{pal.name}</h3>
-                      <p className="text-[11px] text-slate-500 mb-3">{pal.inspiredBy}</p>
-                      <div className="space-y-1.5">
-                        {[
-                          { label: 'Background', color: pal.background },
-                          { label: 'Foreground', color: pal.foreground },
-                          { label: 'Primary', color: pal.primary },
-                          { label: 'Accent', color: pal.accent },
-                        ].map((c, i) => (
-                          <div key={i} className="flex items-center gap-2 text-[11px]">
-                            <div
-                              className="w-4 h-4 rounded border border-slate-200"
-                              style={{ backgroundColor: c.color }}
-                            />
-                            <span className="text-slate-500">{c.label}</span>
-                            <span className="font-mono text-slate-700 ml-auto">{c.color}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== RECOMMENDATIONS ===== */}
-      <section id="priporocila" className="py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <Badge className="mb-3 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
-              <Target className="h-3.5 w-3.5 mr-1.5" />
-              Concrete akcijski načrt
-            </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-              8 korakov do svetovnega razreda
-            </h2>
-            <p className="mt-3 text-slate-600">
-              Prioritizirana priporočila, razvrščena po pomembnosti. Kritične postavke moramo
-              implementirati najprej.
-            </p>
+                  )}
+                  <div className="mb-5">
+                    <h3 className="text-lg font-bold text-slate-900">{plan.name}</h3>
+                    <p className="text-sm text-slate-500 mt-0.5">{plan.desc}</p>
+                  </div>
+                  <div className="mb-6 flex items-baseline gap-1">
+                    {plan.price === 'Po meri' ? (
+                      <span className="text-3xl font-bold text-slate-900">Po meri</span>
+                    ) : (
+                      <>
+                        <span className="text-4xl font-bold text-slate-900">{plan.price}€</span>
+                        <span className="text-sm text-slate-500">{plan.period}</span>
+                      </>
+                    )}
+                  </div>
+                  <Button
+                    className={`w-full mb-6 ${
+                      plan.popular
+                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm'
+                        : 'bg-white text-slate-900 border border-slate-300 hover:bg-slate-50'
+                    }`}
+                    variant={plan.popular ? 'default' : 'outline'}
+                  >
+                    {plan.cta}
+                    <ArrowRight className="h-4 w-4 ml-1.5" />
+                  </Button>
+                  <ul className="space-y-3 flex-1">
+                    {plan.features.map((f, i) => (
+                      <li key={i} className="flex items-start gap-2.5 text-sm">
+                        <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${plan.popular ? 'text-emerald-600' : 'text-slate-400'}`} />
+                        <span className="text-slate-700">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </Card>
+              </motion.div>
+            ))}
           </div>
 
-          <div className="space-y-3 max-w-4xl mx-auto">
-            {data.recommendations.map((rec, idx) => {
-              const cfg = PRIORITY_CONFIG[rec.priority]
-              return (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: '-50px' }}
-                  transition={{ duration: 0.4, delay: idx * 0.05 }}
-                >
-                  <Card className={`p-5 border-l-4 ${cfg.border} hover:shadow-md transition-shadow`}>
-                    <div className="flex items-start gap-4">
-                      <div className={`w-10 h-10 rounded-lg ${cfg.color} flex items-center justify-center shrink-0`}>
-                        <span className="text-white font-bold text-sm">{idx + 1}</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <h3 className="font-bold text-base">{rec.title}</h3>
-                          <Badge className={`${cfg.color} text-white border-0 hover:opacity-90`} variant="default">
-                            {cfg.label}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-slate-600 leading-relaxed mb-2">{rec.description}</p>
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-xs text-slate-400">Navdih:</span>
-                          {rec.inspiration.map((ins, i) => (
-                            <span key={i} className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
-                              {ins}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <ArrowRight className="h-5 w-5 text-slate-300 shrink-0 mt-1" />
-                    </div>
-                  </Card>
-                </motion.div>
-              )
-            })}
-          </div>
+          <p className="text-center mt-10 text-sm text-slate-500">
+            Vsi paketi vključujejo FURS skladnost, GDPR zaščito in 99.9% SLA. DDV ni vključen v ceno.
+          </p>
         </div>
       </section>
 
       {/* ===== FAQ ===== */}
-      <section className="py-16 lg:py-24 bg-slate-50/50 border-t border-slate-200/60">
+      <section id="faq" className="py-20 lg:py-28">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <Badge className="mb-3 bg-slate-200 text-slate-700 hover:bg-slate-200">
-              <HelpCircle className="h-3.5 w-3.5 mr-1.5" />
+          <div className="text-center mb-12">
+            <Badge className="mb-4 bg-slate-200 text-slate-700 hover:bg-slate-200">
+              <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
               Pogosta vprašanja
             </Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-              FAQ o raziskavi
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              Vse kar si želel{' '}
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                vprašati
+              </span>
             </h2>
           </div>
 
           <Accordion type="single" collapsible className="space-y-3">
-            <AccordionItem value="q1" className="bg-white border border-slate-200 rounded-lg px-4 shadow-sm">
-              <AccordionTrigger className="text-left hover:no-underline">
-                Kako so bili izbrani POS sistemi za raziskavo?
-              </AccordionTrigger>
-              <AccordionContent className="text-slate-600">
-                Izbral sem 12 vodilnih svetovnih POS platform (Toast, Square, Lightspeed, Shopify, Lavu, Restroworks,
-                TouchBistro, Clover, Petpooja, GloriaFood, Eats365, BentoBox) — kombinacija enterprise, restaurant-specific
-                in all-in-one rešitev iz ZDA, Kanade, Indije, Evrope in Hong Konga.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="q2" className="bg-white border border-slate-200 rounded-lg px-4 shadow-sm">
-              <AccordionTrigger className="text-left hover:no-underline">
-                Zakaj Toast in TouchBistro nista bila analizirana?
-              </AccordionTrigger>
-              <AccordionContent className="text-slate-600">
-                Oba sta za Cloudflare bot zaščito (&ldquo;Just a moment…&rdquo;). Kljub večkratnim retry-em z daljšimi
-                pavzami (do 8 sekund) Cloudflare ni dovolil avtomatiziranega dostopa. To je sicer signal, da imajo
-                veliki SaaS močno zaščito — naša aplikacija bo morala uporabljati podobne mehanizme v produkciji.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="q3" className="bg-white border border-slate-200 rounded-lg px-4 shadow-sm">
-              <AccordionTrigger className="text-left hover:no-underline">
-                Kako je potekala VLM analiza?
-              </AccordionTrigger>
-              <AccordionContent className="text-slate-600">
-                Uporabil sem GLM-4.6V vision model preko z-ai-web-dev-sdk CLI. Za vsak screenshot sem postavil
-                strukturizirana vprašanja o barvni paleti, tipografiji, hero sekciji, ključnih UI/UX vzorcih in
-                modernosti. Model je vrnil detajlne opise, iz katerih sem ekstrahiral 8 konsistentnih dizajn vzorcev
-                in ocenil vsak sistem na skali 0–10.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="q4" className="bg-white border border-slate-200 rounded-lg px-4 shadow-sm">
-              <AccordionTrigger className="text-left hover:no-underline">
-                Zakaj priporočaš emerald/teal namesto modre?
-              </AccordionTrigger>
-              <AccordionContent className="text-slate-600">
-                Trije razlogi: (1) Emerald/teal je povezan z rastjo, zaupanjem in denarjem — idealno za POS.
-                (2) Več najboljših sistemov (Shopify, Lavu, Restroworks, BentoBox) ga uspešno uporablja.
-                (3) Izbegne prenatrpanost modre barve, ki jo uporabljajo Square, LinkedIn, Facebook in vsa banka.
-                Emerald nas bolj izpostavi in postavi blagovno znamko naravnost v restaurant vertical.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="q5" className="bg-white border border-slate-200 rounded-lg px-4 shadow-sm">
-              <AccordionTrigger className="text-left hover:no-underline">
-                Koliko časa bo trajalo implementirati priporočila?
-              </AccordionTrigger>
-              <AccordionContent className="text-slate-600">
-                Kritični postavki (hero sekcija + brand paleta) lahko implementirava v eni seji. Feature grid,
-                social proof in pricing kartice v naslednji. Dark mode sekcija, FAQ in mikroanimacije v tretji.
-                Skupno 3–4 seje za dosego nivoja Square/Shopify.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="q6" className="bg-white border border-slate-200 rounded-lg px-4 shadow-sm">
-              <AccordionTrigger className="text-left hover:no-underline">
-                Ali so screenshot-e shranjene lokalno?
-              </AccordionTrigger>
-              <AccordionContent className="text-slate-600">
-                Da, vseh 16 screenshot-ov je v <code className="text-xs bg-slate-100 px-1.5 py-0.5 rounded">/public/pos-research/</code>{' '}
-                mapi in so dostopne preko statičnega path-a. VLM analize so shranjene v <code className="text-xs bg-slate-100 px-1.5 py-0.5 rounded">/tmp/vlm-*.json</code>{' '}
-                datotekah. API route <code className="text-xs bg-slate-100 px-1.5 py-0.5 rounded">/api/pos-research</code> vrača strukturirane podatke.
-              </AccordionContent>
-            </AccordionItem>
+            {FAQ.map((item, idx) => (
+              <AccordionItem
+                key={idx}
+                value={`item-${idx}`}
+                className="bg-white border border-slate-200 rounded-xl px-5 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <AccordionTrigger className="text-left hover:no-underline font-semibold text-slate-900 text-base py-5">
+                  {item.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-slate-600 text-sm leading-relaxed pb-5">
+                  {item.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
           </Accordion>
         </div>
       </section>
 
-      {/* ===== CTA SECTION ===== */}
+      {/* ===== FINAL CTA ===== */}
       <section className="py-16 lg:py-24">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6 }}
           >
-            <Card className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 border-0 text-white shadow-2xl">
-              <div className="absolute inset-0 opacity-10" style={{
-                backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-                backgroundSize: '24px 24px',
-              }} />
-              <div className="relative p-8 lg:p-12 text-center">
-                <Sparkles className="h-10 w-10 mx-auto mb-4 text-emerald-200" />
-                <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
-                  Pripravljen na gradnjo najlepše slovenske POS blagajne?
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 shadow-2xl shadow-emerald-500/30">
+              {/* Decorative pattern */}
+              <div
+                className="absolute inset-0 opacity-10"
+                style={{
+                  backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+                  backgroundSize: '24px 24px',
+                }}
+              />
+              {/* Glow */}
+              <div className="absolute -top-20 -right-20 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
+              <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-amber-300/20 rounded-full blur-3xl" />
+
+              <div className="relative p-8 sm:p-12 lg:p-16 text-center">
+                <Sparkles className="h-12 w-12 mx-auto mb-5 text-emerald-200" />
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-4">
+                  Pripravljen narediti naslednji korak?
                 </h2>
                 <p className="text-emerald-50 text-lg max-w-2xl mx-auto mb-8">
-                  Imamo jasno vizijo, 16 referenčnih screenshotov in 8 konkretnih priporočil.
-                  Naslednji korak: implementacija hero sekcije in brand palete.
+                  Pridruži se 542 slovenskim restavracijam, ki že prihranjajo čas in zaslužijo več z Noro Lep POS.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button size="lg" className="bg-white text-emerald-700 hover:bg-emerald-50 h-12 px-8 text-base shadow-lg">
+                  <Button size="lg" className="bg-white text-emerald-700 hover:bg-emerald-50 h-12 px-8 text-base shadow-xl">
                     <Zap className="h-4 w-4 mr-2" />
-                    Začni implementacijo
+                    Brezplačni 30-dnevni preizkus
                   </Button>
                   <Button size="lg" variant="outline" className="h-12 px-8 text-base bg-transparent border-white/40 text-white hover:bg-white/10 hover:text-white">
-                    <Eye className="h-4 w-4 mr-2" />
-                    Ponovno pokaži screenshot-e
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Razgovor z ekipo
                   </Button>
                 </div>
+                <p className="mt-6 text-sm text-emerald-100">
+                  Brez kreditne kartice · Brez vezave · Namestitev v 15 minutah
+                </p>
               </div>
-            </Card>
+            </div>
           </motion.div>
         </div>
       </section>
 
-      {/* ===== FOOTER (sticky) ===== */}
-      <footer className="mt-auto bg-slate-950 text-slate-400 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                  <Receipt className="h-4 w-4 text-white" />
+      {/* ===== FOOTER (sticky to bottom) ===== */}
+      <footer className="mt-auto bg-slate-950 text-slate-400">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-10">
+            {/* Brand column */}
+            <div className="lg:col-span-2">
+              <div className="flex items-center gap-2.5 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                  <Receipt className="h-5 w-5 text-white" />
                 </div>
-                <span className="font-bold text-white">POS Research 2026</span>
+                <div className="flex flex-col leading-none">
+                  <span className="font-bold text-base text-white tracking-tight">Noro Lep</span>
+                  <span className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">POS · 2026</span>
+                </div>
               </div>
-              <p className="text-sm leading-relaxed">
-                Svetovna primerjava 12 vodilnih POS blagajn z VLM analizo in konkretnimi
-                priporočili za gradnjo slovenske POS aplikacije svetovnega razreda.
+              <p className="text-sm leading-relaxed max-w-sm mb-5">
+                Najlepša slovenska POS blagajna z avtomatskim FURS, AI predikcijo prometa
+                in kuhinjskim zaslonom. Zgrajena z ljubeznijo za gostince.
               </p>
+              <div className="flex items-center gap-3">
+                <Badge variant="outline" className="border-slate-700 text-slate-400 hover:bg-slate-900">
+                  <ShieldCheck className="h-3 w-3 mr-1 text-emerald-500" />
+                  FURS
+                </Badge>
+                <Badge variant="outline" className="border-slate-700 text-slate-400 hover:bg-slate-900">
+                  <Shield className="h-3 w-3 mr-1 text-emerald-500" />
+                  GDPR
+                </Badge>
+                <Badge variant="outline" className="border-slate-700 text-slate-400 hover:bg-slate-900">
+                  <Globe className="h-3 w-3 mr-1 text-emerald-500" />
+                  EU
+                </Badge>
+              </div>
             </div>
+
+            {/* Product */}
             <div>
-              <h4 className="text-white font-semibold mb-3 text-sm">Raziskani sistemi</h4>
-              <ul className="space-y-1.5 text-sm">
-                {data.systems.slice(0, 6).map((s) => (
-                  <li key={s.id}>
-                    <a href={s.url} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition flex items-center gap-1.5">
-                      <ExternalLink className="h-3 w-3" />
-                      {s.name}
-                    </a>
-                  </li>
-                ))}
+              <h4 className="text-white font-semibold mb-4 text-sm">Produkt</h4>
+              <ul className="space-y-2.5 text-sm">
+                <li><a href="#funkcije" className="hover:text-emerald-400 transition">Funkcije</a></li>
+                <li><a href="#cene" className="hover:text-emerald-400 transition">Cene</a></li>
+                <li><a href="#kako" className="hover:text-emerald-400 transition">Kako deluje</a></li>
+                <li><a href="#mnenja" className="hover:text-emerald-400 transition">Mnenja</a></li>
+                <li><a href="#faq" className="hover:text-emerald-400 transition">FAQ</a></li>
               </ul>
             </div>
+
+            {/* Company */}
             <div>
-              <h4 className="text-white font-semibold mb-3 text-sm">Tehnologije</h4>
-              <ul className="space-y-1.5 text-sm">
-                <li className="flex items-center gap-2"><Cpu className="h-3.5 w-3.5 text-emerald-500" /> agent-browser (Chromium 150)</li>
-                <li className="flex items-center gap-2"><Bot className="h-3.5 w-3.5 text-emerald-500" /> GLM-4.6V Vision Model</li>
-                <li className="flex items-center gap-2"><ImageIcon className="h-3.5 w-3.5 text-emerald-500" /> 16 screenshotov v PNG</li>
-                <li className="flex items-center gap-2"><BarChart3 className="h-3.5 w-3.5 text-emerald-500" /> Next.js 16 + TypeScript</li>
-                <li className="flex items-center gap-2"><Clock className="h-3.5 w-3.5 text-emerald-500" /> Generirano: {new Date(data.generatedAt).toLocaleString('sl-SI', { dateStyle: 'short', timeStyle: 'short' })}</li>
+              <h4 className="text-white font-semibold mb-4 text-sm">Družba</h4>
+              <ul className="space-y-2.5 text-sm">
+                <li><a href="#" className="hover:text-emerald-400 transition">O nas</a></li>
+                <li><a href="#" className="hover:text-emerald-400 transition">Blog</a></li>
+                <li><a href="#" className="hover:text-emerald-400 transition">Kariera</a></li>
+                <li><a href="#" className="hover:text-emerald-400 transition">Kontakt</a></li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="text-white font-semibold mb-4 text-sm">Pravno</h4>
+              <ul className="space-y-2.5 text-sm">
+                <li><a href="#" className="hover:text-emerald-400 transition">Pogoji uporabe</a></li>
+                <li><a href="#" className="hover:text-emerald-400 transition">Politika zasebnosti</a></li>
+                <li><a href="#" className="hover:text-emerald-400 transition">Piškotki</a></li>
+                <li><a href="#" className="hover:text-emerald-400 transition">SLA</a></li>
               </ul>
             </div>
           </div>
-          <div className="mt-8 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <p>© 2026 POS Research. Primerjava izobraževalne narave.</p>
-            <p className="flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-              VLM analize opravljene z GLM-4.6V
-            </p>
+
+          <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+            <p>© 2026 Noro Lep POS. Vse pravice pridržane. Zgrajeno v Sloveniji 🇸🇮</p>
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-1.5">
+                <Wifi className="h-3.5 w-3.5 text-emerald-500" />
+                Vsi sistemi operativni
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Globe className="h-3.5 w-3.5 text-emerald-500" />
+                Slovenščina
+              </span>
+            </div>
           </div>
         </div>
       </footer>
     </div>
+  )
+}
+
+/* ============================================================
+   Inline SVG play icon (lighter than importing)
+   ============================================================ */
+function PlayIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M8 5v14l11-7z" />
+    </svg>
   )
 }
