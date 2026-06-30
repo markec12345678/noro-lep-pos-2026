@@ -447,3 +447,41 @@ Stage Summary:
 - CI/CD: avtomatski lint + build na vsak push
 - README: 6 badges, comprehensive, slovenski
 - Vse dokumentirano v CONTRIBUTING + SECURITY
+
+---
+Task ID: 15
+Agent: main (Z.ai Code)
+Task: Visual polish — scroll progress, trust bar, back-to-top
+
+Work Log:
+- Zgradil 3 nove komponente za visual polish:
+  1. ScrollProgressBar — emerald gradient bar na vrhu ki sledi scroll-u (fixed top, z-[60])
+  2. BackToTop — floating gumb (bottom-right) ki se pojavi po 600px scroll-a
+     - Animirá se z framer-motion (scale + opacity)
+     - Hover scale-110 + arrow translate
+  3. TrustBar — 6 certifikatov v 6-column grid:
+     - FURS ZDavPR (Fiskalno skladno)
+     - GDPR (EU zaščita podatkov)
+     - ISO 27001 (Info security)
+     - 99.9% SLA (Garancija delovanja)
+     - PCI DSS (Varno plačevanje)
+     - AI Certified (Predikcija prometa)
+- Vse komponente dodane v glavno stran:
+  * ScrollProgressBar + BackToTop na vrhu (zunaj header)
+  * TrustBar po stats sekciji (pred Product Tour)
+- VLM full page v4: 8.5/10
+  * "Visual polish significantly enhances professionalism"
+  * "Emerald gradient scroll bar adds a premium, cohesive touch"
+  * "TrustBar builds credibility through clear certifications"
+  * "Layout feels intentional, balancing functionality with aesthetic appeal"
+- Lint: 0 errors, 0 warnings
+- Push na GitHub: commit d6b37d8 na nextjs-landing
+
+Stage Summary:
+- Visual polish dodan: scroll progress, trust bar, back-to-top
+- VLM: 8.5/10 (izboljšana profesionalnost)
+- 3 nove komponente (~120 vrstic)
+- Trust bar gradi credibilnost z 6 certifikati
+- Scroll progress bar daje premium občutek
+- Back-to-top izboljša UX na dolgi strani
+- Stran ima sedaj 17 sekcij, ~2620 vrstic TypeScript
