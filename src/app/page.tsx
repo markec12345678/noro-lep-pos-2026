@@ -55,6 +55,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import { useAnalytics } from '@/hooks/use-analytics'
 
 /* ============================================================
    ANIMATED COUNTER
@@ -1320,7 +1321,7 @@ function RoiCalculator() {
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-white h-11 px-6 text-sm shadow-lg shadow-emerald-500/30">
+              <Button size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-white h-11 px-6 text-sm shadow-lg shadow-emerald-500/30" data-track="cta_click" data-track-label="roi_zacni_prihranjevati" data-track-section="roi">
                 <Zap className="h-4 w-4 mr-2" />
                 Začni prihranjevati
               </Button>
@@ -1793,6 +1794,9 @@ function LanguageSwitcher() {
             <button
               key={l.code}
               onClick={() => { setLang(l.code); setOpen(false) }}
+              data-track="language_change"
+              data-track-label={l.code}
+              data-track-section="header"
               className={`w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-slate-50 transition ${
                 l.code === lang ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-600'
               }`}
@@ -1821,6 +1825,9 @@ function VideoDemoModal() {
         variant="outline"
         className="h-12 px-7 text-base border-slate-300 hover:bg-slate-50"
         onClick={() => setOpen(true)}
+        data-track="video_open"
+        data-track-label="oglej_si_demo"
+        data-track-section="hero"
       >
         <span className="relative flex h-5 w-5 mr-2 items-center justify-center">
           <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-30 animate-ping" />
@@ -2077,6 +2084,8 @@ function MobileMenu() {
    MAIN PAGE
    ============================================================ */
 export default function Home() {
+  useAnalytics()
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-slate-900 antialiased">
       <ScrollProgressBar />
@@ -2122,7 +2131,7 @@ export default function Home() {
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
             <Button variant="ghost" size="sm" className="hidden sm:inline-flex text-slate-600">Prijava</Button>
-            <Button size="sm" className="hidden sm:inline-flex bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
+            <Button size="sm" className="hidden sm:inline-flex bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm" data-track="cta_click" data-track-label="brezplacni_preizkus_header" data-track-section="header">
               Brezplačni preizkus
               <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
             </Button>
@@ -2168,7 +2177,7 @@ export default function Home() {
                 TEXT za natakarje (kot Toast), SLIKE za goste (upselling +22%).
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white h-12 px-7 text-base shadow-lg shadow-emerald-500/30">
+                <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white h-12 px-7 text-base shadow-lg shadow-emerald-500/30" data-track="cta_click" data-track-label="brezplacni_preizkus_hero" data-track-section="hero">
                   <Zap className="h-4 w-4 mr-2" />
                   Brezplačni 30-dnevni preizkus
                 </Button>
@@ -2529,7 +2538,7 @@ export default function Home() {
                       </>
                     )}
                   </div>
-                  <Button className={`w-full mb-6 ${plan.popular ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm' : 'bg-white text-slate-900 border border-slate-300 hover:bg-slate-50'}`} variant={plan.popular ? 'default' : 'outline'}>
+                  <Button className={`w-full mb-6 ${plan.popular ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm' : 'bg-white text-slate-900 border border-slate-300 hover:bg-slate-50'}`} variant={plan.popular ? 'default' : 'outline'} data-track="cta_click" data-track-label={`pricing_${plan.name.toLowerCase()}`} data-track-section="pricing">
                     {plan.cta}
                     <ArrowRight className="h-4 w-4 ml-1.5" />
                   </Button>
@@ -2592,7 +2601,7 @@ export default function Home() {
                   Pridruži se 542 slovenskim restavracijam, ki že prihranjajo čas in zaslužijo več z Noro Lep POS.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button size="lg" className="bg-white text-emerald-700 hover:bg-emerald-50 h-12 px-8 text-base shadow-xl">
+                  <Button size="lg" className="bg-white text-emerald-700 hover:bg-emerald-50 h-12 px-8 text-base shadow-xl" data-track="cta_click" data-track-label="brezplacni_preizkus_final" data-track-section="final_cta">
                     <Zap className="h-4 w-4 mr-2" />
                     Brezplačni 30-dnevni preizkus
                   </Button>
