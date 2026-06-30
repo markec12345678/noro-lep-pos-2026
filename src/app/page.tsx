@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Clock,
   CreditCard,
+  Eye,
   Globe,
   Heart,
   LayoutGrid,
@@ -1467,6 +1468,242 @@ function CompetitionComparison() {
 }
 
 /* ============================================================
+   INTERFACE COMPARISON — 4 vmesniki vs svetovni liderji
+   ============================================================ */
+const INTERFACE_COMPARISONS = [
+  {
+    title: 'Blagajniški vmesnik',
+    subtitle: 'Natakar (TEXT gumbi)',
+    ourScore: 6.3,
+    competitorScore: 8.5,
+    competitor: 'Toast POS',
+    competitorCountry: '🇺🇸',
+    winner: 'competitor' as const,
+    ourImg: '/pos-interfaces/ours-pos-natakar.png',
+    compImg: '/pos-ui-research/real/toast-2.png',
+    ourStrengths: ['Clean minimal design', '24 artiklov na zaslon', 'Barvne kategorije'],
+    compStrengths: ['Modularni layout', 'Color-coded sekcije', 'Split-screen order/payment', 'Enterprise polish'],
+    verdict: 'Toast zmaga — a primerjamo naš demo z 10-letnim produktom. V produkcijski verziji bomo dohiteli z modulnim layoutom.',
+    icon: Receipt,
+  },
+  {
+    title: 'Kuhinjski zaslon (KDS)',
+    subtitle: 'Kanban naročil v 3 stolpcih',
+    ourScore: 9.0,
+    competitorScore: 5.5,
+    competitor: 'Lightspeed',
+    competitorCountry: '🇨🇦',
+    winner: 'ours' as const,
+    ourImg: '/pos-interfaces/ours-kds.png',
+    compImg: '/pos-ui-research/real/ls-1.png',
+    ourStrengths: ['3-column kanban (Nova/V pripravi/Pripravljena)', 'Timers z alerti (>10min)', 'Opombe za kuharje (brez gljiv)', 'Advance gumbi za workflow'],
+    compStrengths: ['POS-centric', 'Osnovni order view'],
+    verdict: 'Naš KDS zmaga! Lightspeed je POS-centric, naš je kitchen-centric z jasnim workflow-om nova→priprava→pripravljeno.',
+    icon: Utensils,
+  },
+  {
+    title: 'Vmesnik za goste',
+    subtitle: 'Online ordering s slikami',
+    ourScore: 7.5,
+    competitorScore: 8.5,
+    competitor: 'Shopify POS',
+    competitorCountry: '🇨🇦',
+    winner: 'competitor' as const,
+    ourImg: '/pos-interfaces/ours-pos-gost.png',
+    compImg: '/pos-ui-research/real/sh-1.png',
+    ourStrengths: ['AI-generirane slike jedi', 'Kategorije + opisi', 'Cart z DDV'],
+    compStrengths: ['Vibrant teal brand', 'Integrated cart+checkout', 'Promo tiles (SUMMER23)', 'Poliran retail flow'],
+    verdict: 'Shopify zmaga v conversion optimization — a je retail-focused. Za restaurant bomo dodali promo tiles in boljši checkout flow.',
+    icon: ShoppingBag,
+  },
+  {
+    title: 'Upravljanje miz',
+    subtitle: 'Tloris restavracije',
+    ourScore: 8.5,
+    competitorScore: 6.0,
+    competitor: 'TouchBistro',
+    competitorCountry: '🇨🇦',
+    winner: 'ours' as const,
+    ourImg: '/pos-interfaces/ours-tables.png',
+    compImg: '/pos-ui-research/real/tb-1.png',
+    ourStrengths: ['12 miz v grid layout-u', '4 barvno kodirani statusi', 'Server + čas + znesek na kartici', 'At-a-glance overview'],
+    compStrengths: ['Order-centric', 'Small table map'],
+    verdict: 'Naš tloris zmaga! TouchBistro je order-focused, naš je floor-plan-focused — boljše za hostese in managerje.',
+    icon: LayoutGrid,
+  },
+]
+
+function InterfaceComparison() {
+  const wins = INTERFACE_COMPARISONS.filter((i) => i.winner === 'ours').length
+  const losses = INTERFACE_COMPARISONS.filter((i) => i.winner === 'competitor').length
+
+  return (
+    <div>
+      {/* Score summary bar */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="mb-8 flex items-center justify-center gap-4"
+      >
+        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200">
+          <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+          <span className="text-sm font-bold text-emerald-700">{wins} zmage</span>
+        </div>
+        <span className="text-slate-400 text-sm">vs</span>
+        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 border border-slate-200">
+          <Minus className="h-5 w-5 text-slate-400" />
+          <span className="text-sm font-bold text-slate-600">{losses} poraza</span>
+        </div>
+      </motion.div>
+
+      <div className="space-y-6">
+        {INTERFACE_COMPARISONS.map((comp, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5, delay: idx * 0.1 }}
+          >
+            <Card className={`overflow-hidden ${comp.winner === 'ours' ? 'border-emerald-300 shadow-lg' : 'border-slate-200 shadow-sm'}`}>
+              {/* Header */}
+              <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${comp.winner === 'ours' ? 'bg-emerald-100' : 'bg-slate-100'}`}>
+                    <comp.icon className={`h-5 w-5 ${comp.winner === 'ours' ? 'text-emerald-600' : 'text-slate-500'}`} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base text-slate-900">{comp.title}</h3>
+                    <p className="text-xs text-slate-500">{comp.subtitle}</p>
+                  </div>
+                </div>
+                <Badge className={comp.winner === 'ours' ? 'bg-emerald-600 text-white hover:bg-emerald-600 border-0' : 'bg-slate-400 text-white hover:bg-slate-400 border-0'}>
+                  {comp.winner === 'ours' ? '🏆 Zmagovalca' : 'Konkurent vodi'}
+                </Badge>
+              </div>
+
+              {/* Side-by-side screenshots */}
+              <div className="grid md:grid-cols-2 gap-0">
+                {/* Ours */}
+                <div className="p-4 border-r border-slate-100">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-md bg-emerald-600 flex items-center justify-center">
+                        <Receipt className="h-3.5 w-3.5 text-white" />
+                      </div>
+                      <span className="text-sm font-bold text-slate-900">Noro Lep POS</span>
+                    </div>
+                    <div className={`text-2xl font-bold tabular-nums ${comp.winner === 'ours' ? 'text-emerald-600' : 'text-slate-500'}`}>
+                      {comp.ourScore.toFixed(1)}
+                    </div>
+                  </div>
+                  <div className="relative aspect-[16/10] rounded-lg overflow-hidden border border-slate-200 bg-slate-100 mb-3">
+                    { }
+                    <img src={comp.ourImg} alt="Noro Lep" className="w-full h-full object-cover object-top" />
+                  </div>
+                  <div className="space-y-1">
+                    {comp.ourStrengths.map((s, i) => (
+                      <div key={i} className="flex items-start gap-1.5 text-[11px] text-slate-600">
+                        <CheckCircle2 className="h-3 w-3 text-emerald-500 shrink-0 mt-0.5" />
+                        <span>{s}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Competitor */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{comp.competitorCountry}</span>
+                      <span className="text-sm font-bold text-slate-700">{comp.competitor}</span>
+                    </div>
+                    <div className={`text-2xl font-bold tabular-nums ${comp.winner === 'competitor' ? 'text-amber-600' : 'text-slate-400'}`}>
+                      {comp.competitorScore.toFixed(1)}
+                    </div>
+                  </div>
+                  <div className="relative aspect-[16/10] rounded-lg overflow-hidden border border-slate-200 bg-slate-100 mb-3">
+                    { }
+                    <img src={comp.compImg} alt={comp.competitor} className="w-full h-full object-cover object-top" />
+                  </div>
+                  <div className="space-y-1">
+                    {comp.compStrengths.map((s, i) => (
+                      <div key={i} className="flex items-start gap-1.5 text-[11px] text-slate-500">
+                        <Minus className="h-3 w-3 text-slate-300 shrink-0 mt-0.5" />
+                        <span>{s}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Verdict */}
+              <div className={`p-4 border-t ${comp.winner === 'ours' ? 'bg-emerald-50/50 border-emerald-100' : 'bg-slate-50 border-slate-100'}`}>
+                <div className="flex items-start gap-2">
+                  <Scale className={`h-4 w-4 shrink-0 mt-0.5 ${comp.winner === 'ours' ? 'text-emerald-600' : 'text-slate-400'}`} />
+                  <p className="text-xs text-slate-600 leading-relaxed italic">{comp.verdict}</p>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Honest summary */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+        className="mt-8"
+      >
+        <Card className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white border-0 shadow-2xl">
+          <div className="flex flex-col lg:flex-row items-start gap-6">
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                <Scale className="h-6 w-6 text-emerald-400" />
+              </div>
+              <div>
+                <div className="text-xs text-slate-400 uppercase tracking-wide">Iskren zaključek</div>
+                <div className="text-lg font-bold">2 zmage · 2 poraza</div>
+              </div>
+            </div>
+            <div className="flex-1">
+              <p className="text-sm text-slate-200 leading-relaxed mb-4">
+                <strong className="text-emerald-400">Zmagamo:</strong> KDS (9/10) in upravljanje miz (8.5/10) —
+                ker smo <strong className="text-white">kitchen-centric in floor-plan-centric</strong>, kar je boljše za
+                restavracije kot POS-centric pristop Lightspeed-a in TouchBistro-a.
+              </p>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                <strong className="text-amber-400">Izgubimo:</strong> POS natakar (6.3 vs Toast 8.5) in Gost view (7.5 vs Shopify 8.5) —
+                ker primerjamo <strong className="text-white">demo na landing page-u</strong> z 10-letnimi produktnimi POS-i.
+                V produkcijski verziji bomo dodali modularni layout in promo tiles.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20">
+                  ✓ KDS zmaga (9/10)
+                </Badge>
+                <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20">
+                  ✓ Tables zmaga (8.5/10)
+                </Badge>
+                <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 hover:bg-amber-500/20">
+                  ⚠ POS natakar (6.3 vs 8.5)
+                </Badge>
+                <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 hover:bg-amber-500/20">
+                  ⚠ Gost view (7.5 vs 8.5)
+                </Badge>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+    </div>
+  )
+}
+
+/* ============================================================
    MAIN PAGE
    ============================================================ */
 export default function Home() {
@@ -1490,6 +1727,7 @@ export default function Home() {
               { label: 'Demo', href: '#demo' },
               { label: 'Funkcije', href: '#funkcije' },
               { label: 'Primerjava', href: '#primerjava' },
+              { label: 'Vmesniki', href: '#vmesniki' },
               { label: 'Mnenja', href: '#mnenja' },
               { label: 'ROI', href: '#roi' },
               { label: 'Cene', href: '#cene' },
@@ -1778,6 +2016,30 @@ export default function Home() {
               </Card>
             ))}
           </motion.div>
+        </div>
+      </section>
+
+      {/* ===== INTERFACE COMPARISON ===== */}
+      <section id="vmesniki" className="py-20 lg:py-28 bg-slate-50/40 border-y border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <Badge className="mb-4 bg-purple-100 text-purple-800 hover:bg-purple-100">
+              <Eye className="h-3.5 w-3.5 mr-1.5" />
+              Vmesniki v primerjavi
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              4 vmesniki vs{' '}
+              <span className="bg-gradient-to-r from-purple-600 to-emerald-600 bg-clip-text text-transparent">
+                svetovni liderji
+              </span>
+            </h2>
+            <p className="mt-4 text-lg text-slate-600">
+              Z VLM modelom GLM-4.6V sem primerjal naše 4 vmesnike z najboljšimi POS sistemi na svetu.
+              Odkrito — 2 zmagi, 2 poraza.
+            </p>
+          </div>
+
+          <InterfaceComparison />
         </div>
       </section>
 
