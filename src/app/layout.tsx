@@ -51,12 +51,21 @@ export const metadata: Metadata = {
     type: "website",
     locale: "sl_SI",
     alternateLocale: ["en_US", "de_DE", "it_IT"],
+    images: [
+      {
+        url: "/og/og-image.png",
+        width: 1344,
+        height: 768,
+        alt: "Noro Lep POS — Najlepša slovenska restavracijska blagajna 2026",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Noro Lep POS — Najlepša slovenska blagajna",
     description: "AI-poganjana POS blagajna z avtomatskim FURS in kuhinjskim zaslonom.",
     creator: "@noroleppos",
+    images: ["/og/og-image.png"],
   },
   robots: {
     index: true,
