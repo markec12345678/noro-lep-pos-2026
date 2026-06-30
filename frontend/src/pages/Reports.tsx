@@ -53,6 +53,13 @@ import {
   formatPercent,
   TREND_INFO,
 } from "@/hooks/useRevenueForecast";
+import {
+  useStaffPerformance,
+  formatCurrency as formatStaffCurrency,
+  renderStars,
+  getScoreColor,
+  getScoreBg,
+} from "@/hooks/useStaffPerformance";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -497,6 +504,9 @@ const Reports = () => {
 
       {/* Revenue Forecast & Week Comparison */}
       <RevenueForecastSection />
+
+      {/* Staff Performance Analytics */}
+      <StaffPerformanceSection />
     </div>
   );
 };
@@ -1012,6 +1022,201 @@ const RevenueForecastSection = () => {
               </div>
             )}
           </div>
+        </CardContent>
+      </Card>
+    </>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/* Staff Performance Section                                           */
+/* ------------------------------------------------------------------ */
+
+const StaffPerformanceSection = () => {
+  const { summary, isLoading } = useStaffPerformance();
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <Skeleton className="h-8 w-48 mb-4" />
+          <Skeleton className="h-64 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!summary || summary.staff.length === 0) return null;
+
+  return (
+    <>
+      {/* Stats row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <StatCard
+          icon={Users}
+          label="Zaposleni"
+          value={String(summary.staff.length)}
+          color="#8b5cf6"
+        />
+        <StatCard
+          icon={ShoppingBag}
+          label="Skupno naročil"
+          value={String(summary.totalOrders)}
+          color="#f97316"
+        />
+        <StatCard
+          icon={TrendingUp}
+          label="Skupni prihodek"
+          value={formatStaffCurrency(summary.totalRevenue)}
+          color="#10b981"
+        />
+        <StatCard
+          icon={Award}
+          label="Skupne napitnine"
+          value={formatStaffCurrency(summary.totalTips)}
+          color="#ec4899"
+        />
+      </div>
+
+      {/* Top performers highlights */}
+      {summary.topPerformer && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {summary.topPerformer && (
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xl">🏆</span>
+                <span className="text-xs uppercase text-purple-600 font-medium">Najboljši zaposleni</span>
+              </div>
+              <p className="text-lg font-bold text-purple-700">{summary.topPerformer.staffName}</p>
+              <div className="text-xs text-gray-500 mt-1 space-y-0.5">
+                <div>Prihodek: {formatStaffCurrency(summary.topPerformer.revenue)}</div>
+                <div>Naročila: {summary.topPerformer.orderCount}</div>
+                <div>Napitnine: {formatStaffCurrency(summary.topPerformer.totalTips)}</div>
+                <div className={`font-bold ${getScoreColor(summary.topPerformer.performanceScore)}`}>
+                  Ocena: {summary.topPerformer.performanceScore}/100
+                </div>
+              </div>
+            </div>
+          )}
+          {summary.topByTicket && summary.topByTicket !== summary.topPerformer && (
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xl">💰</span>
+                <span className="text-xs uppercase text-blue-600 font-medium">Najvišji račun</span>
+              </div>
+              <p className="text-lg font-bold text-blue-700">{summary.topByTicket.staffName}</p>
+              <div className="text-xs text-gray-500 mt-1">
+                Povprečni račun: {formatStaffCurrency(summary.topByTicket.avgTicket)}
+              </div>
+            </div>
+          )}
+          {summary.topByTips && summary.topByTips !== summary.topPerformer && (
+            <div className="bg-pink-50 border border-pink-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xl">🤑</span>
+                <span className="text-xs uppercase text-pink-600 font-medium">Največ napitnin</span>
+              </div>
+              <p className="text-lg font-bold text-pink-700">{summary.topByTips.staffName}</p>
+              <div className="text-xs text-gray-500 mt-1">
+                Tip rate: {summary.topByTips.tipRate.toFixed(1)}%
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Performance table */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Users className="h-5 w-5 text-purple-500" />
+            Učinkovitost zaposlenih
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Zaposleni</th>
+                  <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Naročila</th>
+                  <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Prihodek</th>
+                  <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">€/račun</th>
+                  <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Napitnine</th>
+                  <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Tip %</th>
+                  <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase">Ocena</th>
+                  <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase">Score</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {summary.staff.map((s, idx) => (
+                  <tr key={s.staffName} className={idx === 0 ? "bg-purple-50/50" : "hover:bg-gray-50"}>
+                    <td className="px-3 py-3">
+                      <div className="flex items-center gap-2">
+                        {idx === 0 && <span className="text-base">🏆</span>}
+                        <span className="font-medium">{s.staffName}</span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3 text-right">{s.orderCount}</td>
+                    <td className="px-3 py-3 text-right font-medium">
+                      {formatStaffCurrency(s.revenue)}
+                    </td>
+                    <td className="px-3 py-3 text-right text-gray-500">
+                      {formatStaffCurrency(s.avgTicket)}
+                    </td>
+                    <td className="px-3 py-3 text-right text-pink-600 font-medium">
+                      {formatStaffCurrency(s.totalTips)}
+                    </td>
+                    <td className="px-3 py-3 text-right text-gray-500">
+                      {s.tipRate.toFixed(1)}%
+                    </td>
+                    <td className="px-3 py-3 text-center">
+                      <span className="text-amber-400 text-sm">
+                        {renderStars(s.avgRating)}
+                      </span>
+                      {s.ratingCount > 0 && (
+                        <span className="text-xs text-gray-400 ml-1">({s.ratingCount})</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-3 text-center">
+                      <span
+                        className={`inline-flex items-center justify-center h-7 w-7 rounded-full text-xs font-bold ${getScoreBg(s.performanceScore)}`}
+                      >
+                        {s.performanceScore}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="border-t-2 font-bold">
+                  <td className="px-3 py-3">SKUPAJ</td>
+                  <td className="px-3 py-3 text-right">{summary.totalOrders}</td>
+                  <td className="px-3 py-3 text-right text-green-600">
+                    {formatStaffCurrency(summary.totalRevenue)}
+                  </td>
+                  <td className="px-3 py-3 text-right">
+                    {summary.totalOrders > 0
+                      ? formatStaffCurrency(round2(summary.totalRevenue / summary.totalOrders))
+                      : "—"}
+                  </td>
+                  <td className="px-3 py-3 text-right text-pink-600">
+                    {formatStaffCurrency(summary.totalTips)}
+                  </td>
+                  <td className="px-3 py-3 text-right">
+                    {summary.totalRevenue > 0
+                      ? `${((summary.totalTips / summary.totalRevenue) * 100).toFixed(1)}%`
+                      : "—"}
+                  </td>
+                  <td colSpan={2}></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <p className="text-xs text-gray-400 mt-3">
+            Score (0-100) = prihodek (40%) + napitnine (30%) + ocene (20%) + volumen (10%).
+            Normalizirano glede na najboljšega. Ocene gostov se prištevajo samo če obstajajo.
+          </p>
         </CardContent>
       </Card>
     </>
