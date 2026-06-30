@@ -402,3 +402,48 @@ Stage Summary:
 - Stran ima sedaj 14 sekcij, ~2500 vrstic TypeScript
 - Push na GitHub (nextjs-landing, commit 8dd3601)
 - VLM: "strong regional contender" — lokalna prednost, globalni ekosistem še manjka
+
+---
+Task ID: 14
+Agent: main (Z.ai Code)
+Task: Analiziraj GitHub repo in dodaj profesionalne datoteke
+
+Work Log:
+- Analiziral repo: manjkalo README, LICENSE, CONTRIBUTING, SECURITY, CHANGELOG, CODE_OF_CONDUCT
+- SECURITY FIX: .env je bil trackan v git-u! Odstranjen iz tracking-a
+- Ustvaril 17 profesionalnih datotek:
+  * README.md — comprehensive z badges, features, VLM ocene, hitri začetek, roadmap, struktura
+  * LICENSE — MIT
+  * CONTRIBUTING.md — smernice, conventional commits, PR proces
+  * SECURITY.md — FURS, GDPR, disclosure policy (90 dni)
+  * CHANGELOG.md — v1.0-v3.2 z Keep a Changelog formatom
+  * CODE_OF_CONDUCT.md — Contributor Covenant 2.0 (slovenski)
+  * .editorconfig — UTF-8, LF, 2 spaces, max 100 chars
+  * .prettierrc — singleQuote, trailingComma all, 100 width
+  * .dockerignore — node_modules, .next, .env, db, logs
+  * .env.example — DATABASE_URL, FURS, Stripe, SMTP, WS_PORT
+  * .gitignore — posodobljen (bolj comprehensiven, .env, db, editor, cache)
+  * .github/ISSUE_TEMPLATE/bug_report.md — z environment, checklist
+  * .github/ISSUE_TEMPLATE/feature_request.md — z mockups
+  * .github/PULL_REQUEST_TEMPLATE.md — z type, screenshots, checklist
+  * .github/workflows/ci.yml — lint + type check + build z Bun
+  * .github/FUNDING.yml — GitHub Sponsors
+- Lint: 0 errors, 0 warnings
+- Push na GitHub: commit 09a83db na nextjs-landing
+
+Ključne izboljšave repo-ja:
+- README z 6 badges (VLM Score, Next.js, TypeScript, Tailwind, License, PRs)
+- CI/CD workflow avtomatsko lint-a in build-a na vsak push/PR
+- Issue templates (bug + feature) z checklist-i
+- PR template z type, screenshots, checklist
+- Security policy z 48h response, 90 day disclosure
+- Comprehensive .gitignore (.env, db, editor, cache, skills)
+- .env.example za nov developere
+
+Stage Summary:
+- GitHub repo je sedaj profesionalen in open-source ready
+- 17 profesionalnih datotek dodanih
+- Security fix: .env odstranjen iz tracking-a
+- CI/CD: avtomatski lint + build na vsak push
+- README: 6 badges, comprehensive, slovenski
+- Vse dokumentirano v CONTRIBUTING + SECURITY
