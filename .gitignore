@@ -31,24 +31,49 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # vercel
 .vercel
 
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local
 local-*
 .claude
 .z-ai-config
 *.log
 dev.log
 dev.out.log
+server.log
 test
 prompt
 
-server.log
-# Skills directory
+# database
+*.db
+*.db-journal
+db/*.db
+
+# editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# cache
+.cache
+.turbo
+.eslintcache
+
+# skills (internal)
 /skills/
+
+# upload folder
+/upload/
