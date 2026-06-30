@@ -703,3 +703,64 @@ Naslednji koraki (post-launch):
 4. Launch na Reddit/Slo-Tech/Twitter
 5. Product Hunt launch (T+1)
 6. Gather feedback in prvih 48h
+
+---
+Task ID: 20
+Agent: main (Z.ai Code)
+Task: Slovenski inventar — 232 artiklov pripravljenih, zaloga=0
+
+Work Log:
+- Dodal InventoryItem in Supplier model v Prisma schema
+  * InventoryItem: name, category, subcategory, unit, purchasePrice, salePrice, stock, minStock, maxStock, supplier, barcode, description, active
+  * Supplier: name, email, phone, address
+  * Indexi na category in name za hitro iskanje
+- db:push uspešen — schema sinhronizirana s SQLite
+- Ustvaril src/lib/seed-data.ts z 232 slovenskimi artikli:
+  * 19 kategorij pokriva vse tipe restavracij
+  * Predjedi (13): pršut, pančeta, siri (Mohant, Bovški, Tolminc), oljke
+  * Juhé (7): goveja, piščančja, paradižnikova, gobova, bučna
+  * Solate (11): mešana, Caesar, Caprese, Šopska, z lososom, tuna
+  * Mesne jedi (19): čevapi, zrezki (teleči, svinjski, piščančji), pohani, ražnjiči, burgerji, klobase
+  * Ribe (11): brancin, orada, tuna, losos, lignji, kozice, školjke, postrv
+  * Vegetarijanske (6): štruklji, žlikrofi, ričet, jota, ajdovi žganci
+  * Pice (13): Margherita, Capricciosa, Quattro Formaggi, Prosciutto, Diavola
+  * Testenine (10): špageti, fusilli, penne, tagliatelle, lasagne, tortellini
+  * Priloge (12): pomfrit, pečen krompir, riž, kruh, omake (ajvar, ketchup)
+  * Sladice (11): tiramisu, panna cotta, gibanica, cheesecake, sladoled
+  * Tople pijače (15): espresso, cappuccino, latte, turška kava, čaji
+  * Brezalkoholne (16): Coca Cola, Fanta, Sprite, sokovi, vode, Red Bull
+  * Pivo (12): Laško, Union, Heineken, Corona, Stella, temno, radler
+  * Vino (13): Modra Frankinja, Merlot, Cabernet, Refosk, Šipon, Chardonnay, penina
+  * Žgane pijače (17): pelinkovac, Jegermeister, rum, vodka, gin, whiskey, slivovka
+  * Koktajli (8): Mojito, Aperol Spritz, Gin Tonic, Cuba Libre, Margarita
+  * Embalaža (18): račun papir, vrečke, škatle, folije, kozarci, krožniki
+  * Pribor (10): noži, deske, lonci, ponev, pica orodje
+  * Čistila (10): univerzalno, steklo, tla, razmaščevalec, robčki, rokavice
+- 6 dobaviteljev: Hofer, Metro, Mercator, Jata, Pivovarna Laško, Vinska klet Goriska Brda
+- Vsi artikli z zalogo=0, minStock nastavljen (opozorila pri nizki zalogi)
+- API endpoints:
+  * GET /api/inventory/seed — statistika (232 artiklov, 19 kategorij)
+  * POST /api/inventory/seed — inicializira bazo (force: true za reset)
+  * GET /api/inventory/list — seznam (filter: category, search, lowStock, active)
+  * POST /api/inventory/delivery — vnos dobavnice (poveča zalogo)
+- Testirano:
+  * Seed: 232 artiklov dodanih, 6 dobaviteljev ✅
+  * List: 232 artiklov, vse z zalogo 0 ✅
+  * Delivery: Pizza Margherita +20, Coca Cola +48, Laško +24 → zaloga posodobljena ✅
+  * Reset (force: true): ponovna inicializacija deluje ✅
+- Lint: 0 errors, 0 warnings
+- Push na GitHub: commit 53f31a1 na nextjs-landing
+
+Uporaba za uporabnika:
+1. POST /api/inventory/seed → 232 artiklov pripravljenih (zaloga=0)
+2. POST /api/inventory/delivery → uporabnik vnese samo količine:
+   { deliveries: [{ itemName: 'Pizza Margherita', quantity: 20 }] }
+3. GET /api/inventory/list → pregled zalog, low stock opozorila
+
+Stage Summary:
+- 232 slovenskih artiklov pripravljenih v bazi
+- Uporabnik ne vnosa artiklov — samo dobavnice (količine)
+- 19 kategorij pokriva vse tipe restavracij
+- 6 dobaviteljev povezanih
+- API za seed, list, delivery
+- Vse z zalogo 0, minStock za opozorila
