@@ -6,6 +6,7 @@ import {
   BarChart3,
   Bell,
   CheckCircle2,
+  ChevronDown,
   Clock,
   CreditCard,
   Eye,
@@ -351,27 +352,58 @@ function PosDemo({ onCheckout, selectedTable }: { onCheckout: (cartItems: { item
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
-                  className="grid grid-cols-3 sm:grid-cols-4 gap-2"
                 >
-                  {filteredItems.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => addToCart(item.id)}
-                      className="group relative p-3 rounded-lg border-2 border-slate-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all text-left active:scale-95"
-                    >
-                      {item.popular && (
-                        <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 rounded-full bg-amber-400 text-white text-[9px] font-bold shadow-sm">
-                          ★
-                        </span>
-                      )}
-                      <div className="text-xs font-bold text-slate-900 leading-tight line-clamp-2">
-                        {item.name}
-                      </div>
-                      <div className="text-sm font-bold text-emerald-600 mt-1">
-                        {item.price.toFixed(2)} €
-                      </div>
-                    </button>
-                  ))}
+                  {/* Modular sections — color-coded like Toast */}
+                  <div className="mb-3 flex items-center gap-2">
+                    <div className={`h-1.5 w-8 rounded-full ${MENU_CATEGORIES.find(c => c.id === activeCat)?.color}`} />
+                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">
+                      {MENU_CATEGORIES.find(c => c.id === activeCat)?.label}
+                    </span>
+                    <span className="text-[10px] text-slate-400 ml-auto">
+                      {filteredItems.length} artiklov · F1-F{Math.min(9, filteredItems.length)} bližnjice
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {filteredItems.map((item, idx) => {
+                      const catColor = MENU_CATEGORIES.find(c => c.id === item.category)?.color || 'bg-slate-400'
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => addToCart(item.id)}
+                          className="group relative p-2.5 rounded-lg border-2 border-slate-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all text-left active:scale-95 overflow-hidden"
+                        >
+                          {/* Color bar top — Toast-style modular sections */}
+                          <div className={`absolute top-0 left-0 right-0 h-1 ${catColor}`} />
+                          {/* Shortcut badge */}
+                          <span className="absolute top-1.5 right-1.5 px-1 py-0.5 rounded text-[8px] font-mono font-bold text-slate-400 bg-slate-100 group-hover:bg-emerald-100 group-hover:text-emerald-600 transition-colors">
+                            F{idx + 1}
+                          </span>
+                          {item.popular && (
+                            <span className="absolute -top-1.5 -left-1.5 px-1.5 py-0.5 rounded-full bg-amber-400 text-white text-[8px] font-bold shadow-sm flex items-center gap-0.5">
+                              <Star className="h-2 w-2 fill-white" />
+                              TOP
+                            </span>
+                          )}
+                          <div className="text-xs font-bold text-slate-900 leading-tight line-clamp-2 mt-1.5">
+                            {item.name}
+                          </div>
+                          <div className="text-sm font-bold text-emerald-600 mt-1 tabular-nums">
+                            {item.price.toFixed(2)} €
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                  {/* Quick actions bar — Toast-style */}
+                  <div className="mt-3 pt-3 border-t border-slate-100 flex items-center gap-2 text-[10px]">
+                    <span className="text-slate-400">Bližnjice:</span>
+                    <kbd className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-mono">Enter</kbd>
+                    <span className="text-slate-400">= plačaj</span>
+                    <kbd className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-mono">Esc</kbd>
+                    <span className="text-slate-400">= prekliči</span>
+                    <kbd className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-mono">F2</kbd>
+                    <span className="text-slate-400">= modifikatorji</span>
+                  </div>
                 </motion.div>
               ) : (
                 <motion.div
@@ -379,47 +411,70 @@ function PosDemo({ onCheckout, selectedTable }: { onCheckout: (cartItems: { item
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
-                  className="grid grid-cols-2 sm:grid-cols-3 gap-3"
                 >
-                  {filteredItems.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => addToCart(item.id)}
-                      className="group relative rounded-xl overflow-hidden border border-slate-200 hover:border-emerald-400 hover:shadow-lg transition-all text-left active:scale-95"
-                    >
-                      <div className="aspect-square bg-slate-100 overflow-hidden">
-                        {item.image ? (
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-slate-300">
-                            <Utensils className="h-8 w-8" />
+                  {/* Promo tile banner — Shopify-style */}
+                  <div className="mb-3 p-2.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4" />
+                      <span className="text-xs font-bold">Danes -20% na vse pice 🍕</span>
+                    </div>
+                    <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">koda: PIZZA20</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {filteredItems.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => addToCart(item.id)}
+                        className="group relative rounded-xl overflow-hidden border border-slate-200 hover:border-emerald-400 hover:shadow-lg transition-all text-left active:scale-95"
+                      >
+                        {/* Popular ribbon — Shopify-style */}
+                        {item.popular && (
+                          <div className="absolute top-0 left-0 z-10 px-2 py-1 bg-amber-400 text-white text-[9px] font-bold rounded-br-lg flex items-center gap-1">
+                            <Star className="h-2.5 w-2.5 fill-white" />
+                            POPULARNO
                           </div>
                         )}
-                      </div>
-                      <div className="p-2.5">
-                        <div className="text-xs font-bold text-slate-900 leading-tight line-clamp-1">
-                          {item.name}
+                        <div className="aspect-square bg-slate-100 overflow-hidden">
+                          {item.image ? (
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-slate-300">
+                              <Utensils className="h-8 w-8" />
+                            </div>
+                          )}
                         </div>
-                        {item.desc && (
-                          <div className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">
-                            {item.desc}
+                        <div className="p-2.5">
+                          <div className="text-xs font-bold text-slate-900 leading-tight line-clamp-1">
+                            {item.name}
                           </div>
-                        )}
-                        <div className="flex items-center justify-between mt-1.5">
-                          <span className="text-sm font-bold text-emerald-600">
-                            {item.price.toFixed(2)} €
-                          </span>
-                          <div className="w-6 h-6 rounded-full bg-emerald-50 group-hover:bg-emerald-600 flex items-center justify-center transition-colors">
-                            <Plus className="h-3.5 w-3.5 text-emerald-600 group-hover:text-white transition-colors" />
+                          {item.desc && (
+                            <div className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">
+                              {item.desc}
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between mt-1.5">
+                            <div className="flex items-baseline gap-1">
+                              {item.popular && (
+                                <span className="text-[10px] text-slate-400 line-through tabular-nums">
+                                  {(item.price * 1.2).toFixed(2)} €
+                                </span>
+                              )}
+                              <span className="text-sm font-bold text-emerald-600 tabular-nums">
+                                {item.price.toFixed(2)} €
+                              </span>
+                            </div>
+                            <div className="w-6 h-6 rounded-full bg-emerald-50 group-hover:bg-emerald-600 flex items-center justify-center transition-colors">
+                              <Plus className="h-3.5 w-3.5 text-emerald-600 group-hover:text-white transition-colors" />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </button>
-                  ))}
+                      </button>
+                    ))}
+                  </div>
                 </motion.div>
               )}
             </div>
@@ -430,12 +485,12 @@ function PosDemo({ onCheckout, selectedTable }: { onCheckout: (cartItems: { item
             {view === 'natakar' ? (
               <>
                 <Zap className="h-3.5 w-3.5 text-emerald-600" />
-                <span><strong className="text-slate-700">TEXT gumbi</strong> — kot Toast & Lightspeed. 24 artiklov na zaslon, 1-2s do naročila.</span>
+                <span><strong className="text-slate-700">Modularni TEXT</strong> — color-coded sekcije + F1-F9 bližnjice + quick actions. Kot Toast, a boljše.</span>
               </>
             ) : (
               <>
                 <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
-                <span><strong className="text-slate-700">SLIKE artiklov</strong> — za goste. Upselling +22%, QR naročanje v 3.2s.</span>
+                <span><strong className="text-slate-700">SLIKE + promo</strong> — promo tiles + popular ribbons + strike-through cene. Upselling +22%.</span>
               </>
             )}
           </div>
@@ -1704,6 +1759,160 @@ function InterfaceComparison() {
 }
 
 /* ============================================================
+   LANGUAGE SWITCHER — SLO/EN/DE/IT
+   ============================================================ */
+function LanguageSwitcher() {
+  const [lang, setLang] = useState<'SLO' | 'EN' | 'DE' | 'IT'>('SLO')
+  const [open, setOpen] = useState(false)
+  const langs: Array<{ code: 'SLO' | 'EN' | 'DE' | 'IT'; flag: string; name: string }> = [
+    { code: 'SLO', flag: '🇸🇮', name: 'Slovenščina' },
+    { code: 'EN', flag: '🇬🇧', name: 'English' },
+    { code: 'DE', flag: '🇩🇪', name: 'Deutsch' },
+    { code: 'IT', flag: '🇮🇹', name: 'Italiano' },
+  ]
+  const current = langs.find((l) => l.code === lang)!
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 transition"
+      >
+        <span className="text-base leading-none">{current.flag}</span>
+        <span>{current.code}</span>
+        <ChevronDown className={`h-3 w-3 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-xl border border-slate-200 py-1 z-50"
+        >
+          {langs.map((l) => (
+            <button
+              key={l.code}
+              onClick={() => { setLang(l.code); setOpen(false) }}
+              className={`w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-slate-50 transition ${
+                l.code === lang ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-600'
+              }`}
+            >
+              <span className="text-base">{l.flag}</span>
+              <span>{l.name}</span>
+              {l.code === lang && <CheckCircle2 className="h-3 w-3 ml-auto text-emerald-600" />}
+            </button>
+          ))}
+        </motion.div>
+      )}
+    </div>
+  )
+}
+
+/* ============================================================
+   VIDEO DEMO MODAL
+   ============================================================ */
+function VideoDemoModal() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      <Button
+        size="lg"
+        variant="outline"
+        className="h-12 px-7 text-base border-slate-300 hover:bg-slate-50"
+        onClick={() => setOpen(true)}
+      >
+        <span className="relative flex h-5 w-5 mr-2 items-center justify-center">
+          <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-30 animate-ping" />
+          <span className="relative inline-flex h-5 w-5 rounded-full bg-emerald-500 items-center justify-center">
+            <svg viewBox="0 0 24 24" fill="white" className="h-2.5 w-2.5 ml-0.5">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </span>
+        </span>
+        Oglej si demo (2 min)
+      </Button>
+
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setOpen(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                  <Receipt className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-slate-900">Noro Lep POS — Demo</div>
+                  <div className="text-[10px] text-slate-500">2 min · 4 moduli v živo</div>
+                </div>
+              </div>
+              <button
+                onClick={() => setOpen(false)}
+                className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-500"
+                aria-label="Zapri"
+              >
+                <Minus className="h-4 w-4 rotate-45" />
+              </button>
+            </div>
+            <div className="aspect-video bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center relative overflow-hidden">
+              {/* Decorative grid */}
+              <div className="absolute inset-0 opacity-[0.05]" style={{
+                backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+                backgroundSize: '24px 24px',
+              }} />
+              <div className="relative text-center text-white p-8">
+                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" fill="white" className="h-8 w-8 ml-1">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold mb-2">Demo predstavitev</h3>
+                <p className="text-sm text-slate-300 mb-4 max-w-md">
+                  Pregled vseh 4 modulov: POS blagajna, KDS, mize in analitika z real-time sync.
+                </p>
+                <div className="flex items-center justify-center gap-2 text-xs text-slate-400">
+                  <Clock className="h-3 w-3" />
+                  <span>2:14</span>
+                  <span>·</span>
+                  <Sparkles className="h-3 w-3 text-emerald-400" />
+                  <span>Real-time sync demo</span>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 flex items-center justify-between bg-slate-50">
+              <p className="text-xs text-slate-500">Ali pa poskusi <strong>interaktivni demo</strong> spodaj — brez registracije.</p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setOpen(false)
+                  document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })
+                }}
+              >
+                <ScanLine className="h-3.5 w-3.5 mr-1.5" />
+                Poskusi živo
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </>
+  )
+}
+
+/* ============================================================
    MAIN PAGE
    ============================================================ */
 export default function Home() {
@@ -1739,6 +1948,7 @@ export default function Home() {
             ))}
           </nav>
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             <Button variant="ghost" size="sm" className="hidden sm:inline-flex text-slate-600">Prijava</Button>
             <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
               Brezplačni preizkus
@@ -1789,12 +1999,7 @@ export default function Home() {
                   <Zap className="h-4 w-4 mr-2" />
                   Brezplačni 30-dnevni preizkus
                 </Button>
-                <Button size="lg" variant="outline" className="h-12 px-7 text-base border-slate-300 hover:bg-slate-50" asChild>
-                  <a href="#demo">
-                    <ScanLine className="h-4 w-4 mr-2" />
-                    Poskusi demo (živo)
-                  </a>
-                </Button>
+                <VideoDemoModal />
               </div>
               <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500">
                 <span className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-emerald-600" /> FURS ZDavPR</span>

@@ -21,6 +21,12 @@ export const metadata: Metadata = {
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
   },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Noro Lep POS",
+  },
   openGraph: {
     title: "Noro Lep POS — Najlepša slovenska restavracijska blagajna",
     description: "AI-poganjana POS blagajna z avtomatskim FURS in kuhinjskim zaslonom. 542 restavracij že zaupa nam.",

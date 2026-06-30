@@ -1,0 +1,43 @@
+{
+  "name": "Noro Lep POS — Najlepša slovenska restavracijska blagajna",
+  "short_name": "Noro Lep POS",
+  "description": "AI-poganjana POS blagajna z avtomatskim FURS, AI predikcijo prometa in kuhinjskim zaslonom.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#10b981",
+  "orientation": "any",
+  "categories": ["business", "productivity", "utilities"],
+  "lang": "sl-SI",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Demo",
+      "url": "/#demo",
+      "description": "Poskusi interaktivni demo"
+    },
+    {
+      "name": "ROI Kalkulator",
+      "url": "/#roi",
+      "description": "Izračunaj prihranek"
+    },
+    {
+      "name": "Cene",
+      "url": "/#cene",
+      "description": "Pregled cen paketov"
+    }
+  ]
+}
