@@ -764,3 +764,62 @@ Stage Summary:
 - 6 dobaviteljev povezanih
 - API za seed, list, delivery
 - Vse z zalogo 0, minStock za opozorila
+
+---
+Task ID: 21
+Agent: main (Z.ai Code)
+Task: Dodaj možnost ročnega vnosa artiklov (CRUD) + 12 E2E testov
+
+Work Log:
+- Analiziral: imamo 232 artiklov v 19 kategorijah, a MANJKA ročni vnos
+- Ustvaril /api/inventory/items/route.ts (GET + POST):
+  * GET — seznam z filtri (category, subcategory, search, active, lowStock)
+  * POST — ročni vnos novega artikla
+    - Validacija: name + category obvezna
+    - Preprečuje duplikate (po imenu, 409 Conflict)
+    - Podpira vsa polja: subcategory, unit, purchasePrice, salePrice, stock, minStock, maxStock, supplier, barcode, description, active
+- Ustvaril /api/inventory/items/[id]/route.ts (GET + PUT + DELETE):
+  * GET — en artikel po ID
+  * PUT — posodobitev (delna, katerokoli polje)
+    - Preprečuje duplikate pri preimenovanju
+    - Samodejno trim-a stringe, validira številke
+  * DELETE — brisanje z dvema načinoma:
+    - Soft delete (default): active=false (artikel ostane v bazi, a se ne prikaže)
+    - Hard delete (?hard=true): trajno izbriše iz baze
+- Testirano z curl:
+  * POST: "Trški pršut (posebna kvaliteta)" dodan ✅
+  * PUT: cena 9→10.5, zaloga 0→5 ✅
+  * POST duplikat: "Pizza Margherita" zavrnjen (409) ✅
+  * DELETE soft: deaktiviran (active=false) ✅
+  * DELETE hard: trajno izbrisan ✅
+- Playwright tests (12 novih, vsi passing):
+  1. POST — ročni vnos novega artikla
+  2. POST — prepreči duplikat (409)
+  3. POST — validacija obveznih polj (400)
+  4. GET — vrne vse artikle
+  5. GET — filter po kategoriji
+  6. GET — iskanje po imenu
+  7. GET — low stock filter
+  8. PUT — posodobi artikel
+  9. DELETE — soft delete (deaktiviraj)
+  10. DELETE — hard delete (trajno)
+  11. GET /api/inventory/seed — statistika
+  12. POST /api/inventory/delivery — vnos dobavnice
+- Total tests: 47 passing (35 + 12 inventory)
+- Lint: 0 errors, 0 warnings
+- Push na GitHub: commit 2680981 na nextjs-landing
+
+Celoten inventory sistem:
+1. Seed (232 artiklov, zaloga=0) → POST /api/inventory/seed
+2. Ročni vnos novega → POST /api/inventory/items
+3. Posodobitev → PUT /api/inventory/items/[id]
+4. Brisanje → DELETE /api/inventory/items/[id] (soft/hard)
+5. Vnos dobavnice → POST /api/inventory/delivery
+6. Pregled → GET /api/inventory/list (z filtri)
+
+Stage Summary:
+- Uporabnik lahko zdaj doda POLJUBEN artikel ki ga ni v bazi
+- 232 seed artiklov + neomejen ročni vnos
+- CRUD popolnoma pokrit z 12 E2E testi
+- 47/47 testov passing skupaj
+- Inventory sistem je production-ready
