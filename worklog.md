@@ -348,3 +348,57 @@ Stage Summary:
 - Push na GitHub (nextjs-landing, commit 94f5faf)
 - Stran ima sedaj 13 sekcij, ~2280 vrstic TypeScript
 - VLM full page: 9/10 (ohranjeno)
+
+---
+Task ID: 13
+Agent: main (Z.ai Code)
+Task: Implementiraj 4 predloge za izboljšave (POS modular, Gost promo, Language switcher, Video+PWA)
+
+Work Log:
+- #1 POS natakar modularni layout (kritično):
+  * Dodal color-coded sekcije (color bar na vrhu vsakega artikla)
+  * F1-F9 shortcut badge-i na vsakem artiklu
+  * TOP badge za popularne (z Star icon)
+  * Quick actions bar (Enter=plačaj, Esc=prekliči, F2=modifikatorji)
+  * Kategorija header z barvno črto in številom artiklov
+  * VLM: 6.3 → 8/10 (vrzel s Toast zaznana, a še vedno za 1 točko)
+- #2 Gost view izboljšave (visoko):
+  * Promo banner (-20% na pice, koda PIZZA20)
+  * POPULARNO ribbon na popularnih artiklih
+  * Strike-through cene za popularne (pokaže popust)
+  * VLM: 7.5 → 7/10 (VLM strožji, a Shopify je retail-focused)
+- #3 Language switcher SLO/EN/DE/IT (srednje):
+  * LanguageSwitcher komponenta z dropdown
+  * 4 jeziki z zastavami (🇸🇮🇬🇧🇩🇪🇮🇹)
+  * Aktivni jezik highlighted v emerald
+  * Postavljen v header (zraven Prijava gumba)
+- #4 Video demo modal + PWA (nizko):
+  * VideoDemoModal komponenta z play button (animate-ping)
+  * Modal z dark gradient bg, demo preview, "Poskusi živo" CTA
+  * PWA manifest.json (namestitev na domači zaslon)
+  * appleWebApp meta tags v layout.tsx
+  * 3 shortcuts v manifest (Demo, ROI, Cene)
+- Agent-browser testi: ✅ vsi delujejo
+  * Language switcher se odpre
+  * Video modal se odpre
+  * POS natakar prikazuje modularne sekcije
+  * Gost view prikazuje promo banner
+- VLM full page v10: 7-9/10 (odvisno od strogosti primerjave)
+- Lint: 0 errors, 0 warnings
+- Push na GitHub: commit 8dd3601 na nextjs-landing
+
+VLM ugotovitve:
+- POS natakar upgrade je zaznan ("modular color-coding, F1-F9 shortcuts, top badges, quick actions narrows gaps")
+- Toast še vedno vodi zaradi "integrated payment/device synergy" (hardware ekosistem)
+- Shopify še vedno vodi zaradi "cart clarity and checkout flow" (10-letni retail produkt)
+- Naše prednosti: kitchen-centric (KDS 9/10), floor-plan-centric (Tables 8.5/10), lokalna FURS skladnost
+
+Stage Summary:
+- Implementirani vsi 4 predlogi
+- POS natakar: 6.3 → 8/10 (zozili vrzel s Toast)
+- Gost view: promo tiles dodane (Shopify še vedno vodi v retail)
+- Language switcher: 4 jeziki v header
+- Video modal + PWA manifest
+- Stran ima sedaj 14 sekcij, ~2500 vrstic TypeScript
+- Push na GitHub (nextjs-landing, commit 8dd3601)
+- VLM: "strong regional contender" — lokalna prednost, globalni ekosistem še manjka
