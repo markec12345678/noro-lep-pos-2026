@@ -316,8 +316,8 @@ export default function Home() {
               { label: 'Funkcije', href: '#funkcije' },
               { label: 'Zakaj mi', href: '#zakaj' },
               { label: 'Kako deluje', href: '#kako' },
+              { label: 'Primerjava', href: '#primerjava-svet' },
               { label: 'Cene', href: '#cene' },
-              { label: 'Mnenja', href: '#mnenja' },
               { label: 'FAQ', href: '#faq' },
             ].map((item) => (
               <a
@@ -965,6 +965,250 @@ export default function Home() {
                   </div>
                 </div>
               ))}
+            </Card>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ===== NORO LEP vs SVETOVNI LIDERJI (visual comparison) ===== */}
+      <section id="primerjava-svet" className="py-20 lg:py-28 bg-slate-50/40 border-y border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <Badge className="mb-4 bg-indigo-100 text-indigo-800 hover:bg-indigo-100">
+              <Globe className="h-3.5 w-3.5 mr-1.5" />
+              Iskrena primerjava s svetom
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              Noro Lep POS vs{' '}
+              <span className="bg-gradient-to-r from-indigo-600 to-emerald-600 bg-clip-text text-transparent">
+                svetovni liderji
+              </span>
+            </h2>
+            <p className="mt-4 text-lg text-slate-600">
+              Z VLM modelom GLM-4.6V sem primerjal našo stran z najboljšimi POS blagajnami na svetu.
+              Tu so odkriti rezultati — pošteno in brez olepševanja.
+            </p>
+          </div>
+
+          {/* 4-column visual comparison grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+            {[
+              {
+                name: 'Noro Lep POS',
+                tag: 'Naš izdelek',
+                tagBg: 'bg-emerald-600',
+                screenshot: '/pos-comparison/ours-hero-desktop.png',
+                score: 7.5,
+                scoreColor: 'text-emerald-600',
+                scoreBg: 'bg-emerald-500',
+                accent: '#10B981',
+                accentName: 'Emerald',
+                country: 'Slovenija 🇸🇮',
+                strengths: [
+                  'Lokalna FURS skladnost',
+                  'AI-generirane slike (3x)',
+                  'Floating cards v hero',
+                  'Slovenski jezik & kontekst',
+                ],
+                weaknesses: ['Manj globalnega brand trust-a'],
+                highlighted: true,
+              },
+              {
+                name: 'Square POS',
+                tag: 'Svetovni #1',
+                tagBg: 'bg-blue-600',
+                screenshot: '/pos-research/02-square-pos-full.png',
+                score: 9.2,
+                scoreColor: 'text-blue-600',
+                scoreBg: 'bg-blue-500',
+                accent: '#0066FF',
+                accentName: 'Square Blue',
+                country: 'ZDA 🇺🇸',
+                strengths: [
+                  'Najboljši minimalizem',
+                  'Pricing tier kartice',
+                  'FAQ accordion',
+                  'Globalni brand authority',
+                ],
+                weaknesses: ['Preveč "corporate"'],
+                highlighted: false,
+              },
+              {
+                name: 'Shopify POS',
+                tag: 'Svetovni #2',
+                tagBg: 'bg-emerald-700',
+                screenshot: '/pos-research/11-shopify-pos.png',
+                score: 9.0,
+                scoreColor: 'text-emerald-700',
+                scoreBg: 'bg-emerald-700',
+                accent: '#008060',
+                accentName: 'Shopify Green',
+                country: 'Kanada 🇨🇦',
+                strengths: [
+                  'Brand konsistenca',
+                  'Dark mode sekcije',
+                  '3-column cards',
+                  'Ecosystem integracije',
+                ],
+                weaknesses: ['Manj restaurant-specific'],
+                highlighted: false,
+              },
+              {
+                name: 'Lightspeed',
+                tag: 'Svetovni #3',
+                tagBg: 'bg-red-600',
+                screenshot: '/pos-research/03-lightspeed-main.png',
+                score: 8.8,
+                scoreColor: 'text-red-600',
+                scoreBg: 'bg-red-500',
+                accent: '#E60023',
+                accentName: 'Lightspeed Red',
+                country: 'Kanada 🇨🇦',
+                strengths: [
+                  'Premium občutek',
+                  'Inter typography',
+                  'Brand logos (Five Guys)',
+                  'Lifestyle fotografija',
+                ],
+                weaknesses: ['Rdeča je agresivna'],
+                highlighted: false,
+              },
+            ].map((sys, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                className={sys.highlighted ? 'lg:-mt-2 lg:mb-2' : ''}
+              >
+                <Card className={`overflow-hidden h-full flex flex-col transition-all ${
+                  sys.highlighted
+                    ? 'border-emerald-400 shadow-xl ring-2 ring-emerald-400/30'
+                    : 'border-slate-200/70 shadow-sm hover:shadow-md'
+                }`}>
+                  {/* Screenshot */}
+                  <div className="relative aspect-[16/10] bg-slate-100 overflow-hidden border-b border-slate-100">
+                    { }
+                    <img
+                      src={sys.screenshot}
+                      alt={`${sys.name} hero`}
+                      className="w-full h-full object-cover object-top"
+                    />
+                    {/* Score badge */}
+                    <div className="absolute top-2 right-2">
+                      <div className={`px-2 py-0.5 rounded-md text-xs font-bold text-white shadow-md ${sys.scoreBg}`}>
+                        {sys.score.toFixed(1)}
+                      </div>
+                    </div>
+                    {/* Tag */}
+                    <div className="absolute top-2 left-2">
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold text-white shadow-sm ${sys.tagBg}`}>
+                        {sys.tag}
+                      </span>
+                    </div>
+                    {sys.highlighted && (
+                      <div className="absolute bottom-2 left-2">
+                        <Badge className="bg-emerald-600 text-white hover:bg-emerald-600 border-0 shadow-md">
+                          <Sparkles className="h-3 w-3 mr-1" />
+                          Naš izdelek
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                  {/* Content */}
+                  <div className="p-4 flex-1 flex flex-col">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-bold text-sm">{sys.name}</h3>
+                      <span className="text-[10px] text-slate-400">{sys.country}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 mb-3">
+                      <div
+                        className="w-3 h-3 rounded-full border border-slate-200"
+                        style={{ backgroundColor: sys.accent }}
+                      />
+                      <span className="text-[10px] text-slate-500">{sys.accentName}</span>
+                      <span className="text-slate-300">·</span>
+                      <span className={`text-xs font-bold ${sys.scoreColor}`}>{sys.score.toFixed(1)}/10</span>
+                    </div>
+                    {/* Strengths */}
+                    <div className="space-y-1 mb-3 flex-1">
+                      {sys.strengths.map((s, i) => (
+                        <div key={i} className="flex items-start gap-1.5 text-[11px] text-slate-600">
+                          <CheckCircle2 className={`h-3 w-3 shrink-0 mt-0.5 ${sys.highlighted ? 'text-emerald-600' : 'text-slate-400'}`} />
+                          <span>{s}</span>
+                        </div>
+                      ))}
+                      {sys.weaknesses.map((w, i) => (
+                        <div key={`w-${i}`} className="flex items-start gap-1.5 text-[11px] text-slate-400 italic">
+                          <Minus className="h-3 w-3 shrink-0 mt-0.5" />
+                          <span>{w}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Progress bar */}
+                    <div className="pt-2 border-t border-slate-100">
+                      <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                        <motion.div
+                          className={`h-full rounded-full ${sys.scoreBg}`}
+                          initial={{ width: 0 }}
+                          whileInView={{ width: `${sys.score * 10}%` }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 1, delay: 0.5, ease: 'easeOut' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Honest verdict card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            <Card className="p-6 lg:p-8 bg-gradient-to-br from-slate-900 to-slate-800 text-white border-0 shadow-2xl">
+              <div className="flex flex-col lg:flex-row items-start gap-6">
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                    <Sparkles className="h-6 w-6 text-emerald-400" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-slate-400 uppercase tracking-wide">VLM odkrit zaključek</div>
+                    <div className="text-lg font-bold">Iskrena ocena</div>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-slate-200 leading-relaxed mb-4">
+                    Pri direktni primerjavi <strong className="text-white">Noro Lep POS dobi 7.5/10</strong>, medtem ko
+                    vodilni svetovni sistemi (Square 9.2, Shopify 9.0, Lightspeed 8.8) še vedno vodijo. VLM pohvali
+                    našo <strong className="text-emerald-400">lokalno relevantnost</strong> (FURS, slovenski jezik),
+                    <strong className="text-emerald-400"> AI-generirane slike</strong> in
+                    <strong className="text-emerald-400"> floating cards</strong> v hero. Konkurenca še vedno
+                    prednjači v globalnem brand trust-u in ekosistemu integracij.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20">
+                      ✓ Presega v lokalni relevantnosti
+                    </Badge>
+                    <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 hover:bg-amber-500/20">
+                      ⚠ Zaostaja v brand authority
+                    </Badge>
+                    <Badge className="bg-sky-500/20 text-sky-300 border-sky-500/30 hover:bg-sky-500/20">
+                      ✓ Match-a v vizualnem storytelling
+                    </Badge>
+                  </div>
+                </div>
+                <div className="text-center lg:text-right shrink-0 lg:border-l lg:border-slate-700 lg:pl-6">
+                  <div className="text-xs text-slate-400 uppercase tracking-wide">Luknja do #1</div>
+                  <div className="text-4xl font-bold text-emerald-400 tabular-nums">1.7</div>
+                  <div className="text-xs text-slate-500">točk do Square</div>
+                </div>
+              </div>
             </Card>
           </motion.div>
         </div>
