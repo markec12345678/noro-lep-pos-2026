@@ -59,3 +59,54 @@ Stage Summary:
 - Toast (svetovni #1 restaurant POS) in Lightspeed (#3) uporabljata TEXT
 - Square (retail-focused) in Shopify (retail) uporabljata SLIKE
 - Za Noro Lep (restaurant POS): TEXT v POS, SLIKE za goste
+
+---
+Task ID: 7
+Agent: main (Z.ai Code)
+Task: Zgradi interaktivni POS demo (TEXT natakar + IMAGE gost) na podlagi raziskave
+
+Work Log:
+- Generiral 6 AI slik jedi za online ordering (gost view):
+  * pizza.png, cevapi.png, burger.png, rizota.png, kava.png, tiramisu.png
+  * Vse 1024x1024, top-down food photography, white bg
+- Generiral hero-restaurant.png (1344x768, natakar z emerald POS tablico)
+- Zgradil celovito Noro Lep POS landing page z 8 sekcijami:
+  1. Sticky header z navigacijo
+  2. Hero z two-column (text + AI slika) + 3 floating cards
+  3. Animated stats bar (542+, 2.4M€, 30%, 4.9/5)
+  4. INTERAKTIVNI POS DEMO (ključna nova funkcija):
+     - Toggle med "Natakar (TEXT)" in "Gost (SLIKE)"
+     - Natakar view: TEXT gumbi v 3-4 column grid (24 artiklov, kot Toast/Lightspeed)
+     - Gost view: IMAGE kartice v 2-3 column grid (6 artiklov s slikami)
+     - 5 kategorij (Predjedi, Glavne, Pice, Sladice, Pijače)
+     - 24 Slovenian menu items z cenami
+     - Funkcionalna cart z +/- količinami, DDV, skupaj, FURS gumb
+     - Research insight card (dark) z razlago obeh pristopov
+  5. Features grid (9 modulov z hover gradient akcenti)
+  6. Testimonials (3 slovenske restavracije)
+  7. Pricing (3-tier: Starter 0€, Pro 49€, Enterprise)
+  8. FAQ accordion (6 vprašanj, prvo o TEXT vs SLIKE)
+  9. Final CTA + sticky footer
+- VLM ocene:
+  * Hero: 8/10 (prej 9/10 pri 1920px)
+  * Demo Natakar (TEXT): 7/10 ("mirrors real POS interfaces")
+  * Demo Gost (SLIKE): 7/10 ("comparable to Toast Online Ordering")
+  * Cart filled: 8/10 ("all elements present, professional")
+  * Full page: 8.5/10 (NAJVIŠJA OCENA doslej!)
+  * VLM: "interactive demo adds significant value, boosting trust"
+- Agent-browser interakcijski testi: ✅ vsi delujejo
+  * Toggle med Natakar/Gost view
+  * Klik artiklov doda v cart
+  * +/- količine
+  * Cart izračuna DDV in skupaj
+  * Brez konzolnih napak
+- Lint: 0 errors, 0 warnings ✅
+
+Stage Summary:
+- Zgrajena celovita Noro Lep POS landing page z interaktivnim POS demom
+- Demo pokaže raziskavo v akciji: TEXT za natakarje (hitrost), SLIKE za goste (upselling)
+- VLM full page: 8.5/10 (najvišja ocena, bliže Square 9.2)
+- 6 AI-generiranih slik jedi + 1 hero slika
+- Vse interakcije delujejo (toggle, cart, FURS gumb)
+- Lint: 0 napak
+- Ključni differentiator: interaktivni demo ki konkurenca nima
