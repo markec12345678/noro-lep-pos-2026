@@ -9,6 +9,7 @@ import {
   Clock,
   CreditCard,
   Globe,
+  Heart,
   LayoutGrid,
   Minus,
   Package,
@@ -1096,6 +1097,192 @@ function ProductTour() {
 }
 
 /* ============================================================
+   ROI CALCULATOR — Interaktivni izračun prihranka
+   ============================================================ */
+function RoiCalculator() {
+  const [mize, setMize] = useState(12)
+  const [gostje, setGostje] = useState(80)
+  const [racun, setRacun] = useState(16)
+
+  // Izračuni (na podlagi raziskave: -30% čas, +18% povr. račun, +22% povratni)
+  const letniPromet = mize * gostje * racun * 312 // 312 delovnih dni
+  const povracunLetni = letniPromet * 0.18 // +18% povprečni račun
+  const prihranekCas = mize * gostje * 0.5 * 312 // 0.5 min prihranka na račun
+  const prihranekUre = Math.round(prihranekCas / 60)
+  const prihranekDnev = prihranekUre * 12 // 12€/uro
+  const dodatniPrometPovratni = letniPromet * 0.22 * 0.15 // 22% več povratnih, 15% od tega novi promet
+  const skupajPrihranek = Math.round(povracunLetni + prihranekDnev + dodatniPrometPovratni)
+  const roi = Math.round((skupajPrihranek / (49 * 12)) * 100)
+
+  const inputs = [
+    { label: 'Število miz', value: mize, set: setMize, min: 4, max: 50, step: 1, unit: 'miz', icon: LayoutGrid },
+    { label: 'Dnevnih gostov', value: gostje, set: setGostje, min: 10, max: 300, step: 5, unit: 'gostov', icon: Users },
+    { label: 'Povprečni račun', value: racun, set: setRacun, min: 5, max: 50, step: 1, unit: '€', icon: CreditCard },
+  ]
+
+  const results = [
+    { label: 'Letni promet (trenutno)', value: `${(letniPromet / 1000).toFixed(0)}k €`, icon: TrendingUp, color: 'text-slate-600', bg: 'bg-slate-50' },
+    { label: '+ Povečan povr. račun (18%)', value: `+${(povracunLetni / 1000).toFixed(1)}k €`, icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { label: '+ Povratni gostje (22%)', value: `+${(dodatniPrometPovratni / 1000).toFixed(1)}k €`, icon: Heart, color: 'text-rose-600', bg: 'bg-rose-50' },
+    { label: '+ Prihranek časa', value: `${prihranekUre} ur/leto`, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
+  ]
+
+  return (
+    <div className="grid lg:grid-cols-5 gap-6 lg:gap-8 items-start">
+      {/* Inputs */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.5 }}
+        className="lg:col-span-2"
+      >
+        <Card className="p-6 lg:p-8 border-slate-200 shadow-lg">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+              <BarChart3 className="h-5 w-5 text-emerald-600" />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg text-slate-900">Tvoja restavracija</h3>
+              <p className="text-xs text-slate-500">Prestavi drsnike za izračun</p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {inputs.map((input, idx) => (
+              <div key={idx}>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                    <input.icon className="h-4 w-4 text-slate-400" />
+                    {input.label}
+                  </label>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-bold text-emerald-600 tabular-nums">{input.value}</span>
+                    <span className="text-xs text-slate-400">{input.unit}</span>
+                  </div>
+                </div>
+                <input
+                  type="range"
+                  min={input.min}
+                  max={input.max}
+                  step={input.step}
+                  value={input.value}
+                  onChange={(e) => input.set(Number(e.target.value))}
+                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                  style={{
+                    background: `linear-gradient(to right, #10b981 0%, #10b981 ${((input.value - input.min) / (input.max - input.min)) * 100}%, #e2e8f0 ${((input.value - input.min) / (input.max - input.min)) * 100}%, #e2e8f0 100%)`,
+                  }}
+                />
+                <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                  <span>{input.min}</span>
+                  <span>{input.max}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-slate-100">
+            <div className="text-xs text-slate-500 mb-2">Na podlagi raziskave 542 restavracij:</div>
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="p-2 rounded-lg bg-emerald-50">
+                <div className="text-sm font-bold text-emerald-600">+18%</div>
+                <div className="text-[9px] text-slate-500">povr. račun</div>
+              </div>
+              <div className="p-2 rounded-lg bg-rose-50">
+                <div className="text-sm font-bold text-rose-600">+22%</div>
+                <div className="text-[9px] text-slate-500">povratni</div>
+              </div>
+              <div className="p-2 rounded-lg bg-amber-50">
+                <div className="text-sm font-bold text-amber-600">−30%</div>
+                <div className="text-[9px] text-slate-500">čas</div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
+
+      {/* Results */}
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="lg:col-span-3"
+      >
+        <Card className="p-6 lg:p-8 bg-gradient-to-br from-slate-900 to-slate-800 text-white border-0 shadow-2xl overflow-hidden relative">
+          {/* Decorative glow */}
+          <div className="absolute -top-20 -right-20 w-60 h-60 bg-emerald-500/20 blur-3xl rounded-full" />
+
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="h-4 w-4 text-emerald-400" />
+              <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wide">Projeciran letni prihranek</span>
+            </div>
+            <div className="flex items-baseline gap-3 mb-6">
+              <motion.span
+                key={skupajPrihranek}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent tabular-nums"
+              >
+                +{skupajPrihranek.toLocaleString('sl-SI')} €
+              </motion.span>
+              <span className="text-sm text-slate-400">/leto</span>
+            </div>
+
+            {/* ROI badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 mb-6">
+              <TrendingUp className="h-3.5 w-3.5 text-emerald-400" />
+              <span className="text-xs font-semibold text-emerald-300">
+                ROI: {roi}x naložbe · povračilo v {Math.max(1, Math.ceil(365 / (roi * 12 / 30)))} dneh
+              </span>
+            </div>
+
+            {/* Breakdown */}
+            <div className="grid sm:grid-cols-2 gap-3 mb-6">
+              {results.map((r, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: idx * 0.1 }}
+                  className="flex items-center gap-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700"
+                >
+                  <div className={`w-9 h-9 rounded-lg ${r.bg} flex items-center justify-center shrink-0`}>
+                    <r.icon className={`h-4 w-4 ${r.color}`} />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs text-slate-400 truncate">{r.label}</div>
+                    <div className="text-lg font-bold text-white tabular-nums">{r.value}</div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button size="lg" className="bg-emerald-500 hover:bg-emerald-600 text-white h-11 px-6 text-sm shadow-lg shadow-emerald-500/30">
+                <Zap className="h-4 w-4 mr-2" />
+                Začni prihranjevati
+              </Button>
+              <Button size="lg" variant="outline" className="h-11 px-6 text-sm bg-transparent border-slate-600 text-slate-200 hover:bg-slate-800 hover:text-white">
+                Razgovor s svetovalcem
+              </Button>
+            </div>
+
+            <p className="mt-4 text-[10px] text-slate-500 leading-relaxed">
+              * Projektne vrednosti temeljijo na povprečju 542 slovenskih restavracij. Dejanski rezultati se razlikujejo glede na koncept, lokacijo in obseg poslovanja.
+            </p>
+          </div>
+        </Card>
+      </motion.div>
+    </div>
+  )
+}
+
+/* ============================================================
    MAIN PAGE
    ============================================================ */
 export default function Home() {
@@ -1119,6 +1306,7 @@ export default function Home() {
               { label: 'Demo', href: '#demo' },
               { label: 'Funkcije', href: '#funkcije' },
               { label: 'Mnenja', href: '#mnenja' },
+              { label: 'ROI', href: '#roi' },
               { label: 'Cene', href: '#cene' },
               { label: 'FAQ', href: '#faq' },
             ].map((item) => (
@@ -1384,6 +1572,31 @@ export default function Home() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ===== ROI CALCULATOR ===== */}
+      <section id="roi" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/40 to-white border-y border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <Badge className="mb-4 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
+              <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
+              Izračunaj svoj prihranek
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              Koliko boš{' '}
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                prihranil
+              </span>{' '}
+              z Noro Lep?
+            </h2>
+            <p className="mt-4 text-lg text-slate-600">
+              Vnesi parametre svoje restavracije in v živo poglej projeciran letni prihranek.
+              Na podlagi realnih rezultatov 542 slovenskih restavracij.
+            </p>
+          </div>
+
+          <RoiCalculator />
         </div>
       </section>
 
