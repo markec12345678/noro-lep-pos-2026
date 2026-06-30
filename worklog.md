@@ -254,3 +254,41 @@ Stage Summary:
 - VLM: 8.7/10 za kalkulator, 8/10 za full page
 - "ROI + real-time sync" = unikaten kombinacija ki presega Square/Shopify
 - Stran je sedaj ~1830 vrstic TypeScript
+
+---
+Task ID: 11
+Agent: main (Z.ai Code)
+Task: Push na GitHub + zgradi competition comparison sekcijo
+
+Work Log:
+- Preveril git stanje: lokalno na main, brez remote
+- Dodal remote origin (HTTPS z PAT auth) za github.com/markec12345678/noro-lep-pos-2026.git
+- Fetch: remote main ima 4148 datotek (stari Vite projekt z 34 moduli, tag-i v1.0.0 in v2.0.0)
+- Ustvaril novo vejo `nextjs-landing` (ohranil main s starim projektom)
+- Push nextjs-landing + tag v3.0.0-landing uspešen
+- Zgradil CompetitionComparison komponento:
+  * 5 POS sistemov: Noro Lep (highlighted) + Toast + Square + Lightspeed + Shopify
+  * 11 funkcij primerjanih: FURS, AI, KDS, QR, offline, SLO jezik, loyalty, real-time sync, ROI calc, setup, cena
+  * Noro Lep kolona highlighted v emerald z "Naš izdelek" badge
+  * 3 key win kartice pod tabelo (FURS skladnost, Real-time sync, Slovenski jezik)
+- Dodal "Primerjava" navigacijski link
+- Dodal Scale ikono v imports
+- VLM ocene:
+  * Comparison sekcija: 8/10 ("clear, honest, data-driven")
+  * Full page (v8): **9/10** 🏆 (prvič dosežen 9/10!)
+  * VLM: "one of the most complete POS landing pages available"
+- Force push main:nextjs-landing (c109b26) — vse commit-i sedaj na GitHub-u
+- Lint: 0 errors, 0 warnings
+
+Ključne GitHub povezave:
+- Repo: https://github.com/markec12345678/noro-lep-pos-2026
+- Veja: nextjs-landing
+- Tag: v3.0.0-landing
+- Najnovejši commit: c109b26 (feat: Competition comparison table + v3.1)
+
+Stage Summary:
+- Koda pushana na GitHub (nextjs-landing veja)
+- VLM full page dosegel 9/10 — "near-perfect, most complete POS landing page"
+- 12 sekcij: Header, Hero, Stats, Product Tour (real-time sync), Features, Comparison, Testimonials, ROI, Pricing, FAQ, CTA, Footer
+- Stran je ~2050 vrstic TypeScript
+- Vse funkcionalnosti delujejo (agent-browser verificirano)
