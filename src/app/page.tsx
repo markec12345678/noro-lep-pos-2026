@@ -2009,6 +2009,71 @@ function TrustBar() {
 }
 
 /* ============================================================
+   MOBILE MENU — hamburger za mobile
+   ============================================================ */
+function MobileMenu() {
+  const [open, setOpen] = useState(false)
+  const items = [
+    { label: 'Demo', href: '#demo' },
+    { label: 'Funkcije', href: '#funkcije' },
+    { label: 'Primerjava', href: '#primerjava' },
+    { label: 'Vmesniki', href: '#vmesniki' },
+    { label: 'Mnenja', href: '#mnenja' },
+    { label: 'ROI', href: '#roi' },
+    { label: 'Cene', href: '#cene' },
+    { label: 'FAQ', href: '#faq' },
+  ]
+
+  return (
+    <div className="md:hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="p-2 rounded-lg hover:bg-slate-100 transition"
+        aria-label={open ? 'Zapri meni' : 'Odpri meni'}
+        aria-expanded={open}
+      >
+        {open ? (
+          <Minus className="h-5 w-5 rotate-45 text-slate-700" />
+        ) : (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5 text-slate-700">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        )}
+      </button>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className="absolute top-16 left-0 right-0 bg-white border-b border-slate-200 shadow-xl py-4 z-40"
+        >
+          <nav className="max-w-7xl mx-auto px-4 flex flex-col gap-1">
+            {items.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                className="px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 rounded-lg transition"
+              >
+                {item.label}
+              </a>
+            ))}
+            <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100">
+              <Button variant="outline" size="sm" className="flex-1">Prijava</Button>
+              <Button size="sm" className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white">
+                Brezplačni preizkus
+              </Button>
+            </div>
+          </nav>
+        </motion.div>
+      )}
+    </div>
+  )
+}
+
+/* ============================================================
    MAIN PAGE
    ============================================================ */
 export default function Home() {
@@ -2016,10 +2081,19 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-white text-slate-900 antialiased">
       <ScrollProgressBar />
       <BackToTop />
+
+      {/* Skip to content — accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-emerald-600 focus:text-white focus:rounded-lg focus:shadow-lg"
+      >
+        Preskoči na vsebino
+      </a>
+
       {/* ===== HEADER ===== */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-slate-200/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <a href="#" className="flex items-center gap-2.5 group">
+          <a href="#" className="flex items-center gap-2.5 group" aria-label="Noro Lep POS — domov">
             <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
               <Receipt className="h-5 w-5 text-white" />
               <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-amber-400 border-2 border-white" />
@@ -2029,7 +2103,7 @@ export default function Home() {
               <span className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">POS · 2026</span>
             </div>
           </a>
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1" aria-label="Glavna navigacija">
             {[
               { label: 'Demo', href: '#demo' },
               { label: 'Funkcije', href: '#funkcije' },
@@ -2040,7 +2114,7 @@ export default function Home() {
               { label: 'Cene', href: '#cene' },
               { label: 'FAQ', href: '#faq' },
             ].map((item) => (
-              <a key={item.href} href={item.href} className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition">
+              <a key={item.href} href={item.href} className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
                 {item.label}
               </a>
             ))}
@@ -2048,16 +2122,17 @@ export default function Home() {
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
             <Button variant="ghost" size="sm" className="hidden sm:inline-flex text-slate-600">Prijava</Button>
-            <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
+            <Button size="sm" className="hidden sm:inline-flex bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
               Brezplačni preizkus
               <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
             </Button>
+            <MobileMenu />
           </div>
         </div>
       </header>
 
       {/* ===== HERO ===== */}
-      <section className="relative overflow-hidden">
+      <section id="main-content" className="relative overflow-hidden" aria-label="Hero — predstavitev">
         <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/60 via-white to-white" />
         <div className="absolute inset-0 opacity-[0.04]" style={{
           backgroundImage: 'linear-gradient(to right, #0f172a 1px, transparent 1px), linear-gradient(to bottom, #0f172a 1px, transparent 1px)',
