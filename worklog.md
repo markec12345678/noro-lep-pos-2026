@@ -156,3 +156,56 @@ Stage Summary:
 - Ključni differentiator: edini POS z 4-module interactive tour na landing page
 - Square/Shopify imajo samo statične screenshot-e, mi imamo živo izkušnjo
 - Stran je sedaj ~1450 vrstic TypeScript
+
+---
+Task ID: 9
+Agent: main (Z.ai Code)
+Task: Implementiraj real-time sync med 4 moduli (POS → KDS → Tables → Analytics)
+
+Work Log:
+- Dizajniral shared TourState interface (kitchenOrders, tables, promet, narocila, selectedTable, lastSync)
+- Liftal state iz posameznih komponent v ProductTour (centralized state management)
+- Implementiral 3 sync handlerje:
+  1. handleCheckout(cartItems, total):
+     - Kreira novo KDS naročilo (K-10X) iz cart vsebine
+     - Posodobi izbrano mizo v "zasedena" status
+     - Inkrementira promet + narocila v analitiki
+     - Trigger sync pulse animacijo z message
+  2. handleAdvanceOrder(orderId):
+     - Prestavi KDS naročilo v naslednji status (nova → v-pripravi → pripravljena)
+     - Trigger sync message
+  3. triggerSync(msg):
+     - Posodobi lastSync message
+     - Animirá pulse indikator (2.5s)
+- Dodal "Real-time sync aktivna" status bar nad tab-imi z:
+  - Pulsing dot (animate-ping)
+  - Live sync message (posodablja se ob akciji)
+  - Emerald highlight ko je sync aktiven
+- Posodobil vse 4 komponente da sprejmejo props:
+  * PosDemo: onCheckout, selectedTable + "Poslano v kuhinjo!" confirmation + sync badge
+  * KdsView: orders, onAdvance + "Začni pripravo"/"Označi pripravljeno" gumbi + "Natakar obveščen" badge
+  * TablesView: tables (live posodobljeno)
+  * AnalyticsView: promet, narocila (live izračun povr. račun)
+- Dodal badge counter-je na tab-ih (št. novih naročil v KDS, št. zasedenih miz)
+- Agent-browser E2E test REAL-TIME SYNC:
+  1. Dodal 3 artikle v POS cart ✅
+  2. Kliknil "Izdaj račun · FURS" ✅
+  3. POS: cart izpraznjen, "Poslano v kuhinjo!" + sync message ✅
+  4. KDS: novo naročilo K-016 se pojavilo v "Nova naročila" ✅
+  5. Analytics: promet se povečal €10,270 → €10,296 (+€26) ✅
+- VLM potrditev sync-a:
+  * POS: "cart cleared, sync messages displayed, sync status active"
+  * KDS: "new order from 'Ti (demo)' with items — POS→KDS sync worked"
+  * Analytics: "promet €10,296 (higher than original €10,270) — real-time update confirmed"
+- VLM full page: 8/10 ("real-time sync is a game-changer, elevates above Square/Shopify in operational cohesion")
+- Lint: 0 errors, 0 warnings
+
+Stage Summary:
+- Implementiran REAL-TIME SYNC med 4 moduli — "magic moment" ki ga noben konkurent nima
+- POS checkout → KDS novo naročilo + Miza zasedena + Analytics posodobljena (vse v 1 akciji)
+- KDS advance → sync message + natakar obveščen
+- Live sync status bar z pulsing indikatorjem
+- Badge counter-ji na tab-ih (live štetje)
+- E2E verificirano z agent-browser + VLM
+- VLM: "real-time sync alone elevates Noro Lep above Square (9.2) and Shopify (9.0) in operational cohesion"
+- Stran je sedaj ~1590 vrstic TypeScript

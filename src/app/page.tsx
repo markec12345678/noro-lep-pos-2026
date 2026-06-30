@@ -247,10 +247,11 @@ const TABLES: TableInfo[] = [
 /* ============================================================
    INTERACTIVE POS DEMO — Toggle between Natakar (TEXT) and Gost (IMAGE)
    ============================================================ */
-function PosDemo() {
+function PosDemo({ onCheckout, selectedTable }: { onCheckout: (cartItems: { item: MenuItem; qty: number }[], total: number) => void; selectedTable: string }) {
   const [view, setView] = useState<'natakar' | 'gost'>('natakar')
   const [activeCat, setActiveCat] = useState<string>('predjedi')
   const [cart, setCart] = useState<Record<string, number>>({})
+  const [checkedOut, setCheckedOut] = useState(false)
 
   const filteredItems = MENU_ITEMS.filter((i) => i.category === activeCat)
 
@@ -501,14 +502,41 @@ function PosDemo() {
                   <span className="text-sm font-bold text-slate-900">Skupaj</span>
                   <span className="text-2xl font-bold text-emerald-600 tabular-nums">{cartTotal.toFixed(2)} €</span>
                 </div>
-                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Izdaj račun · FURS
+                <Button
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+                  onClick={() => {
+                    onCheckout(cartItems, cartTotal)
+                    setCart({})
+                    setCheckedOut(true)
+                    setTimeout(() => setCheckedOut(false), 3000)
+                  }}
+                >
+                  {checkedOut ? (
+                    <>
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      Poslano v kuhinjo!
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      Izdaj račun · FURS
+                    </>
+                  )}
                 </Button>
                 <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-400">
                   <ShieldCheck className="h-3 w-3 text-emerald-500" />
-                  ZOI · EOR · QR koda avtomatsko
+                  ZOI · EOR · QR koda · sync v {selectedTable ? `Mizo ${selectedTable}` : 'kuhinjo'}
                 </div>
+                {checkedOut && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center justify-center gap-1.5 text-[11px] text-emerald-700 font-semibold bg-emerald-50 rounded-lg py-2"
+                  >
+                    <Zap className="h-3 w-3" />
+                    Real-time sync: KDS + Mize + Analitika posodobljeni
+                  </motion.div>
+                )}
               </div>
             )}
           </Card>
@@ -521,11 +549,11 @@ function PosDemo() {
 /* ============================================================
    KDS VIEW — Kitchen Display System kanban
    ============================================================ */
-function KdsView() {
-  const columns: { key: KitchenOrder['status']; label: string; color: string; bgColor: string }[] = [
-    { key: 'nova', label: 'Nova naročila', color: 'text-amber-600', bgColor: 'bg-amber-50' },
-    { key: 'v-pripravi', label: 'V pripravi', color: 'text-sky-600', bgColor: 'bg-sky-50' },
-    { key: 'pripravljena', label: 'Pripravljena', color: 'text-emerald-600', bgColor: 'bg-emerald-50' },
+function KdsView({ orders, onAdvance }: { orders: KitchenOrder[]; onAdvance: (id: string) => void }) {
+  const columns: { key: KitchenOrder['status']; label: string; color: string; bgColor: string; action: string }[] = [
+    { key: 'nova', label: 'Nova naročila', color: 'text-amber-600', bgColor: 'bg-amber-50', action: 'Začni pripravo' },
+    { key: 'v-pripravi', label: 'V pripravi', color: 'text-sky-600', bgColor: 'bg-sky-50', action: 'Označi pripravljeno' },
+    { key: 'pripravljena', label: 'Pripravljena', color: 'text-emerald-600', bgColor: 'bg-emerald-50', action: 'Čaka odnos' },
   ]
 
   return (
@@ -538,7 +566,7 @@ function KdsView() {
           </div>
           <div>
             <div className="text-sm font-bold">Kuhinjski zaslon · KDS</div>
-            <div className="text-[10px] text-slate-400">6 aktivnih naročil · 2 kuharja</div>
+            <div className="text-[10px] text-slate-400">{orders.length} aktivnih naročil · 2 kuharja</div>
           </div>
         </div>
         <div className="flex items-center gap-4 text-xs">
@@ -553,7 +581,7 @@ function KdsView() {
       {/* Kanban columns */}
       <div className="grid md:grid-cols-3 gap-4">
         {columns.map((col) => {
-          const orders = KITCHEN_ORDERS.filter((o) => o.status === col.key)
+          const colOrders = orders.filter((o) => o.status === col.key)
           return (
             <div key={col.key} className={`${col.bgColor} rounded-xl p-3 min-h-[400px]`}>
               <div className="flex items-center justify-between mb-3">
@@ -562,13 +590,14 @@ function KdsView() {
                   {col.label}
                 </div>
                 <span className={`px-2 py-0.5 rounded-full bg-white ${col.color} text-xs font-bold`}>
-                  {orders.length}
+                  {colOrders.length}
                 </span>
               </div>
               <div className="space-y-2">
-                {orders.map((order) => (
+                {colOrders.map((order) => (
                   <motion.div
                     key={order.id}
+                    layout
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="bg-white rounded-lg p-3 shadow-sm border-l-4"
@@ -586,7 +615,7 @@ function KdsView() {
                         {order.minutes} min
                       </div>
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-1 mb-2">
                       {order.items.map((item, i) => (
                         <div key={i} className="text-xs text-slate-700 flex items-start gap-1.5">
                           <span className="font-bold text-emerald-600 tabular-nums shrink-0">{item.qty}×</span>
@@ -597,8 +626,26 @@ function KdsView() {
                         </div>
                       ))}
                     </div>
+                    {order.status !== 'pripravljena' && (
+                      <button
+                        onClick={() => onAdvance(order.id)}
+                        className="w-full mt-2 px-2 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-semibold transition-colors flex items-center justify-center gap-1"
+                      >
+                        <ArrowRight className="h-3 w-3" />
+                        {col.action}
+                      </button>
+                    )}
+                    {order.status === 'pripravljena' && (
+                      <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-emerald-600 font-semibold bg-emerald-50 rounded-lg py-1.5">
+                        <Bell className="h-3 w-3" />
+                        Natakar obveščen
+                      </div>
+                    )}
                   </motion.div>
                 ))}
+                {colOrders.length === 0 && (
+                  <div className="text-center py-8 text-[10px] text-slate-400 italic">Ni naročil</div>
+                )}
               </div>
             </div>
           )
@@ -611,7 +658,7 @@ function KdsView() {
 /* ============================================================
    TABLES VIEW — Restaurant floor plan
    ============================================================ */
-function TablesView() {
+function TablesView({ tables }: { tables: TableInfo[] }) {
   const statusConfig = {
     prosta: { label: 'Prosta', bgColor: 'bg-white', borderColor: 'border-slate-300', textColor: 'text-slate-500', dot: 'bg-slate-300' },
     zasedena: { label: 'Zasedena', bgColor: 'bg-emerald-50', borderColor: 'border-emerald-400', textColor: 'text-emerald-700', dot: 'bg-emerald-500' },
@@ -620,10 +667,10 @@ function TablesView() {
   }
 
   const stats = {
-    prosta: TABLES.filter((t) => t.status === 'prosta').length,
-    zasedena: TABLES.filter((t) => t.status === 'zasedena').length,
-    rezervirana: TABLES.filter((t) => t.status === 'rezervirana').length,
-    plačilo: TABLES.filter((t) => t.status === 'plačilo').length,
+    prosta: tables.filter((t) => t.status === 'prosta').length,
+    zasedena: tables.filter((t) => t.status === 'zasedena').length,
+    rezervirana: tables.filter((t) => t.status === 'rezervirana').length,
+    plačilo: tables.filter((t) => t.status === 'plačilo').length,
   }
 
   return (
@@ -651,7 +698,7 @@ function TablesView() {
 
       {/* Floor plan grid */}
       <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 p-4 bg-slate-50 rounded-xl min-h-[400px]">
-        {TABLES.map((table) => {
+        {tables.map((table) => {
           const cfg = statusConfig[table.status]
           return (
             <motion.div
@@ -736,7 +783,8 @@ const CATEGORY_SPLIT = [
   { name: 'Sladice', value: 6, color: '#a855f7' },
 ]
 
-function AnalyticsView() {
+function AnalyticsView({ promet, narocila }: { promet: number; narocila: number }) {
+  const povrRacun = narocila > 0 ? promet / narocila : 0
   return (
     <div>
       {/* Header */}
@@ -746,12 +794,12 @@ function AnalyticsView() {
             <BarChart3 className="h-4 w-4 text-emerald-400" />
           </div>
           <div>
-            <div className="text-sm font-bold">Analitika · Danes</div>
+            <div className="text-sm font-bold">Analitika · Danes <span className="text-emerald-400 text-[10px] ml-1">· live</span></div>
             <div className="text-[10px] text-slate-400">{new Date().toLocaleDateString('sl-SI', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
           </div>
         </div>
         <div className="text-right">
-          <div className="text-lg font-bold text-emerald-400 tabular-nums">€10,270</div>
+          <div className="text-lg font-bold text-emerald-400 tabular-nums">€{promet.toLocaleString('sl-SI', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
           <div className="text-[10px] text-slate-400">+18% vs včeraj</div>
         </div>
       </div>
@@ -759,9 +807,9 @@ function AnalyticsView() {
       {/* KPI row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         {[
-          { label: 'Promet', value: '€10,270', change: '+18%', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'Naročila', value: '633', change: '+12%', icon: Receipt, color: 'text-sky-600', bg: 'bg-sky-50' },
-          { label: 'Povr. račun', value: '€16.22', change: '+5%', icon: CreditCard, color: 'text-amber-600', bg: 'bg-amber-50' },
+          { label: 'Promet', value: `€${promet.toLocaleString('sl-SI', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`, change: '+18%', icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+          { label: 'Naročila', value: String(narocila), change: '+12%', icon: Receipt, color: 'text-sky-600', bg: 'bg-sky-50' },
+          { label: 'Povr. račun', value: `€${povrRacun.toFixed(2)}`, change: '+5%', icon: CreditCard, color: 'text-amber-600', bg: 'bg-amber-50' },
           { label: 'Zasedenost', value: '78%', change: '+8%', icon: Users, color: 'text-purple-600', bg: 'bg-purple-50' },
         ].map((kpi, i) => (
           <Card key={i} className="p-3 border-slate-200">
@@ -892,10 +940,82 @@ function AnalyticsView() {
 }
 
 /* ============================================================
-   PRODUCT TOUR — 4-view interactive showcase
+   PRODUCT TOUR — 4-view interactive showcase z REAL-TIME SYNC
    ============================================================ */
+interface TourState {
+  kitchenOrders: KitchenOrder[]
+  tables: TableInfo[]
+  promet: number
+  narocila: number
+  selectedTable: string
+  lastSync: string | null
+}
+
 function ProductTour() {
   const [activeView, setActiveView] = useState<'pos' | 'kds' | 'tables' | 'analytics'>('pos')
+  const [state, setState] = useState<TourState>({
+    kitchenOrders: [...KITCHEN_ORDERS],
+    tables: [...TABLES],
+    promet: 10270,
+    narocila: 633,
+    selectedTable: '12',
+    lastSync: null,
+  })
+  const [syncPulse, setSyncPulse] = useState(false)
+
+  // Trigger sync pulse animation
+  const triggerSync = (msg: string) => {
+    setState((s) => ({ ...s, lastSync: msg }))
+    setSyncPulse(true)
+    setTimeout(() => setSyncPulse(false), 2500)
+  }
+
+  // POS checkout → creates KDS order + updates table + analytics
+  const handleCheckout = (cartItems: { item: MenuItem; qty: number }[], total: number) => {
+    const orderId = `K-${String(100 + state.kitchenOrders.length + 1).padStart(3, '0')}`
+    const newOrder: KitchenOrder = {
+      id: orderId,
+      table: `Miza ${state.selectedTable}`,
+      status: 'nova',
+      minutes: 0,
+      server: 'Ti (demo)',
+      items: cartItems.map(({ item, qty }) => ({
+        name: item.name,
+        qty,
+        note: item.desc,
+      })),
+    }
+
+    setState((s) => ({
+      ...s,
+      kitchenOrders: [newOrder, ...s.kitchenOrders],
+      tables: s.tables.map((t) =>
+        t.label === s.selectedTable
+          ? { ...t, status: 'zasedena', server: 'Ti (demo)', minutes: 0, total: 0 }
+          : t
+      ),
+      promet: s.promet + total,
+      narocila: s.narocila + 1,
+    }))
+    triggerSync(`Naročilo ${orderId} poslano v kuhinjo · Miza ${state.selectedTable} zasedena · +${total.toFixed(2)}€ v analitiko`)
+  }
+
+  // KDS advance order to next status
+  const handleAdvanceOrder = (orderId: string) => {
+    setState((s) => ({
+      ...s,
+      kitchenOrders: s.kitchenOrders.map((o) => {
+        if (o.id !== orderId) return o
+        const next = o.status === 'nova' ? 'v-pripravi' : 'pripravljena'
+        return { ...o, status: next }
+      }),
+    }))
+    const order = state.kitchenOrders.find((o) => o.id === orderId)
+    if (order) {
+      const nextStatus = order.status === 'nova' ? 'v pripravi' : 'pripravljena'
+      triggerSync(`${order.id} (${order.table}) → ${nextStatus}${order.status === 'v-pripravi' ? ' · miza obveščena' : ''}`)
+    }
+  }
 
   const views = [
     { key: 'pos' as const, label: 'POS Blagajna', icon: Receipt, desc: 'Natakar + Gost' },
@@ -906,24 +1026,56 @@ function ProductTour() {
 
   return (
     <div>
+      {/* Live sync status bar */}
+      <motion.div
+        animate={{ opacity: syncPulse ? 1 : 0.7, scale: syncPulse ? 1.02 : 1 }}
+        transition={{ duration: 0.3 }}
+        className={`mb-6 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium transition-colors ${
+          syncPulse ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-slate-100 text-slate-600'
+        }`}
+      >
+        <span className="relative flex h-2.5 w-2.5">
+          {syncPulse && (
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+          )}
+          <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${syncPulse ? 'bg-emerald-500' : 'bg-emerald-400'}`} />
+        </span>
+        <span className="font-bold">Real-time sync aktivna</span>
+        <span className="text-slate-400">·</span>
+        <span className="text-slate-500">
+          {state.lastSync || '4 moduli sinhronizirani v živo — spremembe se takoj prikažejo v vseh pogledih'}
+        </span>
+      </motion.div>
+
       {/* View selector tabs */}
       <div className="flex justify-center mb-8">
         <div className="inline-flex items-center bg-slate-100 rounded-xl p-1 gap-1 flex-wrap justify-center">
-          {views.map((v) => (
-            <button
-              key={v.key}
-              onClick={() => setActiveView(v.key)}
-              className={`px-4 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
-                activeView === v.key
-                  ? 'bg-white text-emerald-700 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              <v.icon className="h-4 w-4" />
-              <span>{v.label}</span>
-              <span className="hidden sm:inline text-[10px] text-slate-400 font-normal">· {v.desc}</span>
-            </button>
-          ))}
+          {views.map((v) => {
+            const badge =
+              v.key === 'kds' ? state.kitchenOrders.filter((o) => o.status === 'nova').length
+              : v.key === 'tables' ? state.tables.filter((t) => t.status === 'zasedena' || t.status === 'plačilo').length
+              : 0
+            return (
+              <button
+                key={v.key}
+                onClick={() => setActiveView(v.key)}
+                className={`relative px-4 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
+                  activeView === v.key
+                    ? 'bg-white text-emerald-700 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                <v.icon className="h-4 w-4" />
+                <span>{v.label}</span>
+                <span className="hidden sm:inline text-[10px] text-slate-400 font-normal">· {v.desc}</span>
+                {badge > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 rounded-full bg-emerald-500 text-white text-[9px] font-bold tabular-nums">
+                    {badge}
+                  </span>
+                )}
+              </button>
+            )
+          })}
         </div>
       </div>
 
@@ -934,10 +1086,10 @@ function ProductTour() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        {activeView === 'pos' && <PosDemo />}
-        {activeView === 'kds' && <KdsView />}
-        {activeView === 'tables' && <TablesView />}
-        {activeView === 'analytics' && <AnalyticsView />}
+        {activeView === 'pos' && <PosDemo onCheckout={handleCheckout} selectedTable={state.selectedTable} />}
+        {activeView === 'kds' && <KdsView orders={state.kitchenOrders} onAdvance={handleAdvanceOrder} />}
+        {activeView === 'tables' && <TablesView tables={state.tables} />}
+        {activeView === 'analytics' && <AnalyticsView promet={state.promet} narocila={state.narocila} />}
       </motion.div>
     </div>
   )
