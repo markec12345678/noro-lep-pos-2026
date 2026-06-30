@@ -47,6 +47,12 @@ import {
   useTableTurnover,
   formatOccupancy,
 } from "@/hooks/useTableTurnover";
+import {
+  useRevenueForecast,
+  formatCurrency as formatForecastCurrency,
+  formatPercent,
+  TREND_INFO,
+} from "@/hooks/useRevenueForecast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -488,6 +494,9 @@ const Reports = () => {
 
       {/* Table Turnover Analytics */}
       <TableTurnoverSection />
+
+      {/* Revenue Forecast & Week Comparison */}
+      <RevenueForecastSection />
     </div>
   );
 };
@@ -826,6 +835,183 @@ const TableTurnoverSection = () => {
           <p className="text-xs text-gray-400 mt-3">
             Zasedenost = čas od ustvarjanja naročila do zaključka. €/uro = prihodek / (skupni čas zasedenosti v urah).
           </p>
+        </CardContent>
+      </Card>
+    </>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/* Revenue Forecast Section                                            */
+/* ------------------------------------------------------------------ */
+
+const RevenueForecastSection = () => {
+  const { summary, isLoading } = useRevenueForecast(30);
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <Skeleton className="h-8 w-48 mb-4" />
+          <Skeleton className="h-64 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!summary) return null;
+
+  const { weekComparison: wc } = summary;
+  const trendInfo = TREND_INFO[summary.trend];
+
+  // Chart data: revenue + moving avg
+  const chartData = summary.daily.map((d) => ({
+    label: d.label,
+    Prihodek: d.revenue,
+    "7-dnevno povprečje": d.movingAvg ?? null,
+  }));
+
+  return (
+    <>
+      {/* Week-over-week comparison */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-secondary" />
+            Teden vs. prejšnji teden
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Revenue comparison */}
+            <div className="border rounded-lg p-4">
+              <p className="text-xs uppercase text-gray-500 font-medium mb-1">Prihodek</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-xl font-bold">
+                  {formatForecastCurrency(wc.thisWeek.revenue)}
+                </span>
+                <span className={`text-sm font-medium ${wc.revenueChange >= 0 ? "text-green-600" : "text-red-600"}`}>
+                  {formatPercent(wc.revenueChange)}
+                </span>
+              </div>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Prejšnji teden: {formatForecastCurrency(wc.lastWeek.revenue)}
+              </p>
+            </div>
+
+            {/* Orders comparison */}
+            <div className="border rounded-lg p-4">
+              <p className="text-xs uppercase text-gray-500 font-medium mb-1">Naročila</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-xl font-bold">{wc.thisWeek.orders}</span>
+                <span className={`text-sm font-medium ${wc.ordersChange >= 0 ? "text-green-600" : "text-red-600"}`}>
+                  {formatPercent(wc.ordersChange)}
+                </span>
+              </div>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Prejšnji teden: {wc.lastWeek.orders}
+              </p>
+            </div>
+
+            {/* Average ticket comparison */}
+            <div className="border rounded-lg p-4">
+              <p className="text-xs uppercase text-gray-500 font-medium mb-1">Povprečni račun</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-xl font-bold">
+                  {formatForecastCurrency(wc.thisWeek.avgTicket)}
+                </span>
+                <span className={`text-sm font-medium ${wc.ticketChange >= 0 ? "text-green-600" : "text-red-600"}`}>
+                  {formatPercent(wc.ticketChange)}
+                </span>
+              </div>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Prejšnji teden: {formatForecastCurrency(wc.lastWeek.avgTicket)}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Revenue trend with moving average */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-secondary" />
+              Trend prihodka (30 dni)
+            </span>
+            <span className={`text-sm font-medium ${trendInfo.color}`}>
+              {trendInfo.icon} {trendInfo.label} ({formatPercent(summary.trendStrength)})
+            </span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="label" tick={{ fontSize: 10 }} interval={2} />
+              <YAxis tick={{ fontSize: 11 }} />
+              <Tooltip
+                formatter={(value: number) => formatForecastCurrency(value)}
+                contentStyle={{ borderRadius: 8, border: "1px solid #e5e7eb" }}
+              />
+              <Legend />
+              <Area
+                type="monotone"
+                dataKey="Prihodek"
+                stroke="#10b981"
+                strokeWidth={2}
+                fill="url(#revenueGrad)"
+              />
+              <Line
+                type="monotone"
+                dataKey="7-dnevno povprečje"
+                stroke="#f97316"
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                dot={false}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+
+          {/* Projection + insights */}
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p className="text-xs uppercase text-gray-500 font-medium">Projekcija (7 dni)</p>
+              <p className="text-lg font-bold text-green-700">
+                {formatForecastCurrency(summary.projection)}
+              </p>
+              <p className="text-xs text-gray-400">Glede na trenutni trend</p>
+            </div>
+            {summary.bestDayOfWeek && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-xs uppercase text-gray-500 font-medium">Najboljši dan</p>
+                <p className="text-lg font-bold text-blue-700">
+                  {summary.bestDayOfWeek.day}
+                </p>
+                <p className="text-xs text-gray-400">
+                  povprečno {formatForecastCurrency(summary.bestDayOfWeek.avgRevenue)}
+                </p>
+              </div>
+            )}
+            {summary.bestDay && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <p className="text-xs uppercase text-gray-500 font-medium">Najboljši dan (30d)</p>
+                <p className="text-lg font-bold text-amber-700">
+                  {summary.bestDay.label}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {formatForecastCurrency(summary.bestDay.revenue)} · {summary.bestDay.orders} naročil
+                </p>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
     </>
