@@ -1913,11 +1913,109 @@ function VideoDemoModal() {
 }
 
 /* ============================================================
+   SCROLL PROGRESS BAR — emerald bar at top showing scroll
+   ============================================================ */
+function ScrollProgressBar() {
+  const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight
+      setProgress(docHeight > 0 ? (scrollTop / docHeight) * 100 : 0)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll()
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  return (
+    <div className="fixed top-0 left-0 right-0 h-1 z-[60] pointer-events-none">
+      <div
+        className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 transition-all duration-150 ease-out"
+        style={{ width: `${progress}%` }}
+      />
+    </div>
+  )
+}
+
+/* ============================================================
+   BACK TO TOP — floating button appears on scroll
+   ============================================================ */
+function BackToTop() {
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => setVisible(window.scrollY > 600)
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  if (!visible) return null
+
+  return (
+    <motion.button
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.5 }}
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl shadow-emerald-500/30 flex items-center justify-center transition-all hover:scale-110 group"
+      aria-label="Nazaj na vrh"
+    >
+      <ArrowRight className="h-5 w-5 -rotate-90 group-hover:-translate-y-0.5 transition-transform" />
+    </motion.button>
+  )
+}
+
+/* ============================================================
+   TRUST BAR — certifications & compliance badges
+   ============================================================ */
+function TrustBar() {
+  const badges = [
+    { icon: ShieldCheck, label: 'FURS ZDavPR', sub: 'Fiskalno skladno' },
+    { icon: Shield, label: 'GDPR', sub: 'EU zaščita podatkov' },
+    { icon: Globe, label: 'ISO 27001', sub: 'Info security' },
+    { icon: Wifi, label: '99.9% SLA', sub: 'Garancija delovanja' },
+    { icon: CreditCard, label: 'PCI DSS', sub: 'Varno plačevanje' },
+    { icon: Sparkles, label: 'AI Certified', sub: 'Predikcija prometa' },
+  ]
+
+  return (
+    <section className="py-6 border-b border-slate-100 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          {badges.map((badge, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: idx * 0.05 }}
+              className="flex items-center gap-2.5 group"
+            >
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <badge.icon className="h-4 w-4 text-emerald-600" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs font-bold text-slate-900 truncate">{badge.label}</div>
+                <div className="text-[10px] text-slate-500 truncate">{badge.sub}</div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    MAIN PAGE
    ============================================================ */
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-white text-slate-900 antialiased">
+      <ScrollProgressBar />
+      <BackToTop />
       {/* ===== HEADER ===== */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-slate-200/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -2070,6 +2168,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ===== TRUST BAR (certifications) ===== */}
+      <TrustBar />
 
       {/* ===== INTERACTIVE PRODUCT TOUR ===== */}
       <section id="demo" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/40 to-white border-y border-slate-100">
