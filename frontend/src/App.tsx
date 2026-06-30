@@ -1,5 +1,6 @@
 import { lazy, Suspense, useMemo } from "react";
 import { ThemeProvider } from "next-themes";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { Toaster as CustomToaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -130,17 +131,19 @@ const App = () => {
   );
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-      <QueryClientProvider client={queryClient}>
-        <LocationProvider>
-          <TooltipProvider>
-            <CustomToaster />
-            <SonnerToaster />
-            <AppInner />
-          </TooltipProvider>
-        </LocationProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+        <QueryClientProvider client={queryClient}>
+          <LocationProvider>
+            <TooltipProvider>
+              <CustomToaster />
+              <SonnerToaster />
+              <AppInner />
+            </TooltipProvider>
+          </LocationProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 };
 

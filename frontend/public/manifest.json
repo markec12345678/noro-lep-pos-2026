@@ -1,11 +1,11 @@
 {
-  "name": "TGI POS",
-  "short_name": "TGI",
-  "description": "Elegant restaurant management solution",
+  "name": "Noro Lep POS",
+  "short_name": "NoroLep",
+  "description": "Restaurant Management System — POS, FURS, Kitchen, Inventory, Loyalty",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#007bff",
+  "theme_color": "#f97316",
   "icons": [
     {
       "src": "/favicon.ico",
