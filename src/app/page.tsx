@@ -540,24 +540,119 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== LOGOS STRIP ===== */}
+      {/* ===== LOGOS STRIP (enhanced with rating + count) ===== */}
       <section className="py-10 border-y border-slate-100 bg-slate-50/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-xs font-semibold text-slate-400 uppercase tracking-widest mb-6">
-            Zaupajo nam vodilne slovenske restavracije
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-5 opacity-60">
-            {['Gostilna Pri Lovru', 'Restavracija Mariana', 'Pizza Factory', 'Sushi Ljubljana', 'Bistro Bled', 'Kavarna Central'].map((name, i) => (
-              <span key={i} className="text-lg font-bold text-slate-700 tracking-tight" style={{ fontFamily: i % 2 === 0 ? 'serif' : 'sans-serif' }}>
-                {name}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                ))}
+              </div>
+              <div className="text-sm">
+                <span className="font-bold text-slate-900">4.9/5</span>
+                <span className="text-slate-500"> · 542+ restavracij</span>
+              </div>
+            </div>
+            <div className="hidden sm:block w-px h-8 bg-slate-200" />
+            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 opacity-70">
+              {['Gostilna Pri Lovru', 'Restavracija Mariana', 'Pizza Factory', 'Sushi Ljubljana', 'Bistro Bled', 'Kavarna Central'].map((name, i) => (
+                <span key={i} className="text-base font-bold text-slate-700 tracking-tight whitespace-nowrap" style={{ fontFamily: i % 2 === 0 ? 'serif' : 'sans-serif' }}>
+                  {name}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== INDUSTRIES SECTION (za različne tipe restavracij) ===== */}
+      <section className="py-20 lg:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <Badge className="mb-4 bg-teal-100 text-teal-800 hover:bg-teal-100">
+              <Utensils className="h-3.5 w-3.5 mr-1.5" />
+              Za vsako vrsto lokala
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              Noro Lep deluje za{' '}
+              <span className="bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+                vse formate
               </span>
+            </h2>
+            <p className="mt-4 text-lg text-slate-600">
+              Od fine dininga do hitre prehrane — prilagodljiv workflow za vsak koncept.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {[
+              {
+                title: 'Fine Dining',
+                desc: 'Večhodovni meniji, rezervacije, sommelier modul',
+                img: '/pos-brand/case-finedining.png',
+                stat: '+28%',
+                statLabel: 'povr. račun',
+              },
+              {
+                title: 'Picerije & Fast Food',
+                desc: 'Hitra izdaja, dostava, QR naročanje',
+                img: '/pos-brand/case-pizzeria.png',
+                stat: '−40%',
+                statLabel: 'čas na račun',
+              },
+              {
+                title: 'Kavarne & Pekarne',
+                desc: 'Vernostne kartice, sezonski meniji, hitra kava',
+                img: '/pos-brand/case-cafe.png',
+                stat: '+22%',
+                statLabel: 'povratni gostje',
+              },
+              {
+                title: 'Bari & Klubi',
+                desc: 'Šank upravljanje, nočni meniji, multiple tabs',
+                img: '/pos-brand/kitchen-kds.png',
+                stat: '3x',
+                statLabel: 'več naročil v rush',
+              },
+            ].map((ind, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+              >
+                <Card className="group overflow-hidden border-slate-200/70 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer h-full">
+                  <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                    { }
+                    <img
+                      src={ind.img}
+                      alt={ind.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                    <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between text-white">
+                      <h3 className="text-lg font-bold drop-shadow-lg">{ind.title}</h3>
+                      <div className="text-right">
+                        <div className="text-xl font-bold text-emerald-300 drop-shadow-lg">{ind.stat}</div>
+                        <div className="text-[10px] text-white/80">{ind.statLabel}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-sm text-slate-600">{ind.desc}</p>
+                  </div>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
       {/* ===== FEATURES GRID ===== */}
-      <section id="funkcije" className="py-20 lg:py-28">
+      <section id="funkcije" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/40 to-white border-y border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-14">
             <Badge className="mb-4 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
@@ -761,6 +856,74 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ===== INTEGRATIONS ECOSYSTEM ===== */}
+      <section className="py-20 lg:py-28 bg-gradient-to-b from-white to-slate-50/40 border-y border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <Badge className="mb-4 bg-sky-100 text-sky-800 hover:bg-sky-100">
+              <Globe className="h-3.5 w-3.5 mr-1.5" />
+              Odprt ekosistem
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              Integrira se z{' '}
+              <span className="bg-gradient-to-r from-sky-600 to-emerald-600 bg-clip-text text-transparent">
+                čim že imaš
+              </span>
+            </h2>
+            <p className="mt-4 text-lg text-slate-600">
+              20+ integracij z najpogostejšimi orodji za gostince. REST API za vse ostalo.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {[
+              { name: 'Stripe', desc: 'Plačila', color: 'bg-indigo-50 text-indigo-600', letter: 'S' },
+              { name: 'FURS', desc: 'Fiskal', color: 'bg-emerald-50 text-emerald-600', letter: 'F' },
+              { name: 'Google Calendar', desc: 'Rezervacije', color: 'bg-red-50 text-red-600', letter: 'G' },
+              { name: 'Mailchimp', desc: 'Email', color: 'bg-amber-50 text-amber-600', letter: 'M' },
+              { name: 'Stripe Terminal', desc: 'Kartice', color: 'bg-purple-50 text-purple-600', letter: 'T' },
+              { name: 'Twilio SMS', desc: 'SMS opomniki', color: 'bg-rose-50 text-rose-600', letter: 'T' },
+              { name: 'SAP Business One', desc: 'ERP', color: 'bg-sky-50 text-sky-600', letter: 'S' },
+              { name: 'QuickBooks', desc: 'Računovodstvo', color: 'bg-teal-50 text-teal-600', letter: 'Q' },
+              { name: 'Uber Eats', desc: 'Dostava', color: 'bg-slate-100 text-slate-700', letter: 'U' },
+              { name: 'Wolt', desc: 'Dostava', color: 'bg-cyan-50 text-cyan-600', letter: 'W' },
+              { name: 'Revolut', desc: 'Plačila', color: 'bg-purple-50 text-purple-600', letter: 'R' },
+              { name: 'NLB Klik', desc: 'Banka', color: 'bg-blue-50 text-blue-600', letter: 'N' },
+              { name: 'Instagram', desc: 'Marketing', color: 'bg-pink-50 text-pink-600', letter: 'I' },
+              { name: 'Facebook', desc: 'Rezervacije', color: 'bg-blue-50 text-blue-600', letter: 'f' },
+              { name: 'REST API', desc: 'Poljubno', color: 'bg-slate-100 text-slate-700', letter: '{ }' },
+            ].map((integration, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.3, delay: (idx % 5) * 0.05 }}
+              >
+                <Card className="group p-4 border-slate-200/70 hover:border-emerald-300 hover:shadow-md transition-all cursor-pointer h-full">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-lg ${integration.color} flex items-center justify-center font-bold text-lg shrink-0 group-hover:scale-110 transition-transform`}>
+                      {integration.letter}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-bold text-slate-900 truncate">{integration.name}</div>
+                      <div className="text-[11px] text-slate-500">{integration.desc}</div>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Button variant="outline" className="border-slate-300 hover:bg-slate-50">
+              Oglej si vse 20+ integracij
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* ===== KAKO DELA (3 KORAKI) ===== */}
       <section id="kako" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/60 to-white border-y border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -884,6 +1047,115 @@ export default function Home() {
                       <div className="text-sm font-bold text-slate-900">{t.name}</div>
                       <div className="text-xs text-slate-500">{t.role}</div>
                       <div className="text-[11px] text-slate-400">{t.location}</div>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== CASE STUDIES (konkretne restavracije z metrikami) ===== */}
+      <section className="py-20 lg:py-28 bg-gradient-to-b from-amber-50/30 via-white to-emerald-50/30 relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[50rem] h-[30rem] bg-emerald-200/20 blur-3xl rounded-full" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <Badge className="mb-4 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
+              <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
+              Realni rezultati
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900">
+              3 restavracije.{' '}
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                3 preboji.
+              </span>
+            </h2>
+            <p className="mt-4 text-lg text-slate-600">
+              Konkretni primeri slovenskih restavracij, ki so z Noro Lep POS preoblikovale poslovanje.
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {[
+              {
+                img: '/pos-brand/case-finedining.png',
+                name: 'Restavracija Mariana',
+                location: 'Bled · Fine Dining',
+                quote: 'AI predikcija prometa je zaklad. Zdaj vemo, koliko zaloge naročiti za vikend, brez da bi karkoli ugibali.',
+                author: 'Ana Zupan, Direktorica',
+                metrics: [
+                  { value: '+18%', label: 'povprečni račun', color: 'text-emerald-600' },
+                  { value: '−15%', label: 'odpad hrane', color: 'text-teal-600' },
+                  { value: '4.9★', label: 'ocena gostov', color: 'text-amber-600' },
+                ],
+              },
+              {
+                img: '/pos-brand/case-pizzeria.png',
+                name: 'Pizza Factory',
+                location: 'Maribor · Fast Casual',
+                quote: 'Mobilna aplikacija za goste je dvignila naš povprečni račun za 22%. QR naročanje deluje v 3 sekundah.',
+                author: 'Tomaž Horvat, Upravljalec',
+                metrics: [
+                  { value: '+22%', label: 'povr. račun', color: 'text-emerald-600' },
+                  { value: '−40%', label: 'čas na račun', color: 'text-teal-600' },
+                  { value: '3.2s', label: 'QR naročilo', color: 'text-amber-600' },
+                ],
+              },
+              {
+                img: '/pos-brand/case-cafe.png',
+                name: 'Gostilna Pri Lovru',
+                location: 'Ljubljana · Tradicionalna',
+                quote: 'Po prehodu na Noro Lep POS smo skrajšali čas izdaje računa za 40%. FURS dela avtomatsko, kuharji končno vidijo vsa naročila.',
+                author: 'Marko Kovač, Lastnik',
+                metrics: [
+                  { value: '−40%', label: 'čas na račun', color: 'text-emerald-600' },
+                  { value: '+30%', label: 'povratni gostje', color: 'text-teal-600' },
+                  { value: '0.3s', label: 'FURS EOR', color: 'text-amber-600' },
+                ],
+              },
+            ].map((cs, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.6, delay: idx * 0.1 }}
+              >
+                <Card className="overflow-hidden border-slate-200/70 hover:shadow-xl transition-all duration-300">
+                  <div className="grid md:grid-cols-2 gap-0">
+                    {/* Image side */}
+                    <div className="relative aspect-[16/10] md:aspect-auto overflow-hidden bg-slate-100">
+                      { }
+                      <img
+                        src={cs.img}
+                        alt={cs.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <div className="text-xs text-emerald-300 font-semibold mb-1 drop-shadow-lg">{cs.location}</div>
+                        <h3 className="text-xl font-bold text-white drop-shadow-lg">{cs.name}</h3>
+                      </div>
+                    </div>
+                    {/* Content side */}
+                    <div className="p-6 lg:p-8 flex flex-col justify-between bg-white">
+                      <div>
+                        <div className="text-4xl text-emerald-200 mb-2 leading-none font-serif">&ldquo;</div>
+                        <p className="text-sm lg:text-base text-slate-700 leading-relaxed italic mb-4">
+                          {cs.quote}
+                        </p>
+                        <div className="text-xs text-slate-500 font-medium">{cs.author}</div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-3 mt-6 pt-6 border-t border-slate-100">
+                        {cs.metrics.map((m, i) => (
+                          <div key={i} className="text-center">
+                            <div className={`text-2xl font-bold ${m.color} tabular-nums`}>{m.value}</div>
+                            <div className="text-[10px] text-slate-500 mt-0.5">{m.label}</div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </Card>
