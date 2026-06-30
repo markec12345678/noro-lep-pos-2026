@@ -602,3 +602,65 @@ Stage Summary:
 - Test coverage: a11y, SEO, mobile, trust, features
 - Golden path (POS→KDS→Tables→Analytics) ima test skeleton
 - Naslednji boss fight: #2 Analytics (Umami/Plausible) ali #3 Backend load test
+
+---
+Task ID: 18
+Agent: main (Z.ai Code)
+Task: Boss fight #2 — Privacy-friendly analytics (GDPR-compliant)
+
+Work Log:
+- Zgradil lasten lightweight analytics sistem (brez Google Analytics, brez consent banner):
+  * src/lib/analytics.ts — GDPR-compliant analytics library
+    - NO cookies (samo localStorage za session ID)
+    - NO PII (personally identifiable information)
+    - NO fingerprinting (random session ID: sess_xxx)
+    - Anonymous aggregate events only
+    - User can view/clear their own data (right to be forgotten)
+    - sendBeacon API za non-blocking tracking
+    - Max 100 events per user (privacy limit)
+    - hasConsent() / setConsent() za opt-out
+  * src/app/api/analytics/route.ts — event receiver + aggregator
+    - POST: sprejme event-e (sanitized, validated, max 50 char type)
+    - GET: vrača aggregate stats (total, recent24h, uniqueSessions, byType, bySection)
+    - In-memory storage (demo, 10k event limit)
+    - Privacy note v vsakem response
+  * src/hooks/use-analytics.ts — auto-tracking hook
+    - page_view on mount
+    - section_view via IntersectionObserver (30% threshold, dedup)
+    - scroll_depth milestones (25%, 50%, 75%, 100%)
+    - Global click delegation za [data-track] elements (clean, no component changes)
+    - Manual trackEvent function
+- Tracking integriran na ključne elemente:
+  * Hero CTA: "Brezplačni 30-dnevni preizkus" → cta_click:brezplacni_preizkus_hero
+  * Header CTA: "Brezplačni preizkus" → cta_click:brezplacni_preizkus_header
+  * Pricing: 3 tierji → cta_click:pricing_starter/professional/enterprise
+  * ROI: "Začni prihranjevati" → cta_click:roi_zacni_prihranjevati
+  * Final CTA: "Brezplačni 30-dnevni preizkus" → cta_click:brezplacni_preizkus_final
+  * Video modal: "Oglej si demo" → video_open:oglej_si_demo
+  * Language switcher: SLO/EN/DE/IT → language_change:SLO/EN/DE/IT
+  * Auto: page_view, section_view (vse section[id]), scroll_depth (25/50/75/100%)
+- Playwright tests (7 novih, vsi passing):
+  1. page_view event se shrani v localStorage
+  2. session ID je anonimen (sess_ prefix)
+  3. CTA click se track-a
+  4. section_view se track-a ob scroll-u
+  5. API /api/analytics vrača aggregate stats
+  6. NE uporablja piškotkov (no cookies — GDPR)
+  7. User lahko izbriše podatke (right to be forgotten)
+- Agent-browser verificirano:
+  * 15 events v localStorage po obisku
+  * API sprejel 25 eventov (page_view, section_view, cta_click)
+  * byType: section_view=4, page_view=20, cta_click=1
+  * bySection: main-content=4, home=20, hero=1
+- Total test count: 35/35 passing (28 + 7 analytics)
+- Lint: 0 errors, 0 warnings
+- Push na GitHub: commit 11aba21 na nextjs-landing
+
+Stage Summary:
+- Boss fight #2 (Analytics & Growth) zaključen
+- Privacy-friendly analytics: 0 cookies, 0 PII, 0 external services
+- Auto-tracking: page_view, section_view, scroll_depth, CTA clicks, language changes
+- API endpoint z aggregate stats
+- 7 E2E testov za analytics (vsi passing)
+- Scorecard: Analytics 0/10 → 9/10
+- Naslednji boss fight: #3 Backend load test ali Launch post
