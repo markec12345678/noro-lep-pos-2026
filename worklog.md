@@ -222,3 +222,41 @@ Stage Summary:
 - Iskren zaključek: vizualno smo BLIZU svetovnega razreda (7-8/10 po sekcijah),
   a še ne enaki Square (9.2). Za popolno primerljivost potrebujemo:
   realne fotographije, realne logotipe, hardware sekcijo, video demo
+
+---
+Task ID: 22
+Agent: main (Z.ai Code)
+Task: Inventory Preview sekcija na landing page
+
+Work Log:
+- Ugotovil da API route datoteke manjkajo na disku (filesystem reset)
+- Obnovil vse datoteke iz git origin/nextjs-landing:
+  * src/app/api/inventory/ (seed, list, items, items/[id], delivery)
+  * src/lib/seed-data.ts (232 artiklov)
+  * src/lib/analytics.ts, src/hooks/use-analytics.ts
+  * src/app/api/analytics/
+  * tests/e2e/ (vsi testi)
+  * .github/ (CI/CD, templates)
+  * README, LICENSE, CONTRIBUTING, SECURITY, CHANGELOG, CODE_OF_CONDUCT
+  * .editorconfig, .prettierrc, .dockerignore, .env.example
+  * playwright.config.ts, LAUNCH.md
+- Re-seeded database: 232 artiklov z zalogo 0
+- Zgradil InventoryPreview komponento (~180 vrstic):
+  * Fetch iz /api/inventory/list na mount
+  * Stats bar: skupaj artiklov, kategorij, nizka zaloga, vrednost zaloge
+  * Search input (real-time iskanje po imenu)
+  * Category filter chips (19 kategorij s štetjem, horizontal scroll)
+  * Low stock filter toggle (prikaže samo stock<=0)
+  * Scrollable grid (max-h-96, overflow-y-auto) z article cards
+  * ZALOGA 0 amber badges za nizko zalogo
+  * Info note o ročnem vnosu (POST /api/inventory/items)
+- Dodali sekcijo med Features in Zakaj sekcijo
+- VLM: 7.7/10 ("Strong visual structure, clearly shows inventory system")
+- Lint: 0 errors, 0 warnings
+- Push na GitHub: commit 7be5c40 na nextjs-landing
+
+Stage Summary:
+- Inventory Preview je sedaj live na landing page
+- Uporabnik lahko vidi vse 232 artiklov, išče, filtrira po kategorijah
+- ZALOGA 0 badges pokažejo da so vsi artikli pripravljeni (samo dobavnice manjkajo)
+- Info note razloži da lahko doda tudi custom artikle
