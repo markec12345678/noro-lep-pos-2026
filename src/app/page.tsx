@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import {
+  AlertCircle,
   ArrowRight,
   BarChart3,
   Bell,
@@ -14,11 +15,14 @@ import {
   Globe,
   Heart,
   LayoutGrid,
+  Loader2,
   Minus,
   Package,
   Plus,
   Receipt,
   ScanLine,
+  Scale,
+  Search,
   Shield,
   ShieldCheck,
   ShoppingBag,
@@ -290,6 +294,205 @@ const FAQ = [
     a: 'Paket Professional vključuje 24/7 prioriteto podporo preko chata, emaila in telefonov. Enterprise paket vključuje namenskega account manager-ja in SLA 99.9% garancijo.',
   },
 ]
+
+/* ============================================================
+   INVENTORY PREVIEW — 232 artiklov pripravljenih, zaloga=0
+   ============================================================ */
+interface ApiItem {
+  id: string
+  name: string
+  category: string
+  subcategory?: string | null
+  unit: string
+  purchasePrice: number
+  salePrice?: number | null
+  stock: number
+  minStock: number
+  supplier?: string | null
+}
+
+function InventoryPreview() {
+  const [items, setItems] = useState<ApiItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [activeCat, setActiveCat] = useState<string | null>(null)
+  const [showLowStock, setShowLowStock] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/inventory/list')
+      .then(r => r.json())
+      .then(d => {
+        setItems(d.items || [])
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  const categories = Array.from(new Set(items.map(i => i.category))).sort()
+  const filtered = items.filter(item => {
+    if (activeCat && item.category !== activeCat) return false
+    if (showLowStock && item.stock > 0) return false
+    if (search && !item.name.toLowerCase().includes(search.toLowerCase())) return false
+    return true
+  })
+
+  const lowStockCount = items.filter(i => i.stock <= 0).length
+  const totalValue = items.reduce((sum, i) => sum + (i.stock * i.purchasePrice), 0)
+
+  return (
+    <section id="inventar" className="py-20 lg:py-28 bg-gradient-to-b from-white to-slate-50/40 border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <Badge className="mb-4 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
+            <Package className="h-3.5 w-3.5 mr-1.5" />
+            232 artiklov pripravljenih
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+            Vsi artikli{' '}
+            <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              pripravljeni
+            </span>
+          </h2>
+          <p className="mt-4 text-lg text-slate-600">
+            232 slovenskih artiklov v 19 kategorijah — vsi z zalogo 0.
+            Ti vneseš samo dobavnice (količine). Manjkajoči artikli? Dodaš ročno.
+          </p>
+        </div>
+
+        {/* Stats bar */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          {[
+            { label: 'Skupaj artiklov', value: items.length, icon: Package, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+            { label: 'Kategorij', value: categories.length, icon: LayoutGrid, color: 'text-teal-600', bg: 'bg-teal-50' },
+            { label: 'Nizka zaloga', value: lowStockCount, icon: AlertCircle, color: 'text-amber-600', bg: 'bg-amber-50' },
+            { label: 'Vrednost zaloge', value: `${totalValue.toFixed(0)} €`, icon: TrendingUp, color: 'text-sky-600', bg: 'bg-sky-50' },
+          ].map((stat, i) => (
+            <Card key={i} className="p-4 border-slate-200/70">
+              <div className="flex items-center gap-2 mb-1">
+                <div className={`w-7 h-7 rounded-lg ${stat.bg} flex items-center justify-center`}>
+                  <stat.icon className={`h-3.5 w-3.5 ${stat.color}`} />
+                </div>
+              </div>
+              <div className="text-xl font-bold text-slate-900 tabular-nums">{stat.value}</div>
+              <div className="text-[10px] text-slate-500">{stat.label}</div>
+            </Card>
+          ))}
+        </div>
+
+        {/* Search + filters */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Iskanje artiklov..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            />
+          </div>
+          <button
+            onClick={() => setShowLowStock(!showLowStock)}
+            className={`px-4 py-2.5 rounded-lg text-sm font-semibold transition flex items-center gap-2 whitespace-nowrap ${
+              showLowStock ? 'bg-amber-500 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            <AlertCircle className="h-4 w-4" />
+            Nizka zaloga ({lowStockCount})
+          </button>
+        </div>
+
+        {/* Category chips */}
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+          <button
+            onClick={() => setActiveCat(null)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${
+              !activeCat ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            Vse ({items.length})
+          </button>
+          {categories.map(cat => {
+            const count = items.filter(i => i.category === cat).length
+            return (
+              <button
+                key={cat}
+                onClick={() => setActiveCat(cat)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${
+                  activeCat === cat ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                {cat} ({count})
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Items grid */}
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-h-96 overflow-y-auto p-1">
+            {filtered.map(item => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.2 }}
+                className={`p-3 rounded-lg border-2 transition-all hover:shadow-md ${
+                  item.stock <= 0 ? 'border-amber-200 bg-amber-50/30' : 'border-slate-200 bg-white'
+                }`}
+              >
+                <div className="flex items-start justify-between mb-1">
+                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">{item.category}</span>
+                  {item.stock <= 0 && (
+                    <span className="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[9px] font-bold">
+                      ZALOGA 0
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs font-bold text-slate-900 leading-tight line-clamp-2 mb-1">
+                  {item.name}
+                </div>
+                <div className="flex items-center justify-between mt-1.5">
+                  <span className="text-xs font-bold text-emerald-600 tabular-nums">
+                    {item.stock} {item.unit}
+                  </span>
+                  {item.salePrice ? (
+                    <span className="text-[10px] text-slate-400 tabular-nums">
+                      {item.salePrice.toFixed(2)} €
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-slate-400 tabular-nums">
+                      {item.purchasePrice.toFixed(2)} €
+                    </span>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+            {filtered.length === 0 && (
+              <div className="col-span-full text-center py-12 text-slate-400">
+                <Package className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                <p className="text-sm">Ni najdenih artiklov</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Info note */}
+        <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-500">
+          <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+          <span>
+            <strong className="text-slate-700">Vsi artikli z zalogo 0</strong> — vneseš samo dobavnice.
+            Manjkajoči artikli? Dodaš preko <code className="px-1 py-0.5 rounded bg-slate-100 text-emerald-600 font-mono">POST /api/inventory/items</code>
+          </span>
+        </div>
+      </div>
+    </section>
+  )
+}
 
 /* ============================================================
    MAIN PAGE
@@ -700,6 +903,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ===== INVENTORY PREVIEW — 232 artiklov pripravljenih ===== */}
+      <InventoryPreview />
 
       {/* ===== DARK "ZAKAJ IZBRATI NAS" SECTION ===== */}
       <section id="zakaj" className="relative py-20 lg:py-28 bg-slate-950 text-white overflow-hidden">
