@@ -260,3 +260,53 @@ Stage Summary:
 - Uporabnik lahko vidi vse 232 artiklov, išče, filtrira po kategorijah
 - ZALOGA 0 badges pokažejo da so vsi artikli pripravljeni (samo dobavnice manjkajo)
 - Info note razloži da lahko doda tudi custom artikle
+
+---
+Task ID: 23
+Agent: main (Z.ai Code)
+Task: Boss fight #4 — Stripe contactless plačila integracija
+
+Work Log:
+- Namestil stripe@22.3.0 in @stripe/stripe-js@9.8.0
+- Zgradil src/lib/stripe.ts:
+  * IS_STRIPE_CONFIGURED — samodejno detektira demo/production mode
+  * createPaymentIntent() — demo (simulira) ali production (pravi Stripe API)
+  * PAYMENT_METHODS — 5 metod (apple_pay, google_pay, card, contactless, cash)
+- Zgradil /api/payments/create-intent (GET + POST):
+  * GET: vrne stanje (mode, methods, message)
+  * POST: ustvari payment intent (demo ali production)
+  * Demo mode: pi_demo_xxx z simulacijo
+  * Production: pravi Stripe paymentIntent.create()
+- Zgradil PaymentModal komponento (~150 vrstic):
+  * 5 plačilnih metod: Apple Pay, Google Pay, Kartica, Contactless, Gotovina
+  * 4 stanja: select → processing → success/demo
+  * Processing animation (Loader2 spinner)
+  * Success: CheckCircle2 + paymentIntentId + FURS EOR
+  * Demo: Sparkles + opozorilo da dodaj STRIPE_SECRET_KEY
+  * PCI DSS footer badge
+- Zgradil PaymentsSection na landing page:
+  * 6 payment method kartic (Apple Pay, Google Pay, Kartica, NFC, Gotovina, QR)
+  * 'Poskusi demo plačilo (12.50 €)' CTA gumb
+  * Stripe status badge (demo/production)
+  * Trust badges (PCI DSS, 3D Secure, instant settlement, multi-valutno)
+- .env.example posodobljen z STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET
+- Agent-browser testi:
+  * PaymentsSection se prikaže ✅
+  * Click "demo plačilo" odpre modal ✅
+  * Click "Apple Pay" → processing → demo result ✅
+- API testi:
+  * GET: vrača demo mode + 5 metod ✅
+  * POST: ustvari pi_demo_xxx intent ✅
+- Lint: 0 errors, 0 warnings
+- Push na GitHub: commit a098d8b na nextjs-landing
+
+Trend pokrit:
+- $90.6B contactless payment market (15.4% CAGR)
+- 2026 trend #1: Contactless plačila
+- NFC predicted 50% contactless transactions by 2026
+- Apple Pay + Google Pay = standard 2026
+
+Naslednji koraki:
+- AI predikcija zalog (dejavni, ne demo) — trend #2
+- Delivery integracija (Wolt, Uber Eats) — standard 2026
+- Real backend (PostgreSQL + WebSocket) — production
