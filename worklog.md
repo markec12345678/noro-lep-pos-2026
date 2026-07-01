@@ -361,3 +361,46 @@ AI model algoritem:
 6. Reorder suggestion (demand + 30% safety - current stock)
 7. Urgency classification (critical/high/medium/low/none)
 8. AI reasoning (human-readable explanation)
+
+---
+Task ID: 25
+Agent: main (Z.ai Code)
+Task: Boss fight #6 — Delivery integracija (Wolt, Uber Eats, Glovo)
+
+Work Log:
+- Zgradil src/lib/delivery.ts (~200 vrstic):
+  * DeliveryOrder interface (platform, customer, items, commission, status, prep/delivery time)
+  * 5 platform: Wolt (12%), Uber Eats (15%), Glovo (10%), Lastmin (8%), QR (0%)
+  * generateDeliveryOrder() — naključno naročilo z realnimi slovenskimi cenami
+  * 10 naslovov v Ljubljani, 10 imen strank
+  * calculateDeliveryStats() — total, new, preparing, ready, revenue, commission, net
+- Zgradil /api/delivery/orders (GET + POST):
+  * GET: vsa naročila + statistika + filter po statusu
+  * POST new: generira novo naročilo iz "platforme"
+  * POST status: spremeni status (new → accepted → preparing → ready → picked_up)
+  * POST auto_accept: samodejno sprejmi vsa nova naročila
+  * In-memory storage (max 50 naročil)
+- Zgradil DeliverySection na landing page (~300 vrstic):
+  * 5 platform kartic (Wolt, Uber Eats, Glovo, Lastmin, QR) z provizijami
+  * 6 stat kartic: skupaj, novih, v pripravi, pripravljena, bruto, neto
+  * Filter tabs (vse/nova/v pripravi/pripravljena)
+  * Auto-accept toggle (samodejno sprejemanje vsakih 5s)
+  * 'Simuliraj naročilo' gumb (generira novo naključno)
+  * Live feed: auto-refresh vsakih 10s
+  * Order cards: platform icon, customer name, address, items, notes
+  * Status workflow buttons: Sprejmi/Zavrni → Kuhinja → Pripravljeno → Prevzeto
+  * Commission tracking: bruto vs neto (po proviziji platforme)
+  * "ZDAJ" badge za naročila mlajša od 1 minute
+  * Notes prikaz (npr. "Brez čebule", "Pikantno")
+- API test:
+  * 5 začetnih naročil (3 nova, 1 v pripravi, 1 pripravljen)
+  * Bruto promet: 116.50€, provizija: 13.07€, neto: 103.43€
+  * Platforme: Wolt 2, Glovo 1, Uber Eats 1, Lastmin 1
+  * Novo naročilo generirano uspešno
+- Lint: 0 errors, 0 warnings
+- Push na GitHub: commit 5a6fa23 na nextjs-landing
+
+Trend pokrit:
+- Delivery integracija = standard 2026 (vsi konkurenti imajo)
+- "Managing separate delivery tablets" = pain point (Square/Toast rešitev)
+- Mi: vse platforme na enem zaslonu z auto-accept
