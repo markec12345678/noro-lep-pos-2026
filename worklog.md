@@ -310,3 +310,54 @@ Naslednji koraki:
 - AI predikcija zalog (dejavni, ne demo) — trend #2
 - Delivery integracija (Wolt, Uber Eats) — standard 2026
 - Real backend (PostgreSQL + WebSocket) — production
+
+---
+Task ID: 24
+Agent: main (Z.ai Code)
+Task: Boss fight #5 — AI predikcija zalog (2026 trend #1)
+
+Work Log:
+- Zgradil src/lib/ai-prediction.ts (~200 vrstic):
+  * SalesRecord interface (7-dnevna zgodovina prodaje)
+  * Prediction interface (demand, confidence, trend, daysUntilStockout, reorder)
+  * detectTrend(): rising (>10%), falling (<-10%), seasonal (vikend >25%), stable
+  * predictDemand(): povprečje + trend adjust + sezonskost (weekday vs weekend)
+  * Confidence: 50-95% glede na coefficient of variation (nižja variansa = višje zaupanje)
+  * generatePredictions(): za vse artikle z reasoning (AI explanation)
+  * generateReorderList(): sortirana po urgency (critical→low) + totalCost
+  * Safety stock: 30% nad predvidenim povpraševanjem
+  * generateMockSalesData(): 10 artiklov z realnimi slovenskimi cenami
+- Zgradil /api/ai/predict (GET):
+  * Vrne predictions + reorderList + stats
+  * Stats: totalItems, criticalCount, highCount, risingCount, seasonalCount, avgConfidence, totalReorderCost
+  * AI note o modelu
+- Zgradil AIPredictionSection na landing page (~250 vrstic):
+  * 4 stat kartice: analizirano, kritičnih, zaupanje, vrednost dobavnice
+  * Toggle: Predikcije grid (3-column) vs Dobavnica list
+  * Predikcije kartice: urgency badge, zaloga/predikcija/days, trend, AI reasoning
+  * Dobavnica: sortiran list z urgency dots + 'Ustvari dobavnico' CTA
+  * AI info note (TensorFlow.js za produkcijo)
+- API test:
+  * 10 artiklov analiziranih
+  * 10 critical (nizka zaloga)
+  * 8 seasonal (vikend spike)
+  * 2 rising
+  * Avg confidence: 81%
+  * Total reorder cost: 6979.90 EUR
+- Lint: 0 errors, 0 warnings
+- Push na GitHub: commit c0bfefa na nextjs-landing
+
+Trend pokrit:
+- 2026 trend #1: AI predictive analytics za inventory
+- "Predictive analytics for sales and inventory" = top AI use case
+- "AI-powered POS can forecast inventory needs, reduce stockouts"
+
+AI model algoritem:
+1. Analiza 7-dnevne prodaje (mock data za demo)
+2. Trend detection (rising/falling/stable/seasonal)
+3. Demand prediction (avg + trend + sezonskost)
+4. Confidence calculation (CV-based)
+5. Days until stockout
+6. Reorder suggestion (demand + 30% safety - current stock)
+7. Urgency classification (critical/high/medium/low/none)
+8. AI reasoning (human-readable explanation)
