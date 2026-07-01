@@ -770,6 +770,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ===== COMMAND CENTER — Unified dashboard ===== */}
+      <CommandCenter />
+
       {/* ===== INDUSTRIES SECTION (za različne tipe restavracij) ===== */}
       <section className="py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1973,6 +1976,313 @@ function PlayIcon({ className }: { className?: string }) {
     >
       <path d="M8 5v14l11-7z" />
     </svg>
+  )
+}
+
+/* ============================================================
+   COMMAND CENTER — Unified dashboard vseh 7 sistemov
+   ============================================================ */
+interface DashboardData {
+  pos: { revenueToday: number; ordersToday: number; avgCheck: number; hourlyTrend: number[]; peakHour: string; revenueChange: string }
+  kds: { newOrders: number; preparing: number; ready: number; avgPrepTime: number; longestWaiting: number }
+  tables: { total: number; occupied: number; free: number; reserved: number; payment: number; occupancyRate: number; avgTableTime: number }
+  delivery: { total: number; newCount: number; preparing: number; ready: number; totalRevenue: number; netRevenue: number; totalCommission: number }
+  ai: { criticalAlerts: number; highAlerts: number; avgConfidence: number; topReorder: { name: string; quantity: number; cost: number; urgency: string }[] }
+  payments: { totalToday: number; byMethod: { method: string; label: string; amount: number; count: number; color: string }[] }
+  inventory: { totalItems: number; lowStock: number; totalValue: number; categories: number }
+  systemHealth: { score: number; status: string; activeModules: number; uptime: string; lastSync: number; alerts: number }
+}
+
+function CommandCenter() {
+  const [data, setData] = useState<DashboardData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [now, setNow] = useState(new Date())
+
+  useEffect(() => {
+    const fetchData = () => {
+      fetch('/api/dashboard/overview')
+        .then(r => r.json())
+        .then(d => { setData(d); setLoading(false) })
+        .catch(() => setLoading(false))
+    }
+    fetchData()
+    const interval = setInterval(fetchData, 15000) // refresh vsakih 15s
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  if (loading || !data) {
+    return (
+      <section className="py-12 bg-slate-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
+          <span className="ml-3 text-sm text-slate-400">Nalagam Command Center...</span>
+        </div>
+      </section>
+    )
+  }
+
+  const healthColor = data.systemHealth.score >= 80 ? 'text-emerald-400' : data.systemHealth.score >= 60 ? 'text-amber-400' : 'text-red-400'
+  const healthBg = data.systemHealth.score >= 80 ? 'bg-emerald-500' : data.systemHealth.score >= 60 ? 'bg-amber-500' : 'bg-red-500'
+
+  return (
+    <section id="command-center" className="py-20 lg:py-28 bg-slate-950 text-white relative overflow-hidden">
+      {/* Decorative grid */}
+      <div className="absolute inset-0 opacity-[0.04]" style={{
+        backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+        backgroundSize: '28px 28px',
+      }} />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60rem] h-[30rem] bg-emerald-500/10 blur-3xl rounded-full" />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <Badge className="mb-4 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/20 border-emerald-500/30">
+            <span className="relative flex h-2 w-2 mr-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+            </span>
+            Command Center · Live
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+            Vsi sistemi{' '}
+            <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+              na enem zaslonu
+            </span>
+          </h2>
+          <p className="mt-4 text-lg text-slate-300">
+            POS + KDS + Mize + Dostava + AI + Plačila + Zaloge — 7 sistemov, 1 dashboard.
+            Real-time overview celotne restavracije.
+          </p>
+        </div>
+
+        {/* System health bar */}
+        <div className="mb-6 p-4 rounded-xl bg-slate-900/60 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className={`w-12 h-12 rounded-xl ${healthBg}/20 flex items-center justify-center`}>
+              <span className={`text-xl font-bold ${healthColor}`}>{data.systemHealth.score}</span>
+            </div>
+            <div>
+              <div className="text-xs text-slate-400 uppercase tracking-wide">System Health</div>
+              <div className={`text-sm font-bold ${healthColor}`}>Operativno · {data.systemHealth.activeModules} modulov aktivnih</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-6 text-xs">
+            <div className="text-center">
+              <div className="text-slate-400">Uptime</div>
+              <div className="font-bold text-emerald-400">{data.systemHealth.uptime}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-slate-400">Opozorila</div>
+              <div className={`font-bold ${data.systemHealth.alerts > 5 ? 'text-amber-400' : 'text-emerald-400'}`}>{data.systemHealth.alerts}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-slate-400">Čas</div>
+              <div className="font-bold text-white tabular-nums">{now.toLocaleTimeString('sl-SI')}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* 7 System Cards Grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* 1. POS */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4 }}>
+            <Card className="p-4 bg-slate-900/60 border-slate-800 h-full">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                  <Receipt className="h-4 w-4 text-emerald-400" />
+                </div>
+                <span className="text-xs font-bold text-slate-300">POS Blagajna</span>
+                <span className="ml-auto text-[9px] text-emerald-400 font-bold">{data.pos.revenueChange}</span>
+              </div>
+              <div className="text-2xl font-bold text-white tabular-nums">€{data.pos.revenueToday.toLocaleString('sl-SI')}</div>
+              <div className="text-[10px] text-slate-400">{data.pos.ordersToday} naročil · {data.pos.avgCheck}€ povprečno</div>
+              {/* Sparkline */}
+              <div className="flex items-end gap-0.5 mt-3 h-8">
+                {data.pos.hourlyTrend.map((v, i) => (
+                  <div key={i} className="flex-1 bg-emerald-500/40 rounded-sm" style={{ height: `${(v / Math.max(...data.pos.hourlyTrend)) * 100}%` }} />
+                ))}
+              </div>
+              <div className="text-[9px] text-slate-500 mt-1">Peak: {data.pos.peakHour}</div>
+            </Card>
+          </motion.div>
+
+          {/* 2. KDS */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.05 }}>
+            <Card className="p-4 bg-slate-900/60 border-slate-800 h-full">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                  <Utensils className="h-4 w-4 text-amber-400" />
+                </div>
+                <span className="text-xs font-bold text-slate-300">Kuhinja (KDS)</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 mb-2">
+                <div className="text-center p-1.5 rounded-lg bg-cyan-500/10">
+                  <div className="text-lg font-bold text-cyan-400 tabular-nums">{data.kds.newOrders}</div>
+                  <div className="text-[8px] text-slate-400">NOVA</div>
+                </div>
+                <div className="text-center p-1.5 rounded-lg bg-amber-500/10">
+                  <div className="text-lg font-bold text-amber-400 tabular-nums">{data.kds.preparing}</div>
+                  <div className="text-[8px] text-slate-400">PRIPRAVA</div>
+                </div>
+                <div className="text-center p-1.5 rounded-lg bg-emerald-500/10">
+                  <div className="text-lg font-bold text-emerald-400 tabular-nums">{data.kds.ready}</div>
+                  <div className="text-[8px] text-slate-400">PRIPRAVL.</div>
+                </div>
+              </div>
+              <div className="text-[10px] text-slate-400">Povp. čas: <strong className="text-white">{data.kds.avgPrepTime}min</strong> · Najdlje čaka: <strong className={data.kds.longestWaiting > 10 ? 'text-red-400' : 'text-white'}>{data.kds.longestWaiting}min</strong></div>
+            </Card>
+          </motion.div>
+
+          {/* 3. Tables */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.1 }}>
+            <Card className="p-4 bg-slate-900/60 border-slate-800 h-full">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-sky-500/20 flex items-center justify-center">
+                  <LayoutGrid className="h-4 w-4 text-sky-400" />
+                </div>
+                <span className="text-xs font-bold text-slate-300">Mize</span>
+              </div>
+              <div className="text-2xl font-bold text-white tabular-nums">{data.tables.occupancyRate}%</div>
+              <div className="text-[10px] text-slate-400">zasedenost · {data.tables.avgTableTime}min povp. čas</div>
+              {/* Table dots */}
+              <div className="flex flex-wrap gap-1 mt-3">
+                {Array.from({ length: data.tables.total }).map((_, i) => {
+                  const color = i < data.tables.occupied ? 'bg-emerald-500' : i < data.tables.occupied + data.tables.reserved ? 'bg-amber-500' : i < data.tables.occupied + data.tables.reserved + data.tables.payment ? 'bg-sky-500' : 'bg-slate-600'
+                  return <div key={i} className={`w-3 h-3 rounded ${color}`} />
+                })}
+              </div>
+              <div className="text-[9px] text-slate-500 mt-2">{data.tables.occupied} zasedene · {data.tables.free} proste · {data.tables.reserved} rezervirane</div>
+            </Card>
+          </motion.div>
+
+          {/* 4. Delivery */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.15 }}>
+            <Card className="p-4 bg-slate-900/60 border-slate-800 h-full">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center">
+                  <Smartphone className="h-4 w-4 text-cyan-400" />
+                </div>
+                <span className="text-xs font-bold text-slate-300">Dostava</span>
+                {data.delivery.newCount > 0 && <span className="ml-auto px-1.5 py-0.5 rounded-full bg-cyan-500 text-white text-[8px] font-bold animate-pulse">{data.delivery.newCount} NOVA</span>}
+              </div>
+              <div className="text-2xl font-bold text-white tabular-nums">€{data.delivery.netRevenue.toFixed(0)}</div>
+              <div className="text-[10px] text-slate-400">neto prihodek · {data.delivery.total} aktivnih naročil</div>
+              <div className="flex items-center gap-2 mt-2 text-[9px]">
+                <span className="text-cyan-400">●{data.delivery.newCount} nova</span>
+                <span className="text-amber-400">●{data.delivery.preparing} priprava</span>
+                <span className="text-purple-400">●{data.delivery.ready} pripravljena</span>
+              </div>
+              <div className="text-[9px] text-slate-500 mt-1">Provizija: €{data.delivery.totalCommission.toFixed(2)}</div>
+            </Card>
+          </motion.div>
+
+          {/* 5. AI */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.2 }}>
+            <Card className="p-4 bg-slate-900/60 border-slate-800 h-full">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                  <Sparkles className="h-4 w-4 text-purple-400" />
+                </div>
+                <span className="text-xs font-bold text-slate-300">AI predikcija</span>
+                {data.ai.criticalAlerts > 0 && <span className="ml-auto px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[8px] font-bold">{data.ai.criticalAlerts} KRITIČNO</span>}
+              </div>
+              <div className="text-2xl font-bold text-white tabular-nums">{data.ai.avgConfidence}%</div>
+              <div className="text-[10px] text-slate-400">povprečno zaupanje · {data.ai.criticalAlerts + data.ai.highAlerts} opozoril</div>
+              <div className="mt-2 space-y-1">
+                {data.ai.topReorder.slice(0, 2).map((item, i) => (
+                  <div key={i} className="flex items-center justify-between text-[9px]">
+                    <span className="text-slate-300 truncate">{item.name}</span>
+                    <span className="text-purple-400 font-bold">+{item.quantity}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* 6. Payments */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.25 }}>
+            <Card className="p-4 bg-slate-900/60 border-slate-800 h-full">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                  <CreditCard className="h-4 w-4 text-blue-400" />
+                </div>
+                <span className="text-xs font-bold text-slate-300">Plačila</span>
+              </div>
+              <div className="text-2xl font-bold text-white tabular-nums">€{data.payments.totalToday.toLocaleString('sl-SI')}</div>
+              <div className="text-[10px] text-slate-400">danes · {data.payments.byMethod.length} metod</div>
+              {/* Method bars */}
+              <div className="mt-3 space-y-1">
+                {data.payments.byMethod.slice(0, 4).map(m => (
+                  <div key={m.method} className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 rounded-full bg-slate-700 overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${(m.amount / data.payments.totalToday) * 100}%`, backgroundColor: m.color }} />
+                    </div>
+                    <span className="text-[8px] text-slate-400 w-16 text-right">{m.label} {Math.round((m.amount / data.payments.totalToday) * 100)}%</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* 7. Inventory */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.3 }}>
+            <Card className="p-4 bg-slate-900/60 border-slate-800 h-full">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                  <Package className="h-4 w-4 text-amber-400" />
+                </div>
+                <span className="text-xs font-bold text-slate-300">Zaloge</span>
+                {data.inventory.lowStock > 0 && <span className="ml-auto px-1.5 py-0.5 rounded-full bg-amber-500 text-white text-[8px] font-bold">{data.inventory.lowStock} NIZKA</span>}
+              </div>
+              <div className="text-2xl font-bold text-white tabular-nums">{data.inventory.totalItems}</div>
+              <div className="text-[10px] text-slate-400">artiklov · {data.inventory.categories} kategorij</div>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <div className="p-1.5 rounded bg-amber-500/10 text-center">
+                  <div className="text-sm font-bold text-amber-400 tabular-nums">{data.inventory.lowStock}</div>
+                  <div className="text-[8px] text-slate-400">NIZKA ZALOGA</div>
+                </div>
+                <div className="p-1.5 rounded bg-slate-700/30 text-center">
+                  <div className="text-sm font-bold text-slate-300 tabular-nums">€{data.inventory.totalValue.toFixed(0)}</div>
+                  <div className="text-[8px] text-slate-400">VREDNOST</div>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* 8. Real-time sync indicator */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: 0.35 }}>
+            <Card className="p-4 bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border-emerald-500/20 h-full flex flex-col items-center justify-center">
+              <div className="relative mb-3">
+                <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                  <Zap className="h-6 w-6 text-emerald-400" />
+                </div>
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-400" />
+                </span>
+              </div>
+              <div className="text-xs font-bold text-emerald-300 text-center">Real-time Sync</div>
+              <div className="text-[9px] text-slate-400 text-center mt-1">7 modulov sinhroniziranih</div>
+              <div className="text-[9px] text-slate-500 mt-1">Osvežitev vsakih 15s</div>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Bottom note */}
+        <div className="mt-8 flex items-center justify-center gap-2 text-xs text-slate-500">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+          </span>
+          <span>Live data · osvežitev vsakih 15s · {now.toLocaleTimeString('sl-SI')} · vseh 7 sistemov sinhroniziranih v realnem času</span>
+        </div>
+      </div>
+    </section>
   )
 }
 
