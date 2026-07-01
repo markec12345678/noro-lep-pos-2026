@@ -910,6 +910,9 @@ export default function Home() {
       {/* ===== PAYMENTS SECTION — Contactless plačila ===== */}
       <PaymentsSection />
 
+      {/* ===== AI PREDICTION SECTION ===== */}
+      <AIPredictionSection />
+
       {/* ===== DARK "ZAKAJ IZBRATI NAS" SECTION ===== */}
       <section id="zakaj" className="relative py-20 lg:py-28 bg-slate-950 text-white overflow-hidden">
         {/* Decorative grid */}
@@ -1967,6 +1970,274 @@ function PlayIcon({ className }: { className?: string }) {
     >
       <path d="M8 5v14l11-7z" />
     </svg>
+  )
+}
+
+/* ============================================================
+   AI PREDICTION SECTION — predikcija povpraševanja + samodejne dobavnice
+   ============================================================ */
+interface AIPrediction {
+  itemId: string
+  itemName: string
+  category: string
+  predictedDemand: number
+  confidence: number
+  trend: 'rising' | 'falling' | 'stable' | 'seasonal'
+  trendPercent: number
+  currentStock: number
+  daysUntilStockout: number
+  reorderNeeded: boolean
+  reorderQuantity: number
+  reorderUrgency: 'critical' | 'high' | 'medium' | 'low' | 'none'
+  estimatedCost: number
+  supplier: string | null
+  reasoning: string
+}
+
+function AIPredictionSection() {
+  const [predictions, setPredictions] = useState<AIPrediction[]>([])
+  const [stats, setStats] = useState<{ totalItems: number; criticalCount: number; avgConfidence: number; totalReorderCost: number } | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [showReorder, setShowReorder] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/ai/predict')
+      .then(r => r.json())
+      .then(d => {
+        setPredictions(d.predictions || [])
+        setStats(d.stats)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  const urgencyConfig = {
+    critical: { label: 'KRITIČNO', color: 'bg-red-500', text: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' },
+    high: { label: 'VISOKO', color: 'bg-orange-500', text: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200' },
+    medium: { label: 'SREDNJE', color: 'bg-amber-500', text: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' },
+    low: { label: 'NIZKO', color: 'bg-sky-500', text: 'text-sky-600', bg: 'bg-sky-50', border: 'border-sky-200' },
+    none: { label: 'OK', color: 'bg-emerald-500', text: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+  }
+
+  const trendConfig = {
+    rising: { icon: '📈', label: 'Rast', color: 'text-emerald-600' },
+    falling: { icon: '📉', label: 'Padec', color: 'text-red-600' },
+    stable: { icon: '➡️', label: 'Stabilno', color: 'text-slate-500' },
+    seasonal: { icon: '🎯', label: 'Sezonsko', color: 'text-purple-600' },
+  }
+
+  const reorderItems = predictions.filter(p => p.reorderNeeded).sort((a, b) => {
+    const order = { critical: 0, high: 1, medium: 2, low: 3, none: 4 }
+    return order[a.reorderUrgency] - order[b.reorderUrgency]
+  })
+
+  return (
+    <section id="ai-prediction" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/40 to-white border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <Badge className="mb-4 bg-purple-100 text-purple-800 hover:bg-purple-100">
+            <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+            AI predikcija zalog
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+            AI ve{' '}
+            <span className="bg-gradient-to-r from-purple-600 to-emerald-600 bg-clip-text text-transparent">
+              kaj boš prodal
+            </span>{' '}
+            naslednji teden
+          </h2>
+          <p className="mt-4 text-lg text-slate-600">
+            Analiza prodaje, trend detection in samodejne dobavnice.
+            AI predvidi povpraševanje in pove, kdaj in koliko naročiti —
+            <strong className="text-slate-900"> preden zmanjka</strong>.
+          </p>
+        </div>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+            <span className="ml-3 text-sm text-slate-500">AI analizira prodajo...</span>
+          </div>
+        ) : (
+          <>
+            {/* AI Stats */}
+            {stats && (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <Card className="p-5 border-slate-200/70">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center">
+                      <BarChart3 className="h-4 w-4 text-purple-600" />
+                    </div>
+                    <span className="text-xs text-slate-500">Analizirano artiklov</span>
+                  </div>
+                  <div className="text-3xl font-bold text-slate-900 tabular-nums">{stats.totalItems}</div>
+                </Card>
+                <Card className="p-5 border-red-200 bg-red-50/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center">
+                      <AlertCircle className="h-4 w-4 text-red-600" />
+                    </div>
+                    <span className="text-xs text-slate-500">Kritičnih (zmanjka &lt;1 dan)</span>
+                  </div>
+                  <div className="text-3xl font-bold text-red-600 tabular-nums">{stats.criticalCount}</div>
+                </Card>
+                <Card className="p-5 border-slate-200/70">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
+                      <Sparkles className="h-4 w-4 text-emerald-600" />
+                    </div>
+                    <span className="text-xs text-slate-500">Povprečno zaupanje</span>
+                  </div>
+                  <div className="text-3xl font-bold text-emerald-600 tabular-nums">{stats.avgConfidence}%</div>
+                </Card>
+                <Card className="p-5 border-slate-200/70">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center">
+                      <Package className="h-4 w-4 text-amber-600" />
+                    </div>
+                    <span className="text-xs text-slate-500">Vrednost dobavnice</span>
+                  </div>
+                  <div className="text-3xl font-bold text-slate-900 tabular-nums">{stats.totalReorderCost.toFixed(0)} €</div>
+                </Card>
+              </div>
+            )}
+
+            {/* Toggle: Predictions vs Reorder List */}
+            <div className="flex justify-center mb-6">
+              <div className="inline-flex items-center bg-slate-100 rounded-xl p-1 gap-1">
+                <button
+                  onClick={() => setShowReorder(false)}
+                  className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${!showReorder ? 'bg-white text-purple-700 shadow-sm' : 'text-slate-500'}`}
+                >
+                  <BarChart3 className="h-4 w-4 inline mr-2" />
+                  Predikcije ({predictions.length})
+                </button>
+                <button
+                  onClick={() => setShowReorder(true)}
+                  className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${showReorder ? 'bg-white text-purple-700 shadow-sm' : 'text-slate-500'}`}
+                >
+                  <Package className="h-4 w-4 inline mr-2" />
+                  Dobavnica ({reorderItems.length})
+                </button>
+              </div>
+            </div>
+
+            {/* Predictions grid */}
+            {!showReorder && (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {predictions.map((p, i) => {
+                  const uc = urgencyConfig[p.reorderUrgency]
+                  const tc = trendConfig[p.trend]
+                  return (
+                    <motion.div
+                      key={p.itemId}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.3, delay: i * 0.05 }}
+                    >
+                      <Card className={`p-4 border-2 ${uc.border} ${uc.bg} h-full`}>
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-bold text-slate-900 leading-tight">{p.itemName}</div>
+                            <div className="text-[10px] text-slate-500">{p.category}</div>
+                          </div>
+                          <span className={`px-2 py-0.5 rounded-full ${uc.color} text-white text-[9px] font-bold shrink-0 ml-2`}>
+                            {uc.label}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-2 mb-3">
+                          <div>
+                            <div className="text-[9px] text-slate-500 uppercase">Zaloga</div>
+                            <div className="text-sm font-bold text-slate-900 tabular-nums">{p.currentStock}</div>
+                          </div>
+                          <div>
+                            <div className="text-[9px] text-slate-500 uppercase">Predikcija/teden</div>
+                            <div className="text-sm font-bold text-purple-600 tabular-nums">{p.predictedDemand}</div>
+                          </div>
+                          <div>
+                            <div className="text-[9px] text-slate-500 uppercase">Zmanjka v</div>
+                            <div className={`text-sm font-bold tabular-nums ${p.daysUntilStockout <= 1 ? 'text-red-600' : 'text-amber-600'}`}>
+                              {p.daysUntilStockout}d
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={`text-[10px] font-semibold ${tc.color}`}>
+                            {tc.icon} {tc.label} {p.trend !== 'stable' && `(${p.trendPercent > 0 ? '+' : ''}${p.trendPercent.toFixed(0)}%)`}
+                          </span>
+                          <span className="text-[10px] text-slate-400">Zaupanje: {p.confidence}%</span>
+                        </div>
+
+                        {p.reorderNeeded && (
+                          <div className="mt-2 p-2 rounded-lg bg-white border border-slate-200">
+                            <div className="flex items-center justify-between text-[10px]">
+                              <span className="text-slate-500">AI predlaga naročilo:</span>
+                              <span className="font-bold text-purple-600 tabular-nums">{p.reorderQuantity} {p.supplier ? 'pri ' + p.supplier : ''}</span>
+                            </div>
+                            <div className="text-[10px] text-slate-400 mt-0.5">Strošek: {p.estimatedCost.toFixed(2)} €</div>
+                          </div>
+                        )}
+
+                        <p className="text-[10px] text-slate-500 mt-2 leading-relaxed line-clamp-2">{p.reasoning}</p>
+                      </Card>
+                    </motion.div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Reorder list */}
+            {showReorder && (
+              <Card className="overflow-hidden border-slate-200 shadow-lg">
+                <div className="p-4 bg-slate-900 text-white flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-purple-400" />
+                    <div>
+                      <div className="text-sm font-bold">AI samodejna dobavnica</div>
+                      <div className="text-[10px] text-slate-400">{reorderItems.length} artiklov · skupni strošek {stats?.totalReorderCost.toFixed(2)} €</div>
+                    </div>
+                  </div>
+                  <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                    <Zap className="h-3.5 w-3.5 mr-1.5" />
+                    Ustvari dobavnico
+                  </Button>
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  {reorderItems.map((p, i) => {
+                    const uc = urgencyConfig[p.reorderUrgency]
+                    return (
+                      <div key={p.itemId} className={`p-3 border-b border-slate-100 flex items-center gap-3 ${uc.bg}`}>
+                        <span className={`w-2 h-2 rounded-full ${uc.color} shrink-0`} />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-bold text-slate-900 truncate">{p.itemName}</div>
+                          <div className="text-[10px] text-slate-500">Zaloga: {p.currentStock} → Zmanjka v {p.daysUntilStockout}d</div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <div className="text-sm font-bold text-purple-600 tabular-nums">+{p.reorderQuantity}</div>
+                          <div className="text-[10px] text-slate-400 tabular-nums">{p.estimatedCost.toFixed(2)} €</div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </Card>
+            )}
+
+            {/* AI info note */}
+            <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-500">
+              <Sparkles className="h-3.5 w-3.5 text-purple-600" />
+              <span>
+                <strong className="text-slate-700">AI model:</strong> 7-dnevna analiza prodaje + trend detection + sezonski model.
+                V produkciji: <code className="px-1 py-0.5 rounded bg-slate-100 text-purple-600 font-mono">TensorFlow.js</code> z realnimi podatki.
+              </span>
+            </div>
+          </>
+        )}
+      </div>
+    </section>
   )
 }
 
