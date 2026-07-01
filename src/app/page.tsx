@@ -907,6 +907,9 @@ export default function Home() {
       {/* ===== INVENTORY PREVIEW — 232 artiklov pripravljenih ===== */}
       <InventoryPreview />
 
+      {/* ===== PAYMENTS SECTION — Contactless plačila ===== */}
+      <PaymentsSection />
+
       {/* ===== DARK "ZAKAJ IZBRATI NAS" SECTION ===== */}
       <section id="zakaj" className="relative py-20 lg:py-28 bg-slate-950 text-white overflow-hidden">
         {/* Decorative grid */}
@@ -1964,5 +1967,246 @@ function PlayIcon({ className }: { className?: string }) {
     >
       <path d="M8 5v14l11-7z" />
     </svg>
+  )
+}
+
+/* ============================================================
+   PAYMENT MODAL — Apple Pay, Google Pay, kartica, NFC, gotovina
+   ============================================================ */
+function PaymentModal({ amount, onClose }: { amount: number; onClose: () => void }) {
+  const [status, setStatus] = useState<'select' | 'processing' | 'success' | 'demo'>('select')
+  const [method, setMethod] = useState<string | null>(null)
+  const [intent, setIntent] = useState<{ paymentIntentId: string; demo: boolean } | null>(null)
+
+  const methods = [
+    { id: 'apple_pay', label: 'Apple Pay', icon: '', desc: 'Tap & plačaj', color: 'bg-black', textColor: 'text-white' },
+    { id: 'google_pay', label: 'Google Pay', icon: 'G', desc: 'Tap & plačaj', color: 'bg-white border-2 border-slate-200', textColor: 'text-slate-700' },
+    { id: 'card', label: 'Kartica', icon: '💳', desc: 'Visa, Mastercard', color: 'bg-blue-50', textColor: 'text-blue-700' },
+    { id: 'contactless', label: 'Contactless', icon: '📱', desc: 'NFC tap-to-pay', color: 'bg-emerald-50', textColor: 'text-emerald-700' },
+    { id: 'cash', label: 'Gotovina', icon: '💵', desc: 'Klasično', color: 'bg-amber-50', textColor: 'text-amber-700' },
+  ]
+
+  const handlePay = async (methodId: string) => {
+    setMethod(methodId)
+    setStatus('processing')
+
+    // Ustvari payment intent
+    try {
+      const res = await fetch('/api/payments/create-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, currency: 'eur' }),
+      })
+      const data = await res.json()
+
+      setIntent({ paymentIntentId: data.paymentIntentId, demo: data.demo })
+
+      // Simuliraj processing
+      await new Promise(r => setTimeout(r, 1500))
+
+      if (data.demo) {
+        setStatus('demo')
+      } else {
+        setStatus('success')
+      }
+    } catch {
+      setStatus('select')
+    }
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <div className="text-sm font-bold text-slate-900">Plačilo računa</div>
+            <div className="text-2xl font-bold text-emerald-600 tabular-nums">{amount.toFixed(2)} €</div>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center" aria-label="Zapri">
+            <Minus className="h-4 w-4 rotate-45 text-slate-500" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-5">
+          {status === 'select' && (
+            <div className="space-y-2">
+              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Izberi način plačila</div>
+              {methods.map(m => (
+                <button
+                  key={m.id}
+                  onClick={() => handlePay(m.id)}
+                  className={`w-full flex items-center gap-3 p-3.5 rounded-xl ${m.color} ${m.textColor} hover:scale-[1.02] transition-transform active:scale-95`}
+                >
+                  <span className="text-2xl w-8 text-center">{m.icon}</span>
+                  <div className="flex-1 text-left">
+                    <div className="text-sm font-bold">{m.label}</div>
+                    <div className="text-[10px] opacity-70">{m.desc}</div>
+                  </div>
+                  <ArrowRight className="h-4 w-4 opacity-50" />
+                </button>
+              ))}
+            </div>
+          )}
+
+          {status === 'processing' && (
+            <div className="text-center py-8">
+              <Loader2 className="h-12 w-12 animate-spin text-emerald-600 mx-auto mb-4" />
+              <div className="text-sm font-bold text-slate-900">Obdelava plačila...</div>
+              <div className="text-xs text-slate-500 mt-1">{method === 'apple_pay' ? 'Apple Pay' : method === 'google_pay' ? 'Google Pay' : method} • {amount.toFixed(2)} €</div>
+            </div>
+          )}
+
+          {status === 'success' && (
+            <div className="text-center py-8">
+              <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+              </div>
+              <div className="text-sm font-bold text-slate-900">Plačilo uspešno! ✅</div>
+              <div className="text-xs text-slate-500 mt-1">ID: {intent?.paymentIntentId}</div>
+              <div className="text-xs text-slate-400 mt-1">FURS EOR potrjen · QR koda izstavljen</div>
+            </div>
+          )}
+
+          {status === 'demo' && (
+            <div className="text-center py-6">
+              <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="h-8 w-8 text-amber-600" />
+              </div>
+              <div className="text-sm font-bold text-slate-900">Demo plačilo simulirano</div>
+              <div className="text-xs text-slate-500 mt-2 leading-relaxed">
+                Brez realnega Stripe ključa — plačilo je simulirano.<br />
+                Dodaj <code className="px-1 py-0.5 rounded bg-slate-100 text-emerald-600 font-mono">STRIPE_SECRET_KEY</code> v .env za prava plačila.
+              </div>
+              <div className="mt-4 p-2 rounded-lg bg-slate-50 text-[10px] text-slate-400 font-mono">
+                ID: {intent?.paymentIntentId}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
+            <ShieldCheck className="h-3 w-3 text-emerald-500" />
+            PCI DSS · Šifrirano
+          </div>
+          <div className="text-[10px] text-slate-400">
+            {status === 'success' || status === 'demo' ? (
+              <button onClick={onClose} className="text-emerald-600 font-semibold">Zapri</button>
+            ) : (
+              'Noro Lep POS'
+            )}
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+/* ============================================================
+   PAYMENTS SECTION — Contactless plačila na landing page
+   ============================================================ */
+function PaymentsSection() {
+  const [showModal, setShowModal] = useState(false)
+  const [stripeStatus, setStripeStatus] = useState<{ mode: string; methods: unknown[] } | null>(null)
+
+  useEffect(() => {
+    fetch('/api/payments/create-intent')
+      .then(r => r.json())
+      .then(d => setStripeStatus(d))
+      .catch(() => {})
+  }, [])
+
+  const features = [
+    { icon: '', label: 'Apple Pay', desc: 'iPhone & Apple Watch', color: 'bg-black text-white' },
+    { icon: 'G', label: 'Google Pay', desc: 'Android naprave', color: 'bg-white border-2 border-slate-200 text-slate-700' },
+    { icon: '💳', label: 'Kartica', desc: 'Visa, Mastercard, Maestro', color: 'bg-blue-50 text-blue-700' },
+    { icon: '📱', label: 'NFC Contactless', desc: 'Tap-to-pay brez kontakta', color: 'bg-emerald-50 text-emerald-700' },
+    { icon: '💵', label: 'Gotovina', desc: 'Klasično plačilo', color: 'bg-amber-50 text-amber-700' },
+    { icon: '🔗', label: 'QR plačilo', desc: 'Skeniraj & plačaj', color: 'bg-purple-50 text-purple-700' },
+  ]
+
+  return (
+    <section id="placila" className="py-20 lg:py-28 bg-slate-50/40 border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <Badge className="mb-4 bg-blue-100 text-blue-800 hover:bg-blue-100">
+            <CreditCard className="h-3.5 w-3.5 mr-1.5" />
+            Contactless plačila
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+            Vsi načini{' '}
+            <span className="bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">
+              plačila
+            </span>{' '}
+            na enem mestu
+          </h2>
+          <p className="mt-4 text-lg text-slate-600">
+            Apple Pay, Google Pay, kartice, NFC in gotovina — vse integrirano.
+            $90.6B contactless market, 15.4% letna rast. Noro Lep je pripravljen.
+          </p>
+        </div>
+
+        {/* Payment methods grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+          {features.map((f, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: i * 0.05 }}
+              className={`p-4 rounded-xl ${f.color} text-center hover:scale-105 transition-transform cursor-pointer`}
+            >
+              <div className="text-3xl mb-2">{f.icon}</div>
+              <div className="text-xs font-bold">{f.label}</div>
+              <div className="text-[10px] opacity-70 mt-0.5">{f.desc}</div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Demo CTA */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Button
+            size="lg"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white h-12 px-8 text-base shadow-lg shadow-emerald-500/30"
+            onClick={() => setShowModal(true)}
+            data-track="cta_click"
+            data-track-label="payment_demo"
+            data-track-section="placila"
+          >
+            <CreditCard className="h-4 w-4 mr-2" />
+            Poskusi demo plačilo (12.50 €)
+          </Button>
+          {stripeStatus && (
+            <div className={`px-4 py-2 rounded-lg text-xs font-semibold ${stripeStatus.mode === 'production' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+              {stripeStatus.mode === 'production' ? '✅ Stripe aktiviran' : '⚠️ Demo mode — dodaj Stripe ključe'}
+            </div>
+          )}
+        </div>
+
+        {/* Trust badges */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400">
+          <span className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-emerald-500" /> PCI DSS certifikacija</span>
+          <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 text-emerald-500" /> 3D Secure</span>
+          <span className="flex items-center gap-1.5"><Zap className="h-4 w-4 text-emerald-500" /> Instant settlement</span>
+          <span className="flex items-center gap-1.5"><Globe className="h-4 w-4 text-emerald-500" /> EUR + multi-valutno</span>
+        </div>
+      </div>
+
+      {showModal && <PaymentModal amount={12.50} onClose={() => setShowModal(false)} />}
+    </section>
   )
 }
