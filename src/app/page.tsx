@@ -2082,6 +2082,270 @@ function MobileMenu() {
 }
 
 /* ============================================================
+   COMMAND CENTER — Unified dashboard vseh sistemov
+   ============================================================ */
+interface DashboardData {
+  pos: { revenueToday: number; ordersToday: number; avgCheck: number; hourlyTrend: number[]; peakHour: string; revenueChange: string }
+  kds: { newOrders: number; preparing: number; ready: number; avgPrepTime: number; longestWaiting: number }
+  tables: { total: number; occupied: number; free: number; reserved: number; payment: number; occupancyRate: number; avgTableTime: number }
+  delivery: { total: number; newCount: number; preparing: number; ready: number; totalRevenue: number; netRevenue: number; totalCommission: number }
+  ai: { criticalAlerts: number; avgConfidence: number }
+  payments: { totalToday: number; byMethod: { method: string; label: string; amount: number; color: string }[] }
+  inventory: { totalItems: number; lowStock: number; categories: number }
+  systemHealth: { score: number; activeModules: number; uptime: string; alerts: number }
+}
+
+function CommandCenter() {
+  const [data, setData] = useState<DashboardData | null>(null)
+  const [now, setNow] = useState(new Date())
+
+  useEffect(() => {
+    const fetchData = () => {
+      fetch('/api/dashboard/overview')
+        .then(r => r.json())
+        .then(d => setData(d))
+        .catch(() => {})
+    }
+    fetchData()
+    const interval = setInterval(fetchData, 15000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  if (!data) return null
+
+  return (
+    <section id="command-center" className="py-16 lg:py-20 bg-slate-950 text-white relative overflow-hidden">
+      <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '28px 28px' }} />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60rem] h-[30rem] bg-emerald-500/10 blur-3xl rounded-full" />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-8">
+          <Badge className="mb-4 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/20 border-emerald-500/30">
+            <span className="relative flex h-2 w-2 mr-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+            </span>
+            Command Center · Live
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            Vsi sistemi{' '}
+            <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">na enem zaslonu</span>
+          </h2>
+        </div>
+
+        {/* Health bar */}
+        <div className="mb-4 p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+              <span className="text-lg font-bold text-emerald-400">{data.systemHealth.score}</span>
+            </div>
+            <div>
+              <div className="text-[10px] text-slate-400 uppercase">System Health</div>
+              <div className="text-xs font-bold text-emerald-400">{data.systemHealth.activeModules} modulov · {data.systemHealth.uptime}</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 text-xs">
+            <div className="text-center"><div className="text-slate-400">Opozorila</div><div className="font-bold text-emerald-400">{data.systemHealth.alerts}</div></div>
+            <div className="text-center"><div className="text-slate-400">Čas</div><div className="font-bold text-white tabular-nums">{now.toLocaleTimeString('sl-SI')}</div></div>
+          </div>
+        </div>
+
+        {/* 7 System Cards */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <Card className="p-3 bg-slate-900/60 border-slate-800">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center"><Receipt className="h-3.5 w-3.5 text-emerald-400" /></div>
+              <span className="text-[10px] font-bold text-slate-300">POS</span>
+              <span className="ml-auto text-[8px] text-emerald-400 font-bold">{data.pos.revenueChange}</span>
+            </div>
+            <div className="text-xl font-bold text-white tabular-nums">€{data.pos.revenueToday.toLocaleString('sl-SI')}</div>
+            <div className="text-[9px] text-slate-400">{data.pos.ordersToday} naročil</div>
+            <div className="flex items-end gap-0.5 mt-2 h-6">
+              {data.pos.hourlyTrend.map((v, i) => (
+                <div key={i} className="flex-1 bg-emerald-500/40 rounded-sm" style={{ height: `${(v / Math.max(...data.pos.hourlyTrend)) * 100}%` }} />
+              ))}
+            </div>
+          </Card>
+
+          <Card className="p-3 bg-slate-900/60 border-slate-800">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-7 h-7 rounded-lg bg-amber-500/20 flex items-center justify-center"><Utensils className="h-3.5 w-3.5 text-amber-400" /></div>
+              <span className="text-[10px] font-bold text-slate-300">KDS</span>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5">
+              <div className="text-center p-1 rounded bg-cyan-500/10"><div className="text-base font-bold text-cyan-400 tabular-nums">{data.kds.newOrders}</div><div className="text-[7px] text-slate-400">NOVA</div></div>
+              <div className="text-center p-1 rounded bg-amber-500/10"><div className="text-base font-bold text-amber-400 tabular-nums">{data.kds.preparing}</div><div className="text-[7px] text-slate-400">PRIPR.</div></div>
+              <div className="text-center p-1 rounded bg-emerald-500/10"><div className="text-base font-bold text-emerald-400 tabular-nums">{data.kds.ready}</div><div className="text-[7px] text-slate-400">GOTOV</div></div>
+            </div>
+            <div className="text-[9px] text-slate-400 mt-2">Povp: {data.kds.avgPrepTime}min</div>
+          </Card>
+
+          <Card className="p-3 bg-slate-900/60 border-slate-800">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-7 h-7 rounded-lg bg-sky-500/20 flex items-center justify-center"><LayoutGrid className="h-3.5 w-3.5 text-sky-400" /></div>
+              <span className="text-[10px] font-bold text-slate-300">Mize</span>
+            </div>
+            <div className="text-xl font-bold text-white tabular-nums">{data.tables.occupancyRate}%</div>
+            <div className="text-[9px] text-slate-400">{data.tables.avgTableTime}min povp.</div>
+            <div className="flex flex-wrap gap-1 mt-2">
+              {Array.from({ length: data.tables.total }).map((_, i) => (
+                <div key={i} className={`w-2.5 h-2.5 rounded ${i < data.tables.occupied ? 'bg-emerald-500' : i < data.tables.occupied + data.tables.reserved ? 'bg-amber-500' : 'bg-slate-600'}`} />
+              ))}
+            </div>
+          </Card>
+
+          <Card className="p-3 bg-slate-900/60 border-slate-800">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-7 h-7 rounded-lg bg-purple-500/20 flex items-center justify-center"><Sparkles className="h-3.5 w-3.5 text-purple-400" /></div>
+              <span className="text-[10px] font-bold text-slate-300">AI</span>
+              {data.ai.criticalAlerts > 0 && <span className="ml-auto px-1 py-0.5 rounded-full bg-red-500 text-white text-[7px] font-bold">{data.ai.criticalAlerts}</span>}
+            </div>
+            <div className="text-xl font-bold text-white tabular-nums">{data.ai.avgConfidence}%</div>
+            <div className="text-[9px] text-slate-400">zupanje predikcij</div>
+          </Card>
+        </div>
+
+        {/* Bottom note */}
+        <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-slate-500">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+          </span>
+          Live · {now.toLocaleTimeString('sl-SI')} · osvežitev vsakih 15s
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
+   PAYMENTS — Contactless plačila
+   ============================================================ */
+function PaymentsSection() {
+  const [showModal, setShowModal] = useState(false)
+
+  return (
+    <section id="placila" className="py-16 lg:py-20 bg-slate-50/40 border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <Badge className="mb-4 bg-blue-100 text-blue-800 hover:bg-blue-100">
+            <CreditCard className="h-3.5 w-3.5 mr-1.5" />
+            Contactless plačila
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            Vsi načini{' '}
+            <span className="bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">plačila</span>
+            {' '}na enem mestu
+          </h2>
+          <p className="mt-3 text-base text-slate-600">
+            Apple Pay, Google Pay, kartice, NFC in gotovina. $90.6B contactless market.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+          {[
+            { icon: '🍎', label: 'Apple Pay', desc: 'iPhone & Watch', color: 'bg-black text-white' },
+            { icon: 'G', label: 'Google Pay', desc: 'Android', color: 'bg-white border-2 border-slate-200 text-slate-700' },
+            { icon: '💳', label: 'Kartica', desc: 'Visa, MC', color: 'bg-blue-50 text-blue-700' },
+            { icon: '📱', label: 'NFC', desc: 'Tap-to-pay', color: 'bg-emerald-50 text-emerald-700' },
+            { icon: '💵', label: 'Gotovina', desc: 'Klasično', color: 'bg-amber-50 text-amber-700' },
+            { icon: '🔗', label: 'QR plačilo', desc: 'Skeniraj', color: 'bg-purple-50 text-purple-700' },
+          ].map((f, i) => (
+            <motion.div key={i} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.3, delay: i * 0.05 }} className={`p-4 rounded-xl ${f.color} text-center hover:scale-105 transition-transform cursor-pointer`}>
+              <div className="text-3xl mb-1">{f.icon}</div>
+              <div className="text-xs font-bold">{f.label}</div>
+              <div className="text-[10px] opacity-70">{f.desc}</div>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white h-12 px-8 text-base shadow-lg shadow-emerald-500/30" onClick={() => setShowModal(true)} data-track="cta_click" data-track-label="payment_demo" data-track-section="placila">
+            <CreditCard className="h-4 w-4 mr-2" />
+            Poskusi demo plačilo (12.50 €)
+          </Button>
+        </div>
+
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400">
+          <span className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-emerald-500" /> PCI DSS</span>
+          <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 text-emerald-500" /> 3D Secure</span>
+          <span className="flex items-center gap-1.5"><Zap className="h-4 w-4 text-emerald-500" /> Instant settlement</span>
+          <span className="flex items-center gap-1.5"><Globe className="h-4 w-4 text-emerald-500" /> EUR + multi-valutno</span>
+        </div>
+      </div>
+
+      {showModal && <PaymentModal amount={12.50} onClose={() => setShowModal(false)} />}
+    </section>
+  )
+}
+
+function PaymentModal({ amount, onClose }: { amount: number; onClose: () => void }) {
+  const [status, setStatus] = useState<'select' | 'processing' | 'demo'>('select')
+
+  const handlePay = async () => {
+    setStatus('processing')
+    try {
+      await fetch('/api/payments/create-intent', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount }) })
+      await new Promise(r => setTimeout(r, 1500))
+      setStatus('demo')
+    } catch { setStatus('select') }
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+      <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+          <div><div className="text-sm font-bold text-slate-900">Plačilo računa</div><div className="text-2xl font-bold text-emerald-600 tabular-nums">{amount.toFixed(2)} €</div></div>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center" aria-label="Zapri"><Minus className="h-4 w-4 rotate-45 text-slate-500" /></button>
+        </div>
+        <div className="p-5">
+          {status === 'select' && (
+            <div className="space-y-2">
+              <div className="text-xs font-semibold text-slate-500 uppercase mb-3">Izberi način plačila</div>
+              {[
+                { label: 'Apple Pay', icon: '🍎', color: 'bg-black text-white' },
+                { label: 'Google Pay', icon: 'G', color: 'bg-white border-2 border-slate-200 text-slate-700' },
+                { label: 'Kartica', icon: '💳', color: 'bg-blue-50 text-blue-700' },
+                { label: 'Contactless', icon: '📱', color: 'bg-emerald-50 text-emerald-700' },
+                { label: 'Gotovina', icon: '💵', color: 'bg-amber-50 text-amber-700' },
+              ].map(m => (
+                <button key={m.label} onClick={handlePay} className={`w-full flex items-center gap-3 p-3.5 rounded-xl ${m.color} hover:scale-[1.02] transition-transform active:scale-95`}>
+                  <span className="text-2xl w-8 text-center">{m.icon}</span>
+                  <div className="flex-1 text-left"><div className="text-sm font-bold">{m.label}</div></div>
+                  <ArrowRight className="h-4 w-4 opacity-50" />
+                </button>
+              ))}
+            </div>
+          )}
+          {status === 'processing' && (
+            <div className="text-center py-8">
+              <Loader2 className="h-12 w-12 animate-spin text-emerald-600 mx-auto mb-4" />
+              <div className="text-sm font-bold text-slate-900">Obdelava plačila...</div>
+            </div>
+          )}
+          {status === 'demo' && (
+            <div className="text-center py-6">
+              <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4"><Sparkles className="h-8 w-8 text-amber-600" /></div>
+              <div className="text-sm font-bold text-slate-900">Demo plačilo simulirano</div>
+              <div className="text-xs text-slate-500 mt-2">Dodaj <code className="px-1 py-0.5 rounded bg-slate-100 text-emerald-600 font-mono">STRIPE_SECRET_KEY</code> za prava plačila.</div>
+            </div>
+          )}
+        </div>
+        <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-[10px] text-slate-400"><ShieldCheck className="h-3 w-3 text-emerald-500" /> PCI DSS · Šifrirano</div>
+          {(status === 'demo') && <button onClick={onClose} className="text-emerald-600 font-semibold text-xs">Zapri</button>}
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+/* ============================================================
    Z-REPORT — Dnevno zaključevanje blagajne (FURS)
    ============================================================ */
 function ZReportSection() {
@@ -2427,6 +2691,12 @@ export default function Home() {
 
       {/* ===== TRUST BAR (certifications) ===== */}
       <TrustBar />
+
+      {/* ===== COMMAND CENTER ===== */}
+      <CommandCenter />
+
+      {/* ===== PAYMENTS ===== */}
+      <PaymentsSection />
 
       {/* ===== INTERACTIVE PRODUCT TOUR ===== */}
       <section id="demo" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/40 to-white border-y border-slate-100">
