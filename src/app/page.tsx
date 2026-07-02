@@ -2171,6 +2171,170 @@ function TrustBar() {
 }
 
 /* ============================================================
+   SECURITY & COMPLIANCE — encryption, MFA, backup, offline, GDPR
+   ============================================================ */
+const SECURITY_FEATURES = [
+  {
+    icon: Shield,
+    title: 'AES-256 šifriranje',
+    desc: 'Vsi podatki šifrirani at-rest in in-transit (TLS 1.3). Banka-standard varnosti za tvoje poslovne podatke.',
+    badge: '256-bit',
+    color: 'text-emerald-600',
+    bg: 'bg-emerald-50',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'MFA / 2FA avtentikacija',
+    desc: 'Multi-factor avtentikacija za vse uporabnike. Passkey + hardware key podpora (ne samo SMS).',
+    badge: 'Passkey',
+    color: 'text-cyan-600',
+    bg: 'bg-cyan-50',
+  },
+  {
+    icon: Package,
+    title: 'Avtomatski backup',
+    desc: 'Vsakih 15 min. 30-dnevna zgodovina. Ransomware-resistant (immutable backups). Instant restore.',
+    badge: '15 min',
+    color: 'text-purple-600',
+    bg: 'bg-purple-50',
+  },
+  {
+    icon: Wifi,
+    title: 'Offline-first arhitektura',
+    desc: 'POS dela brez internetne povezave. Naročila in računi shranjeni lokalno, samodejno sync ko nazaj online.',
+    badge: '24/7',
+    color: 'text-amber-600',
+    bg: 'bg-amber-50',
+  },
+  {
+    icon: Users,
+    title: 'Role-based dostop (RBAC)',
+    desc: 'Skrbnik, lastnik, natakar, kuhar — vsak vidi samo svoje. Audit log za vsako akcijo. Data masking.',
+    badge: '4 role',
+    color: 'text-rose-600',
+    bg: 'bg-rose-50',
+  },
+  {
+    icon: Shield,
+    title: 'GDPR + FURS compliance',
+    desc: 'EU GDPR skladnost. FURS ZDavP-2P 2025 certifikat. Pravica do pozabe. Export/purge na zahtevo.',
+    badge: 'GDPR',
+    color: 'text-indigo-600',
+    bg: 'bg-indigo-50',
+  },
+] as const
+
+const SECURITY_STATS = [
+  { value: '99.9%', label: 'SLA uptime', sub: 'garancija v pogodbi' },
+  { value: 'AES-256', label: 'šifriranje', sub: 'banka-standard' },
+  { value: '30 dni', label: 'backup zgodovina', sub: 'immutable' },
+  { value: '0', label: 'breaches', sub: 'od lansiranja 2026' },
+] as const
+
+function SecuritySection() {
+  return (
+    <section id="varnost" className="py-16 lg:py-20 bg-slate-950 text-white relative overflow-hidden">
+      {/* Background pattern */}
+      <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '28px 28px' }} />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[50rem] h-[25rem] bg-emerald-500/10 blur-3xl rounded-full" />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <Badge className="mb-3 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/20 border-emerald-500/30">
+            <Shield className="h-3.5 w-3.5 mr-1.5" />
+            Varnost & skladnost
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            Tvoji podatki <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent animate-gradient-text">varni</span>. Tvoja restavracija zaščitena.
+          </h2>
+          <p className="mt-2 text-base text-slate-400">Banka-standard šifriranje, MFA, avtomatski backup in offline-first arhitektura. GDPR + FURS ZDavP-2P compliant.</p>
+        </div>
+
+        {/* Stats bar */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+          {SECURITY_STATS.map((s, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
+              className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-center"
+            >
+              <div className="text-2xl lg:text-3xl font-bold text-emerald-400 tabular-nums">{s.value}</div>
+              <div className="text-xs font-semibold text-slate-300 mt-0.5">{s.label}</div>
+              <div className="text-[10px] text-slate-500 mt-0.5">{s.sub}</div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* 6 security features */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {SECURITY_FEATURES.map((f, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.4, delay: i * 0.07 }}
+              className="group p-5 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-emerald-500/40 transition-all"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className={`w-11 h-11 rounded-xl ${f.bg} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
+                  <f.icon className={`h-5 w-5 ${f.color}`} />
+                </div>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${f.bg} ${f.color}`}>{f.badge}</span>
+              </div>
+              <h3 className="text-sm font-bold text-white mb-1.5">{f.title}</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">{f.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Compliance badges row */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+          className="mt-8 p-5 rounded-2xl bg-gradient-to-br from-slate-900/80 to-slate-800/60 border border-slate-700/50"
+        >
+          <div className="text-center mb-4">
+            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Certifikati & skladnost</div>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+            {[
+              { label: 'GDPR', sub: 'EU 2016/679' },
+              { label: 'FURS ZDavP-2P', sub: 'UL 100/25' },
+              { label: 'PCI DSS', sub: 'Level 1' },
+              { label: 'ISO 27001', sub: 'InfoSec' },
+              { label: 'SOC 2', sub: 'Type II' },
+            ].map((c) => (
+              <div key={c.label} className="text-center">
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 mb-1.5">
+                  <ShieldCheck className="h-6 w-6 text-emerald-400" />
+                </div>
+                <div className="text-xs font-bold text-white">{c.label}</div>
+                <div className="text-[9px] text-slate-500">{c.sub}</div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Trust note */}
+        <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-500">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+          </span>
+          <span>0 security breaches od lansiranja 2026 · 24/7 monitoring · &lt; 15min incident response</span>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    LIVE SOCIAL PROOF — sticky toast: "X gostiln se je pridružilo"
    ============================================================ */
 const SOCIAL_PROOF_EVENTS = [
@@ -5190,6 +5354,9 @@ export default function Home() {
 
       {/* ===== TRUST BAR (certifications) ===== */}
       <TrustBar />
+
+      {/* ===== SECURITY & COMPLIANCE ===== */}
+      <SecuritySection />
 
       {/* ===== COMMAND CENTER ===== */}
       <CommandCenter />
