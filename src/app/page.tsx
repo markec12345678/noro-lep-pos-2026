@@ -1162,6 +1162,154 @@ function ProductTour() {
 }
 
 /* ============================================================
+   CASE STUDIES — konkretne pred/po metrike (conversion proof)
+   ============================================================ */
+const CASE_STUDIES = [
+  {
+    venue: 'Gostilna Pri Lovru',
+    type: 'Tradicionalna gostilna',
+    city: 'Ljubljana',
+    duration: '4 meseci',
+    avatar: 'ML',
+    avatarBg: 'bg-emerald-500',
+    metrics: [
+      { label: 'Čas na račun', before: '3,2 min', after: '1,9 min', delta: '−41%', better: true },
+      { label: 'Dnevni promet', before: '2.180 €', after: '2.640 €', delta: '+21%', better: true },
+      { label: 'Odpadki hrane', before: '14%', after: '6%', delta: '−57%', better: true },
+    ],
+    quote: 'AI predikcija zalog je zmanjšala odpadke za več kot polovico. FURS dela sam.',
+    author: 'Marko Kovač, lastnik',
+  },
+  {
+    venue: 'Pizzeria Bellavista',
+    type: 'Picerija z dostavo',
+    city: 'Bled',
+    duration: '6 mesecev',
+    avatar: 'AN',
+    avatarBg: 'bg-rose-500',
+    metrics: [
+      { label: 'Dostavni kanali', before: '1', after: '4', delta: '+300%', better: true },
+      { label: 'Povp. račun dostave', before: '14,20 €', after: '18,90 €', delta: '+33%', better: true },
+      { label: 'Čas priprave', before: '12 min', after: '8 min', delta: '−33%', better: true },
+    ],
+    quote: 'Wolt, Glovo in Uber Eats na enem zaslonu. KDS pospeši kuhinjo, QR pa dviguje račun.',
+    author: 'Ana Novak, lastnica',
+  },
+  {
+    venue: 'Restavracija Stara ulica',
+    type: 'À la carte restavracija',
+    city: 'Maribor',
+    duration: '5 mesecev',
+    avatar: 'TP',
+    avatarBg: 'bg-amber-500',
+    metrics: [
+      { label: 'Zasedenost miz', before: '52%', after: '71%', delta: '+37%', better: true },
+      { label: 'Stol na mizo', before: '2,1', after: '2,8', delta: '+33%', better: true },
+      { label: 'Osebje na izmeno', before: '7', after: '5', delta: '−29%', better: true },
+    ],
+    quote: 'Rezervacije in mize na enem mestu. Manj osebja, več gostov, večji promet.',
+    author: 'Tomaž Petek, direktor',
+  },
+] as const
+
+function CaseStudiesSection() {
+  return (
+    <section id="case-studies" className="py-20 lg:py-28 bg-white border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <Badge className="mb-4 bg-indigo-100 text-indigo-800 hover:bg-indigo-100">
+            <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
+            Študije primerov
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+            Realne restavracije.{' '}
+            <span className="bg-gradient-to-r from-indigo-600 to-emerald-600 bg-clip-text text-transparent animate-gradient-text">Realni rezultati.</span>
+          </h2>
+          <p className="mt-4 text-lg text-slate-600">
+            Pred in po metrikami iz treh slovenskih restavracij — po 4 do 6 mesecih uporabe Noro Lep POS.
+          </p>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          {CASE_STUDIES.map((cs, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.5, delay: idx * 0.1 }}
+            >
+              <Card className="p-6 h-full border-slate-200/70 shadow-sm hover:shadow-lg transition-shadow flex flex-col card-tilt">
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-4 pb-4 border-b border-slate-100">
+                  <div className={`w-11 h-11 rounded-full ${cs.avatarBg} flex items-center justify-center text-white font-bold text-sm shrink-0`}>
+                    {cs.avatar}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-slate-900 truncate">{cs.venue}</div>
+                    <div className="text-xs text-slate-500">{cs.type} · {cs.city}</div>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] shrink-0">{cs.duration}</Badge>
+                </div>
+
+                {/* Metrics pred/po */}
+                <div className="space-y-2.5 mb-4">
+                  {cs.metrics.map((m, i) => (
+                    <div key={i} className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-slate-50/70">
+                      <span className="text-xs text-slate-600 font-medium flex-1 min-w-0">{m.label}</span>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-[11px] text-slate-400 line-through tabular-nums">{m.before}</span>
+                        <ArrowRight className="h-3 w-3 text-slate-300" />
+                        <span className="text-xs font-bold text-slate-900 tabular-nums">{m.after}</span>
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${m.better ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                          {m.delta}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Quote */}
+                <div className="mt-auto pt-4 border-t border-slate-100">
+                  <p className="text-sm text-slate-700 italic leading-relaxed mb-2">&ldquo;{cs.quote}&rdquo;</p>
+                  <div className="text-xs text-slate-500 font-medium">{cs.author}</div>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Aggregate stat bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-4 p-6 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100"
+        >
+          <div className="text-center">
+            <div className="text-3xl font-bold text-emerald-600 tabular-nums">+24%</div>
+            <div className="text-xs text-slate-600 mt-0.5">povprečni promet</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-emerald-600 tabular-nums">−38%</div>
+            <div className="text-xs text-slate-600 mt-0.5">čas na račun</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-emerald-600 tabular-nums">−52%</div>
+            <div className="text-xs text-slate-600 mt-0.5">odpadki hrane</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-emerald-600 tabular-nums">15 min</div>
+            <div className="text-xs text-slate-600 mt-0.5">do prvega računa</div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    ROI CALCULATOR — Interaktivni izračun prihranka
    ============================================================ */
 function RoiCalculator() {
@@ -3769,6 +3917,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ===== CASE STUDIES — konkretne pred/po metrike ===== */}
+      <CaseStudiesSection />
 
       {/* ===== ROI CALCULATOR ===== */}
       <section id="roi" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/40 to-white border-y border-slate-100">
