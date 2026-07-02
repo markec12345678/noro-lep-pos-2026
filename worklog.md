@@ -1721,3 +1721,51 @@ Stage Summary:
 - VLM: 8/10 polish, 9/10 clarity
 - 0 napak (1 obstoječa hydration), 0 lint errors
 - Commit/push next
+
+---
+Task ID: 62
+Agent: main (Z.ai Code)
+Task: v6.5 — Staff & Shift Management sekcija (scheduling + labor cost)
+
+Work Log:
+- Implementiral naslednjo prioriteto iz raziskave (Task 60): Staff management
+
+v6.5 IMPLEMENTACIJA:
+- NOVA StaffSection komponenta (~205 vrstic)
+- 6 delavcev s shift podatki:
+  * Maja Kovač (Natakarica, 10-18, €9,50/h, Mize 1-6, aktivna)
+  * Janez Novak (Kuhar, 09-17, €12/h, Vroče, aktiven)
+  * Ana Petrič (Natakarica, 11-19, €9,50/h, Mize 7-12, premor)
+  * Tomaž Štirn (Pomivalec, 12-20, €7,50/h, Pomiv, aktiven)
+  * Blaž Leban (Sommelier, 16-23, €11/h, Bar, prosti)
+  * Nina Zupan (Natakarica, 16-23, €9,50/h, Mize 7-12, prosta)
+- 3 statusi: Aktivna (pulse), Premor, Prosti
+- Teden selector (Pon-Tor-Sre-Čet-Pet-Sob-Ned, interaktivno)
+- Vsak shift: avatar, ime, vloga, 🕒 čas, 📍 postaja, status, ure, €
+- AI labor priporočilo card:
+  * Projektiran promet: €3.247
+  * Trenutno osebje vs AI optimalno (5)
+  * Labor % prometa (14% — znotraj cilja ≤25%)
+  * Kontekstualno sporočilo (✓ znotraj cilja / ⚠ blizu meje / ⚠ nad 30%)
+- 4 statistike: aktivni zdaj, ur danes, labor €, % od prometa
+- Hitre akcije: Dodaj izmeno, Kopiraj prejšnji teden, SMS vsem aktivnim
+- Layout: med MenuEngineering in Demo
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 20 sekcij (+1), HTTP 200
+  * StaffSection: OK
+  * Badge/Heading/Staff/Labor/Optimal: vsi OK
+- VLM audit:
+  * "weekday selector Pon-Tor-Sre-Čet-Pet-Sob-Ned"
+  * "shift list with avatars, status, time, hours/cost"
+  * "AI labor card: €3247 projected, optimal 5, labor 14%"
+  * 8/10 visual polish
+  * "polished, user-friendly design"
+
+Stage Summary:
+- 20 sekcij (osebje dodana)
+- 33 komponent (StaffSection)
+- AI razširjena na 4 dimenzije: predikcija + menu eng + weather + labor
+- VLM: 8/10 polish
+- 0 napak (1 obstoječa hydration), 0 lint errors
+- Commit/push next

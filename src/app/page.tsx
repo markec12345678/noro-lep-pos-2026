@@ -3319,6 +3319,210 @@ function MenuEngineeringSection() {
 }
 
 /* ============================================================
+   STAFF & SHIFT MANAGEMENT — scheduling + labor cost tracking
+   ============================================================ */
+interface StaffShift {
+  initials: string
+  name: string
+  role: string
+  avatarBg: string
+  start: string
+  end: string
+  hours: number
+  rate: number
+  station: string
+  status: 'active' | 'break' | 'off'
+}
+
+const STAFF_SHIFTS: StaffShift[] = [
+  { initials: 'MK', name: 'Maja Kovač', role: 'Natakarica', avatarBg: 'bg-emerald-500', start: '10:00', end: '18:00', hours: 8, rate: 9.50, station: 'Mize 1-6', status: 'active' },
+  { initials: 'JN', name: 'Janez Novak', role: 'Kuhar', avatarBg: 'bg-amber-500', start: '09:00', end: '17:00', hours: 8, rate: 12.00, station: 'Vroče', status: 'active' },
+  { initials: 'AP', name: 'Ana Petrič', role: 'Natakarica', avatarBg: 'bg-rose-500', start: '11:00', end: '19:00', hours: 8, rate: 9.50, station: 'Mize 7-12', status: 'break' },
+  { initials: 'TS', name: 'Tomaž Štirn', role: 'Pomivalec', avatarBg: 'bg-cyan-500', start: '12:00', end: '20:00', hours: 8, rate: 7.50, station: 'Pomiv', status: 'active' },
+  { initials: 'BL', name: 'Blaž Leban', role: 'Sommelier', avatarBg: 'bg-purple-500', start: '16:00', end: '23:00', hours: 7, rate: 11.00, station: 'Bar', status: 'off' },
+  { initials: 'NZ', name: 'Nina Zupan', role: 'Natakarica', avatarBg: 'bg-indigo-500', start: '16:00', end: '23:00', hours: 7, rate: 9.50, station: 'Mize 7-12', status: 'off' },
+]
+
+const WEEKDAYS = ['Pon', 'Tor', 'Sre', 'Čet', 'Pet', 'Sob', 'Ned'] as const
+
+function StaffSection() {
+  const [activeDay, setActiveDay] = useState(0) // Pon
+
+  const todayShifts = STAFF_SHIFTS.filter(s => s.status !== 'off' || activeDay === 0)
+  const laborCost = todayShifts.reduce((s, st) => s + st.hours * st.rate, 0)
+  const totalHours = todayShifts.reduce((s, st) => s + st.hours, 0)
+  const activeCount = todayShifts.filter(s => s.status === 'active').length
+  // AI priporočilo: optimal osebje glede na projected promet
+  const projectedRevenue = 3247
+  const optimalStaff = 5
+  const laborPct = Math.round((laborCost / projectedRevenue) * 100)
+
+  const statusInfo: Record<string, { label: string; dot: string; text: string }> = {
+    active: { label: 'Aktiven', dot: 'bg-emerald-500', text: 'text-emerald-700' },
+    break: { label: 'Premor', dot: 'bg-amber-500', text: 'text-amber-700' },
+    off: { label: 'Prosti', dot: 'bg-slate-400', text: 'text-slate-500' },
+  }
+
+  return (
+    <section id="osebje" className="py-16 lg:py-20 bg-slate-50/40 border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <Badge className="mb-3 bg-cyan-100 text-cyan-800 hover:bg-cyan-100">
+            <Users className="h-3.5 w-3.5 mr-1.5" />
+            Osebje & izmene
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            Pravo osebje ob <span className="bg-gradient-to-r from-cyan-600 to-emerald-600 bg-clip-text text-transparent animate-gradient-text">pravem času</span>
+          </h2>
+          <p className="mt-2 text-base text-slate-600">Shift scheduling z labor cost tracking. AI napove promet, priporoči optimalno število osebja.</p>
+        </div>
+
+        {/* Teden selector */}
+        <div className="flex justify-center mb-6">
+          <div className="inline-flex items-center bg-white rounded-xl p-1 gap-1 border border-slate-200 shadow-sm">
+            {WEEKDAYS.map((day, i) => (
+              <button
+                key={day}
+                onClick={() => setActiveDay(i)}
+                className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeDay === i ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                {day}
+                {i === 0 && <span className="hidden sm:inline ml-1 text-[10px] opacity-70">danes</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* LEVO: Shift list (2/3) */}
+          <div className="lg:col-span-2">
+            <Card className="overflow-hidden border-slate-200/70 shadow-sm">
+              <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">{WEEKDAYS[activeDay]} — izmene</span>
+                <span className="text-[10px] text-slate-400">{todayShifts.length} delavcev</span>
+              </div>
+              <div className="divide-y divide-slate-50">
+                {todayShifts.map((s, i) => {
+                  const st = statusInfo[s.status]
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 8 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.25, delay: i * 0.04 }}
+                      className="px-4 py-3 flex items-center gap-3 hover:bg-slate-50/60 transition-colors"
+                    >
+                      <div className={`w-9 h-9 rounded-full ${s.avatarBg} flex items-center justify-center text-white font-bold text-xs shrink-0`}>{s.initials}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-slate-900 truncate">{s.name}</span>
+                          <span className="text-[10px] text-slate-400 shrink-0">{s.role}</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[11px] text-slate-500 tabular-nums">🕒 {s.start}–{s.end}</span>
+                          <span className="text-[10px] text-slate-400">·</span>
+                          <span className="text-[11px] text-slate-500">📍 {s.station}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className={`w-1.5 h-1.5 rounded-full ${st.dot} ${s.status === 'active' ? 'animate-pulse' : ''}`} />
+                        <span className={`text-[10px] font-bold ${st.text}`}>{st.label}</span>
+                      </div>
+                      <div className="text-right shrink-0 min-w-[60px]">
+                        <div className="text-xs font-bold text-slate-900 tabular-nums">{s.hours}h</div>
+                        <div className="text-[9px] text-slate-400 tabular-nums">€{(s.hours * s.rate).toFixed(0)}</div>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </div>
+              <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-[11px] text-slate-500">Skupaj: <span className="font-bold text-slate-700">{totalHours}h</span></span>
+                <span className="text-[11px] text-slate-500">Strošek: <span className="font-bold text-slate-700">€{laborCost.toFixed(0)}</span></span>
+              </div>
+            </Card>
+          </div>
+
+          {/* DESNO: AI labor analytics */}
+          <div className="space-y-4">
+            {/* AI priporočilo */}
+            <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.3 }} className="p-4 rounded-xl bg-gradient-to-br from-cyan-50 to-emerald-50 border-2 border-cyan-200">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-4 w-4 text-cyan-600" />
+                <span className="text-xs font-bold text-slate-900 uppercase tracking-wide">AI labor priporočilo</span>
+              </div>
+              <div className="text-sm text-slate-700 leading-relaxed mb-3">
+                Projektiran promet danes: <span className="font-bold text-cyan-700">€{projectedRevenue.toLocaleString('sl-SI')}</span>
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-600">Trenutno osebje</span>
+                  <span className="font-bold text-slate-900">{todayShifts.length} delavcev</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-600">AI optimalno</span>
+                  <span className="font-bold text-emerald-600">{optimalStaff} delavcev</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-600">Labor % prometa</span>
+                  <span className={`font-bold ${laborPct <= 25 ? 'text-emerald-600' : laborPct <= 30 ? 'text-amber-600' : 'text-rose-600'}`}>{laborPct}%</span>
+                </div>
+              </div>
+              <div className="mt-3 pt-3 border-t border-cyan-200">
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  {laborPct <= 25
+                    ? '✓ Labor stroški znotraj cilja (≤25%). Osebje optimalno za projektiran promet.'
+                    : laborPct <= 30
+                      ? '⚠ Labor blizu meje (25-30%). Razmisli o krajšanju izmene ob 22h.'
+                      : '⚠ Labor nad 30%. Priporočam krajšanje 1 izmene ali premik v tišji dan.'}
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Statistike */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center">
+                <div className="text-xl font-bold text-emerald-600 tabular-nums">{activeCount}</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">aktivnih zdaj</div>
+              </div>
+              <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center">
+                <div className="text-xl font-bold text-cyan-600 tabular-nums">{totalHours}h</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">ur danes</div>
+              </div>
+              <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center">
+                <div className="text-xl font-bold text-purple-600 tabular-nums">€{laborCost.toFixed(0)}</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">labor dnes</div>
+              </div>
+              <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center">
+                <div className="text-xl font-bold text-amber-600 tabular-nums">{laborPct}%</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">od prometa</div>
+              </div>
+            </div>
+
+            {/* Hitre akcije */}
+            <div className="p-3 rounded-xl bg-white border border-slate-200/70">
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">Hitre akcije</div>
+              <div className="space-y-1.5">
+                <button className="w-full text-left text-[11px] text-slate-600 hover:text-cyan-700 flex items-center justify-between p-1.5 rounded hover:bg-cyan-50 transition-colors">
+                  <span>+ Dodaj izmeno</span><span className="text-slate-300">→</span>
+                </button>
+                <button className="w-full text-left text-[11px] text-slate-600 hover:text-cyan-700 flex items-center justify-between p-1.5 rounded hover:bg-cyan-50 transition-colors">
+                  <span>📋 Kopiraj prejšnji teden</span><span className="text-slate-300">→</span>
+                </button>
+                <button className="w-full text-left text-[11px] text-slate-600 hover:text-cyan-700 flex items-center justify-between p-1.5 rounded hover:bg-cyan-50 transition-colors">
+                  <span>📧 SMS vsem aktivnim</span><span className="text-slate-300">→</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    COMMAND CENTER — Unified dashboard vseh sistemov
    ============================================================ */
 interface DashboardData {
@@ -4092,6 +4296,9 @@ export default function Home() {
 
       {/* ===== MENU ENGINEERING ===== */}
       <MenuEngineeringSection />
+
+      {/* ===== STAFF & SHIFT MANAGEMENT ===== */}
+      <StaffSection />
 
       {/* ===== INTERACTIVE PRODUCT TOUR ===== */}
       <section id="demo" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/40 to-white border-y border-slate-100">
