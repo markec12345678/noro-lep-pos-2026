@@ -261,6 +261,9 @@ function PosDemo({ onCheckout, selectedTable }: { onCheckout: (cartItems: { item
   const [activeCat, setActiveCat] = useState<string>('predjedi')
   const [cart, setCart] = useState<Record<string, number>>({})
   const [checkedOut, setCheckedOut] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => setMounted(true), [])
 
   const filteredItems = MENU_ITEMS.filter((i) => i.category === activeCat)
 
@@ -328,7 +331,7 @@ function PosDemo({ onCheckout, selectedTable }: { onCheckout: (cartItems: { item
                   {view === 'natakar' ? 'Noro Lep POS · Miza 12 · 2 osebi' : 'Noro Lep Online · Meni'}
                 </span>
               </div>
-              <span className="text-xs text-slate-400">{new Date().toLocaleTimeString('sl-SI', { hour: '2-digit', minute: '2-digit' })}</span>
+              <span className="text-xs text-slate-400">{mounted ? new Date().toLocaleTimeString('sl-SI', { hour: '2-digit', minute: '2-digit' }) : '--:--'}</span>
             </div>
 
             {/* Category tabs */}
