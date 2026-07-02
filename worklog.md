@@ -1614,3 +1614,64 @@ Stage Summary:
 - VLM: 9/10 prepričljivost
 - 0 napak (1 obstoječa hydration), 0 lint errors
 - Commit/push next
+
+---
+Task ID: 60
+Agent: main (Z.ai Code)
+Task: Web raziskava runda 5 (staff/loyalty/reservations/menu eng/UI) + v6.3 Loyalty
+
+Work Log:
+- Preskocil Vercel/Stripe pipeline (po uporabnikovi želji)
+- Revert deploy pipeline datotek (vercel.json, webhook, DEPLOY.md, deploy.yml)
+- 5 web iskanj (z-ai web_search):
+  1. Staff management / shift scheduling
+  2. Loyalty program / CRM marketing automation
+  3. Reservation system / waitlist / table management
+  4. Menu engineering / profitability analysis / dynamic pricing
+  5. Modern dashboard UI 2026 trends
+
+Ključna odkritja:
+- LOYALTY/CRM: omenjen v FEATURES ("Vernostni program") a NE prikazan kot sekcija
+  * "False advertising" — loyalty: true v primerjavi a brez lastne sekcije
+  * Loyalty programi: +34% repeat obiskov (raziskava)
+  * Reaktivacija (30 dni brez obiska) = ključna CRM funkcija
+- Menu engineering: AI analiza dobičkonosnosti (popularnost × profit)
+- Staff scheduling: labor cost vs revenue sync
+- Reservations z waitlist SMS
+
+v6.3 IMPLEMENTACIJA (Loyalty/CRM — najbolj kritična vrzel):
+- NOVA LoyaltySection komponenta (~165 vrstic)
+- 3 tier kartice z gradient ozadji:
+  * Bronasti (🥉, 0+ točk, 5% popust ob RD)
+  * Srebrni (🥈, 500+ točk, 10% popust + pijača)
+  * Zlati (🥇, 1500+ točk, 15% popust + prioriteta + sladica)
+- CRM profili gostov (4 od 1.247):
+  * Maja Kralj (47 obiskov, 1240 točk, Srebrni, Beef Burger Deluxe)
+  * Janez Novak (89 obiskov, 2310 točk, Zlati, Margherita)
+  * Ana Petrič (23 obiskov, 580 točk, Srebrni, Cezar solata)
+  * Tomaž Štirn (12 obiskov, 180 točk, Bronasti)
+  * Vsak: avatar, ime, tier badge, fav dish, obiski, lastVisit, točke
+- 3 samodejne akcije:
+  * Reaktivacija (30 dni) — SMS "Pogrešamo te! 15% popust" (23 aktivnih)
+  * Rojstni dan popust — avtomatski (7 ta teden)
+  * Tier upgrade — avtomatski SMS (12 ta mesec)
+- 3 statistike: 1.247 gostov, +34% repeat, €4,20 vrednost točke
+- Layout: med PaymentsSection in InventoryPreview
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 18 sekcij (+1), HTTP 200
+  * LoyaltySection: OK
+  * Badge/Heading/Tier/Akcije/CRM gostje: vsi OK
+- VLM audit:
+  * "3 tier cards with gradients and medals"
+  * "CRM guest list with avatars, points, favorite dishes"
+  * "automatic action cards (Reaktivacija, Rojstni dan)"
+  * 8/10 visual polish
+
+Stage Summary:
+- 18 sekcij (loyalty dodana)
+- 31 komponent (LoyaltySection)
+- Zaprt "false advertising" (loyalty: true sedaj res prikazan)
+- VLM: 8/10 polish
+- 0 napak (1 obstoječa hydration), 0 lint errors
+- Commit/push next

@@ -2562,6 +2562,173 @@ function DarkModeToggle() {
 }
 
 /* ============================================================
+   LOYALTY & CRM — vernostni program, točke, CRM profili gostov
+   ============================================================ */
+const LOYALTY_TIERS = [
+  {
+    name: 'Bronasti',
+    color: 'from-amber-600 to-orange-700',
+    badge: 'bg-amber-100 text-amber-800',
+    min: '0',
+    perk: '5% popust ob rojstnem dnevu',
+    icon: '🥉',
+  },
+  {
+    name: 'Srebrni',
+    color: 'from-slate-400 to-slate-600',
+    badge: 'bg-slate-100 text-slate-700',
+    min: '500',
+    perk: '10% popust + brezplačna pijača na vsak 5. obisk',
+    icon: '🥈',
+  },
+  {
+    name: 'Zlati',
+    color: 'from-yellow-400 to-amber-500',
+    badge: 'bg-yellow-100 text-yellow-800',
+    min: '1500',
+    perk: '15% popust + prioriteta rezervacij + brezplačna sladica',
+    icon: '🥇',
+  },
+] as const
+
+const LOYALTY_GUESTS = [
+  { initials: 'MK', name: 'Maja Kralj', visits: 47, points: 1240, tier: 1, favDish: 'Beef Burger Deluxe', lastVisit: 'pred 2 dneh', avatarBg: 'bg-rose-500' },
+  { initials: 'JN', name: 'Janez Novak', visits: 89, points: 2310, tier: 2, favDish: 'Margherita pizza', lastVisit: 'včeraj', avatarBg: 'bg-emerald-500' },
+  { initials: 'AP', name: 'Ana Petrič', visits: 23, points: 580, tier: 1, favDish: 'Cezar solata', lastVisit: 'pred 5 dnevi', avatarBg: 'bg-purple-500' },
+  { initials: 'TS', name: 'Tomaž Štirn', visits: 12, points: 180, tier: 0, favDish: '—', lastVisit: 'pred 14 dnevi', avatarBg: 'bg-cyan-500' },
+] as const
+
+function LoyaltySection() {
+  return (
+    <section id="loyalty" className="py-16 lg:py-20 bg-slate-50/40 border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <Badge className="mb-3 bg-indigo-100 text-indigo-800 hover:bg-indigo-100">
+            <Heart className="h-3.5 w-3.5 mr-1.5" />
+            Vernostni program & CRM
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            Gosti se <span className="bg-gradient-to-r from-indigo-600 to-rose-500 bg-clip-text text-transparent animate-gradient-text">vrnejo</span>. Ti služiš več.
+          </h2>
+          <p className="mt-2 text-base text-slate-600">Samodejno točkovanje, tierji, CRM profili in reaktivacija gostov, ki že dolgo niso obiskali.</p>
+        </div>
+
+        {/* Tier kartice */}
+        <div className="grid sm:grid-cols-3 gap-4 mb-8">
+          {LOYALTY_TIERS.map((tier, idx) => (
+            <motion.div key={idx} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: idx * 0.08 }}>
+              <Card className={`relative overflow-hidden p-5 border-0 text-white shadow-lg card-tilt`}>
+                <div className={`absolute inset-0 bg-gradient-to-br ${tier.color}`} />
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-3xl">{tier.icon}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider opacity-80">{tier.min}+ točk</span>
+                  </div>
+                  <div className="text-xl font-bold">{tier.name}</div>
+                  <div className="text-xs mt-1 opacity-90 leading-snug">{tier.perk}</div>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* LEVO: CRM profili gostov */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">CRM profili gostov</h3>
+              <Badge variant="outline" className="text-[10px]">4 od 1.247</Badge>
+            </div>
+            <Card className="overflow-hidden border-slate-200/70 shadow-sm">
+              <div className="divide-y divide-slate-100">
+                {LOYALTY_GUESTS.map((g, i) => {
+                  const tier = LOYALTY_TIERS[g.tier]
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.3, delay: i * 0.05 }}
+                      className="p-3 flex items-center gap-3 hover:bg-slate-50/60 transition-colors"
+                    >
+                      <div className={`w-9 h-9 rounded-full ${g.avatarBg} flex items-center justify-center text-white font-bold text-xs shrink-0`}>{g.initials}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-slate-900 truncate">{g.name}</span>
+                          <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${tier.badge}`}>{tier.name}</span>
+                        </div>
+                        <div className="text-[11px] text-slate-500 truncate">❤ {g.favDish} · {g.visits} obiskov · {g.lastVisit}</div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-sm font-bold text-indigo-600 tabular-nums">{g.points.toLocaleString('sl-SI')}</div>
+                        <div className="text-[9px] text-slate-400">točk</div>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </div>
+              <div className="p-2.5 bg-slate-50 border-t border-slate-100 text-center">
+                <span className="text-[11px] text-slate-500">Prikaži vseh 1.247 gostov →</span>
+              </div>
+            </Card>
+          </div>
+
+          {/* DESNO: avtomatske akcije + statistike */}
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-3">Samodejne akcije</h3>
+              <div className="space-y-2.5">
+                <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.3, delay: 0.1 }} className="flex gap-3 p-3 rounded-xl bg-white border border-slate-200/70 shadow-sm">
+                  <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center shrink-0"><Bell className="h-4 w-4 text-rose-600" /></div>
+                  <div className="flex-1">
+                    <div className="text-xs font-semibold text-slate-900">Reaktivacija (30 dni brez obiska)</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">Samodejni SMS: &ldquo;Pogrešamo te! 15% popust v naslednjih 7 dneh.&rdquo;</div>
+                  </div>
+                  <Badge className="bg-rose-100 text-rose-700 text-[9px] shrink-0">23 aktivnih</Badge>
+                </motion.div>
+                <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.3, delay: 0.15 }} className="flex gap-3 p-3 rounded-xl bg-white border border-slate-200/70 shadow-sm">
+                  <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center shrink-0"><Heart className="h-4 w-4 text-amber-600" /></div>
+                  <div className="flex-1">
+                    <div className="text-xs font-semibold text-slate-900">Rojstni dan popust</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">Avtomatski popust + brezplačna sladica na rojstni dan</div>
+                  </div>
+                  <Badge className="bg-amber-100 text-amber-700 text-[9px] shrink-0">7 ta teden</Badge>
+                </motion.div>
+                <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.3, delay: 0.2 }} className="flex gap-3 p-3 rounded-xl bg-white border border-slate-200/70 shadow-sm">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0"><TrendingUp className="h-4 w-4 text-emerald-600" /></div>
+                  <div className="flex-1">
+                    <div className="text-xs font-semibold text-slate-900">Tier upgrade</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">Avtomatski SMS ob prehodu v višji tier + nova nagrada</div>
+                  </div>
+                  <Badge className="bg-emerald-100 text-emerald-700 text-[9px] shrink-0">12 ta mesec</Badge>
+                </motion.div>
+              </div>
+            </div>
+
+            {/* Statistike */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center">
+                <div className="text-xl font-bold text-indigo-600 tabular-nums">1.247</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">gostov v CRM</div>
+              </div>
+              <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center">
+                <div className="text-xl font-bold text-emerald-600 tabular-nums">+34%</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">repeat obiski</div>
+              </div>
+              <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center">
+                <div className="text-xl font-bold text-rose-600 tabular-nums">€4,20</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">povp. vrednost točke</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    INVENTORY PREVIEW — 232 artiklov pripravljenih
    ============================================================ */
 function InventoryPreview() {
@@ -3692,6 +3859,9 @@ export default function Home() {
 
       {/* ===== PAYMENTS ===== */}
       <PaymentsSection />
+
+      {/* ===== LOYALTY & CRM ===== */}
+      <LoyaltySection />
 
       {/* ===== INVENTORY PREVIEW ===== */}
       <InventoryPreview />
