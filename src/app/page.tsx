@@ -914,6 +914,9 @@ export default function Home() {
       {/* ===== PAYMENTS SECTION — Contactless plačila ===== */}
       <PaymentsSection />
 
+      {/* ===== QR ORDERING — Gost skenira, naroči ===== */}
+      <QROrderingSection />
+
       {/* ===== DELIVERY SECTION — Wolt, Uber Eats, Glovo ===== */}
       <DeliverySection />
 
@@ -2281,6 +2284,260 @@ function CommandCenter() {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
           </span>
           <span>Live data · osvežitev vsakih 15s · {now.toLocaleTimeString('sl-SI')} · vseh 7 sistemov sinhroniziranih v realnem času</span>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
+   QR ORDERING SECTION — Gost skenira QR, vidi meni, naroči
+   ============================================================ */
+function QROrderingSection() {
+  const [step, setStep] = useState<'scan' | 'menu' | 'cart' | 'success'>('scan')
+  const [cart, setCart] = useState<Record<string, number>>({})
+
+  const menuItems = [
+    { id: '1', name: 'Pizza Margherita', price: 11.0, img: '/pos-demo/pizza.png', desc: 'Paradižnik, mozzarella, bazilika', popular: true },
+    { id: '2', name: 'Čevapi s kajmakom', price: 14.5, img: '/pos-demo/cevapi.png', desc: 'Čevapi, kajmak, čebula, kruh', popular: true },
+    { id: '3', name: 'Burger Noro Lep', price: 15.0, img: '/pos-demo/burger.png', desc: '180g goveji burger, sir, pomfrit' },
+    { id: '4', name: 'Rižota s sadeži', price: 16.0, img: '/pos-demo/rizota.png', desc: 'Rižota s kozicami, školjkami' },
+    { id: '5', name: 'Becka kava', price: 2.0, img: '/pos-demo/kava.png', desc: 'Cappuccino z latte art' },
+    { id: '6', name: 'Tiramisu', price: 6.5, img: '/pos-demo/tiramisu.png', desc: 'Klasična italijanska sladica' },
+  ]
+
+  const cartItems = Object.entries(cart).map(([id, qty]) => ({ item: menuItems.find(m => m.id === id)!, qty }))
+  const total = cartItems.reduce((s, { item, qty }) => s + item.price * qty, 0)
+
+  const addToCart = (id: string) => setCart(c => ({ ...c, [id]: (c[id] || 0) + 1 }))
+  const removeFromCart = (id: string) => setCart(c => { const n = { ...c }; if (n[id] > 1) n[id]--; else delete n[id]; return n })
+
+  const steps = [
+    { id: 'scan', label: '1. Skeniraj QR', icon: Smartphone },
+    { id: 'menu', label: '2. Izberi jed', icon: Utensils },
+    { id: 'cart', label: '3. Potrdi', icon: ShoppingBag },
+    { id: 'success', label: '4. Naročilo poslano', icon: CheckCircle2 },
+  ]
+
+  return (
+    <section id="qr-narocanje" className="py-20 lg:py-28 bg-white border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <Badge className="mb-4 bg-purple-100 text-purple-800 hover:bg-purple-100">
+            <Smartphone className="h-3.5 w-3.5 mr-1.5" />
+            QR naročanje za goste
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+            Gost skenira,{' '}
+            <span className="bg-gradient-to-r from-purple-600 to-emerald-600 bg-clip-text text-transparent">
+              naroči, plača
+            </span>{' '}
+            — brez natakarja
+          </h2>
+          <p className="mt-4 text-lg text-slate-600">
+            30% letna rast QR naročanja. Gost vidi slike jedi, naroči iz telefona,
+            KDS samodejno dobi naročilo. +22% višji povprečni račun.
+          </p>
+        </div>
+
+        {/* Step indicator */}
+        <div className="flex items-center justify-center gap-2 sm:gap-4 mb-8">
+          {steps.map((s, i) => {
+            const isActive = step === s.id
+            const isPast = steps.findIndex(x => x.id === step) > i
+            return (
+              <div key={s.id} className="flex items-center">
+                <button
+                  onClick={() => setStep(s.id as typeof step)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition ${
+                    isActive ? 'bg-purple-600 text-white shadow-md' : isPast ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-400'
+                  }`}
+                >
+                  <s.icon className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">{s.label}</span>
+                </button>
+                {i < steps.length - 1 && <div className={`w-4 sm:w-8 h-0.5 mx-1 ${isPast ? 'bg-emerald-300' : 'bg-slate-200'}`} />}
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Step content */}
+        <div className="grid lg:grid-cols-2 gap-6 items-start">
+          {/* Phone mockup */}
+          <div className="relative mx-auto w-full max-w-sm">
+            <div className="relative bg-slate-900 rounded-[2.5rem] p-3 shadow-2xl">
+              <div className="bg-white rounded-[2rem] overflow-hidden h-[500px] flex flex-col">
+                {/* Phone status bar */}
+                <div className="bg-slate-900 text-white text-[10px] flex items-center justify-between px-4 py-1.5">
+                  <span>{new Date().toLocaleTimeString('sl-SI', { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span>📶 5G 🔋 87%</span>
+                </div>
+
+                {/* Phone content */}
+                <div className="flex-1 overflow-y-auto">
+                  {step === 'scan' && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full flex flex-col items-center justify-center p-6 text-center">
+                      <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-purple-500 to-emerald-500 p-1 mb-4">
+                        <div className="w-full h-full bg-white rounded-xl flex items-center justify-center">
+                          {/* Fake QR code */}
+                          <div className="grid grid-cols-5 gap-0.5 p-2">
+                            {Array.from({ length: 25 }).map((_, i) => (
+                              <div key={i} className={`w-3 h-3 rounded-sm ${(i * 7 + i * 3) % 3 === 0 ? 'bg-slate-900' : 'bg-white'}`} />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-sm font-bold text-slate-900 mb-1">Skeniraj QR kodo</div>
+                      <div className="text-xs text-slate-500 mb-4">Usmeri kamero proti QR kodi na mizi</div>
+                      <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setStep('menu')}>
+                        <ScanLine className="h-3.5 w-3.5 mr-1.5" />
+                        Simuliraj skeniranje
+                      </Button>
+                    </motion.div>
+                  )}
+
+                  {step === 'menu' && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                      <div className="p-3 bg-gradient-to-r from-purple-500 to-emerald-500 text-white">
+                        <div className="text-xs font-bold">Restavracija Pri Lovru 🍽️</div>
+                        <div className="text-[10px] opacity-80">Miza 12 · 4 osebe</div>
+                      </div>
+                      <div className="p-2 space-y-2">
+                        {menuItems.map(item => (
+                          <button
+                            key={item.id}
+                            onClick={() => addToCart(item.id)}
+                            className="w-full flex items-center gap-2 p-2 rounded-lg border border-slate-200 hover:border-purple-300 hover:shadow-sm transition text-left active:scale-95"
+                          >
+                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 shrink-0">
+                              <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-xs font-bold text-slate-900 truncate">{item.name}</div>
+                              <div className="text-[9px] text-slate-500 truncate">{item.desc}</div>
+                              <div className="text-xs font-bold text-purple-600">{item.price.toFixed(2)} €</div>
+                            </div>
+                            {cart[item.id] && (
+                              <div className="w-5 h-5 rounded-full bg-purple-600 text-white text-[10px] font-bold flex items-center justify-center shrink-0">{cart[item.id]}</div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                      {Object.keys(cart).length > 0 && (
+                        <div className="p-2 sticky bottom-0 bg-white border-t border-slate-100">
+                          <Button size="sm" className="w-full bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setStep('cart')}>
+                            <ShoppingBag className="h-3.5 w-3.5 mr-1.5" />
+            Košarica ({Object.values(cart).reduce((a, b) => a + b, 0)}) · {total.toFixed(2)} €
+                          </Button>
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+
+                  {step === 'cart' && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3">
+                      <div className="text-xs font-bold text-slate-900 mb-2">📍 Miza 12 · Potrdi naročilo</div>
+                      <div className="space-y-2 mb-3">
+                        {cartItems.map(({ item, qty }) => (
+                          <div key={item.id} className="flex items-center gap-2 p-2 rounded-lg bg-slate-50">
+                            <div className="w-8 h-8 rounded overflow-hidden bg-slate-200 shrink-0">
+                              <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-[10px] font-bold text-slate-900 truncate">{item.name}</div>
+                              <div className="text-[10px] text-purple-600">{item.price.toFixed(2)} €</div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <button onClick={() => removeFromCart(item.id)} className="w-5 h-5 rounded bg-slate-200 text-slate-600 text-xs">−</button>
+                              <span className="text-xs font-bold w-4 text-center">{qty}</span>
+                              <button onClick={() => addToCart(item.id)} className="w-5 h-5 rounded bg-purple-100 text-purple-600 text-xs">+</button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="border-t border-slate-100 pt-2 mb-3">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-500">Skupaj</span>
+                          <span className="font-bold text-slate-900">{total.toFixed(2)} €</span>
+                        </div>
+                        <div className="flex justify-between text-[10px] text-slate-400">
+                          <span>≈ 3.2s do potrditve</span>
+                          <span>Plačilo ob prevzemu</span>
+                        </div>
+                      </div>
+                      <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => { setStep('success'); setTimeout(() => { setStep('scan'); setCart({}) }, 4000) }}>
+                        <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
+                        Pošlji naročilo v kuhinjo
+                      </Button>
+                    </motion.div>
+                  )}
+
+                  {step === 'success' && (
+                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="h-full flex flex-col items-center justify-center p-6 text-center">
+                      <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-4">
+                        <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+                      </div>
+                      <div className="text-sm font-bold text-slate-900 mb-1">Naročilo poslano! ✅</div>
+                      <div className="text-xs text-slate-500 mb-3">Kuhinja je obveščena · ~10 min priprava</div>
+                      <div className="px-3 py-1.5 rounded-lg bg-emerald-50 text-[10px] text-emerald-700 font-semibold flex items-center gap-1">
+                        <Zap className="h-3 w-3" />
+                        Real-time sync: KDS + POS + Mize posodobljeni
+                      </div>
+                      <div className="mt-4 text-[10px] text-slate-400">Avtomatska ponastavitev v 4s...</div>
+                    </motion.div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Benefits */}
+          <div className="space-y-4">
+            <div className="grid sm:grid-cols-2 gap-3">
+              {[
+                { icon: TrendingUp, value: '+22%', label: 'višji povprečni račun', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                { icon: Clock, value: '3.2s', label: 'do oddaje naročila', color: 'text-purple-600', bg: 'bg-purple-50' },
+                { icon: Users, value: '0', label: 'natakarjev potrebnih', color: 'text-sky-600', bg: 'bg-sky-50' },
+                { icon: Sparkles, value: '30%', label: 'letna rast QR naročanja', color: 'text-amber-600', bg: 'bg-amber-50' },
+              ].map((s, i) => (
+                <Card key={i} className="p-4 border-slate-200/70">
+                  <div className={`w-9 h-9 rounded-lg ${s.bg} flex items-center justify-center mb-2`}>
+                    <s.icon className={`h-4 w-4 ${s.color}`} />
+                  </div>
+                  <div className="text-2xl font-bold text-slate-900 tabular-nums">{s.value}</div>
+                  <div className="text-[10px] text-slate-500">{s.label}</div>
+                </Card>
+              ))}
+            </div>
+
+            <Card className="p-5 border-slate-200/70">
+              <div className="text-sm font-bold text-slate-900 mb-3">Kako deluje</div>
+              <div className="space-y-2.5">
+                {[
+                  { step: '1', text: 'Gost skenira QR kodo na mizi s telefonom', icon: Smartphone },
+                  { step: '2', text: 'Vidi meni s slikami jedi in cenami', icon: Utensils },
+                  { step: '3', text: 'Izbere jedi, doda v košarico, potrdi naročilo', icon: ShoppingBag },
+                  { step: '4', text: 'KDS samodejno prejme naročilo (real-time sync)', icon: Utensils },
+                  { step: '5', text: 'POS in mize se posodobijo — brez natakarja', icon: CheckCircle2 },
+                ].map((s, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-full bg-purple-100 text-purple-600 text-xs font-bold flex items-center justify-center shrink-0">{s.step}</div>
+                    <s.icon className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                    <span className="text-xs text-slate-700">{s.text}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <Sparkles className="h-3.5 w-3.5 text-purple-600" />
+              <span>
+                <strong className="text-slate-700">Brez aplikacije</strong> — deluje v browserju.
+                Brez registracije, brez download-a, brez stika z natakarjem.
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
