@@ -33,7 +33,7 @@ import {
   Wifi,
   Zap,
 } from 'lucide-react'
-import { motion, useInView, useScroll, useTransform, animate } from 'framer-motion'
+import { motion, useInView, useScroll, useTransform, useMotionValue, useSpring, animate } from 'framer-motion'
 import {
   Area,
   AreaChart,
@@ -2083,6 +2083,58 @@ function MobileMenu() {
 }
 
 /* ============================================================
+   MAGNETIC BUTTON — gumb sledi miški z magnetnim efektom
+   ============================================================ */
+function MagneticButton({ children, className, onClick, disabled, size, variant, dataTrack, dataTrackLabel, dataTrackSection }: {
+  children: React.ReactNode
+  className?: string
+  onClick?: () => void
+  disabled?: boolean
+  size?: 'default' | 'sm' | 'lg' | 'icon'
+  variant?: 'default' | 'outline' | 'ghost'
+  'data-track'?: string
+  'data-track-label'?: string
+  'data-track-section'?: string
+}) {
+  const ref = useRef<HTMLButtonElement>(null)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const springX = useSpring(x, { stiffness: 200, damping: 15 })
+  const springY = useSpring(y, { stiffness: 200, damping: 15 })
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!ref.current || disabled) return
+    const rect = ref.current.getBoundingClientRect()
+    const offsetX = e.clientX - rect.left - rect.width / 2
+    const offsetY = e.clientY - rect.top - rect.height / 2
+    x.set(offsetX * 0.3)
+    y.set(offsetY * 0.3)
+  }
+
+  const handleMouseLeave = () => {
+    x.set(0)
+    y.set(0)
+  }
+
+  return (
+    <motion.button
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ x: springX, y: springY }}
+      onClick={onClick}
+      disabled={disabled}
+      data-track={dataTrack}
+      data-track-label={dataTrackLabel}
+      data-track-section={dataTrackSection}
+      className={`magnetic-btn ${className || ''}`}
+    >
+      {children}
+    </motion.button>
+  )
+}
+
+/* ============================================================
    PARALLAX HERO IMAGE — subtle parallax na scroll
    ============================================================ */
 function ParallaxHeroImage({ children }: { children: React.ReactNode }) {
@@ -2890,10 +2942,10 @@ export default function Home() {
                 TEXT za natakarje (kot Toast), SLIKE za goste (upselling +22%).
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white h-12 px-7 text-base shadow-lg shadow-emerald-500/30" data-track="cta_click" data-track-label="brezplacni_preizkus_hero" data-track-section="hero">
+                <MagneticButton className="inline-flex items-center justify-center bg-emerald-600 hover:bg-emerald-700 text-white h-12 px-7 text-base shadow-lg shadow-emerald-500/30 rounded-lg font-medium" data-track="cta_click" data-track-label="brezplacni_preizkus_hero" data-track-section="hero">
                   <Zap className="h-4 w-4 mr-2" />
                   Brezplačni 30-dnevni preizkus
-                </Button>
+                </MagneticButton>
                 <VideoDemoModal />
               </div>
               <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500">
@@ -3319,7 +3371,7 @@ export default function Home() {
       <section className="py-16 lg:py-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 shadow-2xl shadow-emerald-500/30">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 shadow-2xl glow-pulse shimmer shadow-emerald-500/30">
               <div className="absolute inset-0 opacity-10" style={{
                 backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
                 backgroundSize: '24px 24px',
