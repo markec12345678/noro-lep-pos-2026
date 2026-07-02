@@ -166,3 +166,51 @@
   50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.4); }
 }
 
+/* ============================================================
+   ACCESSIBILITY — prefers-reduced-motion (WCAG 2.3.3 AA)
+   Vestibularne motnje: animacije lahko sprožijo vrtoglavico.
+   Uporabniki z reduce-motion nastavitvijo dobijo umirjeno verzijo.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Disable infinite/decorative animations */
+  .animate-ping,
+  .animate-gradient-text,
+  .glow-pulse {
+    animation: none !important;
+  }
+  /* Disable 3D transforms & parallax */
+  .card-tilt:hover {
+    transform: none !important;
+  }
+  /* Disable shimmer sweep */
+  .shimmer::after {
+    display: none !important;
+  }
+  /* Disable magnetic button transform */
+  .magnetic-btn {
+    transform: none !important;
+  }
+}
+
+/* ============================================================
+   FOCUS VISIBLE — izrazit outline za keyboard navigacijo (WCAG 2.4.7 AA)
+   ============================================================ */
+:focus-visible {
+  outline: 2px solid oklch(0.646 0.222 41.116 / 0.9);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+/* Dark mode focus */
+.dark :focus-visible {
+  outline-color: oklch(0.696 0.17 162.48 / 0.9);
+}
+
+

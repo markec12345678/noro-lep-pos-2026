@@ -1450,3 +1450,58 @@ Stage Summary:
 - LocalBusiness schema za local SEO boost
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 57
+Agent: main (Z.ai Code)
+Task: Web raziskava runda 3 (WCAG 2.2 + Core Web Vitals) + v6.0 accessibility
+
+Work Log:
+- 4 web iskanja (z-ai web_search):
+  1. WCAG 2.2 accessibility checklist 2026
+  2. Next.js Core Web Vitals LCP CLS INP 2026
+  3. Skip link focus visible keyboard navigation
+  4. prefers-reduced-motion vestibular disorder
+
+Ključna odkritja:
+- prefers-reduced-motion: 0 (KRITIČNO)
+  * Naša stran ima 14 vizualnih efektov z močnimi animacijami
+  * Vestibularne motnje: animacije sprožijo vrtoglavico
+  * WCAG 2.3.3 AA zahteva upoštevanje
+- focus-visible: 1 (šibek)
+- semantic HTML: 23 (dobro — main, nav, section, footer)
+- aria-label: 9 (solid)
+
+v6.0 IMPLEMENTACIJA:
+1. prefers-reduced-motion v globals.css (~30 vrstic):
+  * @media (prefers-reduced-motion: reduce) block
+  * animation-duration: 0.01ms !important (vse animacije)
+  * animation-iteration-count: 1 !important (disable infinite)
+  * transition-duration: 0.01ms !important
+  * scroll-behavior: auto !important
+  * Disable: .animate-ping, .animate-gradient-text, .glow-pulse
+  * Disable: .card-tilt:hover transform (3D parallax)
+  * Disable: .shimmer::after (sweep effect)
+  * Disable: .magnetic-btn transform
+2. MotionConfig reducedMotion="user" v layout.tsx:
+  * Framer Motion avtomatsko spoštuje sistemsko nastavitev
+  * Wrapper okoli children v ThemeProvider
+  * Import MotionConfig iz framer-motion
+3. focus-visible styling (WCAG 2.4.7 AA):
+  * :focus-visible { outline: 2px solid emerald; outline-offset: 2px; border-radius: 4px }
+  * .dark :focus-visible { outline-color: teal }
+  * Izrazit outline za keyboard navigacijo
+
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 0 napak v normalnem načinu
+  * focus-visible: 2px solid outline potrjen
+  * prefers-reduced-motion CSS rule najden v stylesheetu
+  * "FOUND: @media (prefers-reduced-motion: reduce) { *, ::before, ::after { scroll-behavior: auto !important; transition-duration..."
+
+Stage Summary:
+- WCAG 2.3.3 AA (reduced motion) + 2.4.7 AA (focus visible) compliant
+- Framer Motion avtomatska reduced-motion podpora
+- Eticno dostopno za vestibularne uporabnike
+- 0 napak, 0 lint errors
+- Commit/push next
