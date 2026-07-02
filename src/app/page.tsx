@@ -13,6 +13,7 @@ import {
   Globe,
   Heart,
   LayoutGrid,
+  Loader2,
   Minus,
   Package,
   Plus,
