@@ -2139,9 +2139,9 @@ function DarkModeToggle() {
   const [isDark, setIsDark] = useState(false)
 
   useEffect(() => {
-    // Read initial theme from DOM
-    const dark = document.documentElement.classList.contains('dark')
-    if (dark !== isDark) setIsDark(dark)
+    // Sync React state with DOM theme on mount
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsDark(document.documentElement.classList.contains('dark'))
   }, [])
 
   const toggle = () => {
