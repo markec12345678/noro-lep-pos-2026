@@ -863,3 +863,34 @@ Updated stats:
 - 2867 vrstic TypeScript
 - 11 API routes (vsi 200)
 - 220 git datotek
+
+---
+Task ID: 42
+Agent: main (Z.ai Code)
+Task: Command Center + Payments + Z-Report restored
+
+Work Log:
+- Environment recovery: dodal nazaj Command Center in Payments sekciji
+- CommandCenter komponenta (~140 vrstic):
+  * Dark theme (slate-950) z emerald glow
+  * System Health bar (score, uptime, alerts, live clock)
+  * 4 system cards: POS (sparkline), KDS (3-column), Mize (dots), AI (confidence)
+  * Auto-refresh vsakih 15s + live clock (1s update)
+- PaymentsSection komponenta (~60 vrstic):
+  * 6 payment method kartic (Apple Pay, Google Pay, Kartica, NFC, Gotovina, QR)
+  * 'Poskusi demo plačilo (12.50€)' CTA
+  * Trust badges (PCI DSS, 3D Secure, Instant settlement, multi-valutno)
+- PaymentModal komponenta (~60 vrstic):
+  * 5 plačilnih metod z processing animation
+  * Demo result z STRIPE_SECRET_KEY hint
+  * PCI DSS footer
+- ZReportSection (prej dodana, ohranjena)
+- Vse 3 sekcije uspešno dodane med TrustBar in ProductTour
+- 0 console errors, lint 0
+- Push na GitHub: commit 320bc4e na nextjs-landing
+
+Updated stats:
+- 3138 vrstic TypeScript
+- 40 sekcij na strani
+- 11 API routes (vsi 200)
+- 19 komponent (AnimatedCounter, PosDemo, KdsView, TablesView, AnalyticsView, ProductTour, RoiCalculator, CompetitionComparison, InterfaceComparison, LanguageSwitcher, VideoDemoModal, ScrollProgressBar, BackToTop, TrustBar, MobileMenu, CommandCenter, PaymentsSection, PaymentModal, ZReportSection)
