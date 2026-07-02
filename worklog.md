@@ -2300,3 +2300,42 @@ Stage Summary:
 - Eko + accounting automation pokrita
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 72
+Agent: main (Z.ai Code)
+Task: v7.5 — Section dots navigator (UX za 28 sekcij)
+
+Work Log:
+- Po lastni logiki: 28 sekcij = navigacijski problem. Dodal SectionDots.
+- Vertikalne pike na desni (xl+ viewport, hidden na mobile/manjših).
+
+v7.5 IMPLEMENTACIJA:
+- NOVA SectionDots komponenta (~65 vrstic)
+- 21 ključnih sekcij z labelami:
+  Demo, Dashboard, Plačila, Vernostni, Inventar, Dostava, QR, AI,
+  Menu Eng, Osebje, Rezervacije, Integracije, Hitri začetek, Varnost,
+  Verige, Eko, Mnenja, Študije, ROI, Cene, FAQ
+- IntersectionObserver (rootMargin -30%/-60%) za active detection
+- Click → smooth scroll do sekcije
+- Active dot: w-2.5 h-2.5 bg-emerald-600 + label badge
+- Inactive: w-1.5 h-1.5 bg-slate-300, hover → emerald-400
+- Hover label: opacity-0 → opacity-100 (white badge)
+- Visible šele po scrollY > 400 (ne moti heroja)
+- aria-label + aria-current za accessibility
+- hidden xl:flex (samo na velikih zaslonih)
+
+- Lint: 0 errors
+- Agent-browser verifikacija (1440x900 viewport):
+  * 0 napak
+  * 21 dots prisotnih
+  * Active dot: "Pojdi na Varnost" (IntersectionObserver dela!)
+  * Click "Cene" dot → scroll initiated
+- Layout: med LiveSocialProof in Skip link
+
+Stage Summary:
+- 41 komponent (SectionDots)
+- UX izboljšava za dolgo stran (28 sekcij)
+- Accessibility: aria-label, aria-current
+- 0 napak, 0 lint errors
+- Commit/push next

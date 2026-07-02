@@ -2133,6 +2133,96 @@ function BackToTop() {
 }
 
 /* ============================================================
+   SECTION DOTS — vertikalni navigator za 28 sekcij
+   ============================================================ */
+const NAV_SECTIONS = [
+  { id: 'demo', label: 'Demo' },
+  { id: 'command-center', label: 'Dashboard' },
+  { id: 'placila', label: 'Plačila' },
+  { id: 'loyalty', label: 'Vernostni' },
+  { id: 'inventar', label: 'Inventar' },
+  { id: 'dostava', label: 'Dostava' },
+  { id: 'qr-ordering', label: 'QR Naročanje' },
+  { id: 'ai-prediction', label: 'AI Predikcija' },
+  { id: 'menu-engineering', label: 'Menu Engineering' },
+  { id: 'osebje', label: 'Osebje' },
+  { id: 'rezervacije', label: 'Rezervacije' },
+  { id: 'integracije', label: 'Integracije' },
+  { id: 'onboarding', label: 'Hitri začetek' },
+  { id: 'varnost', label: 'Varnost' },
+  { id: 'verige', label: 'Verige' },
+  { id: 'eko', label: 'Eko & stroški' },
+  { id: 'mnenja', label: 'Mnenja' },
+  { id: 'case-studies', label: 'Študije primerov' },
+  { id: 'roi', label: 'ROI Kalkulator' },
+  { id: 'cene', label: 'Cene' },
+  { id: 'faq', label: 'FAQ' },
+] as const
+
+function SectionDots() {
+  const [activeId, setActiveId] = useState<string>('')
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => setVisible(window.scrollY > 400)
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActiveId(entry.target.id)
+        })
+      },
+      { rootMargin: '-30% 0px -60% 0px', threshold: 0 }
+    )
+    NAV_SECTIONS.forEach(({ id }) => {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    })
+    return () => observer.disconnect()
+  }, [])
+
+  const handleClick = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  if (!visible) return null
+
+  return (
+    <nav className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden xl:flex flex-col gap-1.5" aria-label="Hitra navigacija sekcij">
+      {NAV_SECTIONS.map(({ id, label }) => {
+        const isActive = activeId === id
+        return (
+          <button
+            key={id}
+            onClick={() => handleClick(id)}
+            className="group flex items-center justify-end gap-2"
+            aria-label={`Pojdi na ${label}`}
+            aria-current={isActive ? 'true' : undefined}
+          >
+            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md transition-all whitespace-nowrap ${
+              isActive
+                ? 'bg-emerald-600 text-white opacity-100'
+                : 'bg-white/90 text-slate-700 opacity-0 group-hover:opacity-100 shadow-sm'
+            }`}>
+              {label}
+            </span>
+            <span className={`rounded-full transition-all ${
+              isActive
+                ? 'w-2.5 h-2.5 bg-emerald-600'
+                : 'w-1.5 h-1.5 bg-slate-300 group-hover:bg-emerald-400'
+            }`} />
+          </button>
+        )
+      })}
+    </nav>
+  )
+}
+
+/* ============================================================
    TRUST BAR — certifications & compliance badges
    ============================================================ */
 function TrustBar() {
@@ -5587,6 +5677,7 @@ export default function Home() {
       <BackToTop />
       <CursorGlow />
       <LiveSocialProof />
+      <SectionDots />
 
       {/* Skip to content — accessibility */}
       <a
