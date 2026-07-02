@@ -1240,3 +1240,63 @@ Stage Summary:
 - VLM: 8/10 alive, 9/10 polish
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 53
+Agent: main (Z.ai Code)
+Task: Web raziskava — trendi POS 2026 + landing page best practices + FURS
+
+Work Log:
+- 6 web iskanj (z-ai web_search):
+  1. Restaurant POS must-have features 2025/2026
+  2. Landing page conversion elements
+  3. FURS ZDavP Slovenija 2025
+  4. AI inventory prediction trends
+  5. QR ordering / self-service kiosk 2026
+  6. Social proof landing page tactics
+
+Ključne ugotovitve:
+
+**2026 POS MUST-HAVE (search 1):**
+- Cloud-based (72%+ adoptija, standard)
+- AI forecasting (demand prediction)
+- Mobile/contactless/offline reliability
+- Unified ordering (in-store + delivery + online)
+- QR ordering & kiosks ← NIMAJO!
+- Multi-location remote access
+
+**LANDING PAGE 2026 (search 2, 6):**
+- Testimonials: +34% conversion
+- 5+ reviews = 4x purchase likelihood
+- Trust badges: 20-40% lift
+- Live social proof notifications
+- En močan primarni CTA
+
+**FURS SLOVENIJA (search 3) — KRITIČNO:**
+- ZDavP-2P objavljen 4.12.2025 (Uradni list 100/25)
+- NOVE legislative spremembe veljajo
+- Naša stran omenja FURS a ne poudari ZDavP-2P 2025 compliance
+
+**AI INVENTORY (search 4) — REAL STATISTIKE:**
+- 80% restavracij povečuje AI investicije (Deloitte 2025)
+- 55% že uporablja AI v inventory
+- 55% manj odpadkov
+- 40% višji profit margins
+- Demand forecasting uporablja VREMENske podatke!
+
+**QR/KIOSK (search 5) — NAMA MANJKA:**
+- QR kodna mize → digital meni na telefonu (brez app)
+- Self-service kioski: manj čakanja, večji povprečni račun
+- Smart upselling engine
+- Multilingual
+
+VRZELI (gaps) na naši strani:
+1. ❌ QR ordering / self-service kiosk sekcija (POPOLNOMA MANJKA)
+2. ❌ ZDavP-2P 2025 compliance badge
+3. ❌ Real AI statistike (55% waste, 40% profit)
+4. ❌ Weather-aware AI prediction messaging
+5. ❌ Live social proof ("X gostiln se je pridružilo")
+
+Stage Summary:
+- Raziskava zaključena, predlogi pripravljeni
+- Top prioritetna: QR ordering sekcija (največja vrzel, velik 2026 trend)
