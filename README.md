@@ -3,6 +3,7 @@
 > AI-poganjana POS blagajna z avtomatskim FURS, AI predikcijo prometa, kuhinjskim zaslonom (KDS) in real-time sync med 4 moduli. Zgrajena z ljubeznijo za slovenske gostince. 🇸🇮
 
 [![VLM Score](https://img.shields.io/badge/VLM%20Score-9%2F10-brightgreen?style=flat-square)](#vmesniki-v-primerjavi)
+[![Version](https://img.shields.io/badge/Version-5.3-blue?style=flat-square)](CHANGELOG.md)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38BDF8?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
@@ -262,6 +263,8 @@ MIT License — glej [LICENSE](LICENSE).
 <div align="center">
 
 **Zgrajeno v Sloveniji** 🇸🇮 z ❤️
+
+VLM 9/10 · 25 komponent · 8 vizualnih efektov · 11 APIjev · 3426 vrstic TypeScript
 
 [🌐 Spletna stran](https://chat.z.ai) · [📧 Kontakt](mailto:info@norolep-pos.si) · [🐛 Prijavi napako](https://github.com/markec12345678/noro-lep-pos-2026/issues)
 
