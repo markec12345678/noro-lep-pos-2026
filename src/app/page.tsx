@@ -33,7 +33,7 @@ import {
   Wifi,
   Zap,
 } from 'lucide-react'
-import { motion, useInView, useScroll, useTransform, useMotionValue, useSpring, animate } from 'framer-motion'
+import { motion, AnimatePresence, useInView, useScroll, useTransform, useMotionValue, useSpring, animate } from 'framer-motion'
 import {
   Area,
   AreaChart,
@@ -2144,7 +2144,7 @@ function ParallaxHeroImage({ children }: { children: React.ReactNode }) {
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.08])
 
   return (
-    <div ref={ref}>
+    <div ref={ref} className="relative">
       <motion.div style={{ y, scale }}>
         {children}
       </motion.div>
@@ -2181,6 +2181,96 @@ function CursorGlow() {
         background: 'radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%)',
       }}
     />
+  )
+}
+
+/* ============================================================
+   LIVE SALES TICKER — animiran "alive" bar z rotating sporočili
+   ============================================================ */
+const LIVE_TICKER_MESSAGES = [
+  { icon: 'receipt', text: 'Miza 12 plačala', value: '€47,50', tone: 'emerald' },
+  { icon: 'kitchen', text: 'Nova naročila v kuhinji', value: '3', tone: 'amber' },
+  { icon: 'trend', text: 'Današnji promet', value: '€3.247', tone: 'emerald' },
+  { icon: 'delivery', text: 'Wolt dostava #1284', value: 'oddana', tone: 'cyan' },
+  { icon: 'receipt', text: 'Miza 7 plačala', value: '€89,20', tone: 'emerald' },
+  { icon: 'table', text: 'Nova rezervacija — Miza 3', value: '19:30', tone: 'purple' },
+  { icon: 'trend', text: 'Št. naročil danes', value: '187', tone: 'emerald' },
+  { icon: 'delivery', text: 'Glovo dostava #561', value: 'prevzeta', tone: 'cyan' },
+  { icon: 'receipt', text: 'Miza 15 plačala', value: '€124,80', tone: 'emerald' },
+  { icon: 'kitchen', text: 'Jed pripravljena — Miza 9', value: '✓', tone: 'amber' },
+] as const
+
+function LiveTickerIcon({ name }: { name: string }) {
+  const cls = 'h-3.5 w-3.5'
+  if (name === 'receipt') return <Receipt className={cls} />
+  if (name === 'kitchen') return <Utensils className={cls} />
+  if (name === 'trend') return <TrendingUp className={cls} />
+  if (name === 'delivery') return <ShoppingBag className={cls} />
+  if (name === 'table') return <Users className={cls} />
+  return <Receipt className={cls} />
+}
+
+function LiveSalesTicker() {
+  const [idx, setIdx] = useState(0)
+
+  useEffect(() => {
+    const t = setInterval(() => setIdx((i) => (i + 1) % LIVE_TICKER_MESSAGES.length), 3200)
+    return () => clearInterval(t)
+  }, [])
+
+  const msg = LIVE_TICKER_MESSAGES[idx]
+  const toneColor: Record<string, string> = {
+    emerald: 'text-emerald-600',
+    amber: 'text-amber-600',
+    cyan: 'text-cyan-600',
+    purple: 'text-purple-600',
+  }
+
+  return (
+    <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-2 mb-2">
+      <div className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-white/80 backdrop-blur-md px-4 py-2.5 shadow-sm">
+        {/* LIVE indicator */}
+        <div className="flex items-center gap-2 pr-3 border-r border-slate-200">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+          </span>
+          <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">V živo</span>
+        </div>
+
+        {/* Rotating message */}
+        <div className="flex-1 min-h-[20px] flex items-center overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+              className="flex items-center gap-2 text-sm"
+            >
+              <span className="text-slate-400 shrink-0">
+                <LiveTickerIcon name={msg.icon} />
+              </span>
+              <span className="text-slate-600 font-medium">{msg.text}</span>
+              <span className={`font-bold tabular-nums ${toneColor[msg.tone]}`}>{msg.value}</span>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Progress dots */}
+        <div className="hidden sm:flex items-center gap-1.5 pl-2">
+          {LIVE_TICKER_MESSAGES.map((_, i) => (
+            <span
+              key={i}
+              className={`h-1 rounded-full transition-all duration-300 ${
+                i === idx ? 'w-5 bg-emerald-500' : 'w-1 bg-slate-200'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -2994,6 +3084,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ===== LIVE SALES TICKER ===== */}
+      <LiveSalesTicker />
 
       {/* ===== STATS BAR ===== */}
       <section className="relative -mt-2 pb-4">

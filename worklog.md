@@ -1112,3 +1112,48 @@ Work Log:
 9. Magnetic buttons (spring physics)
 10. Shimmer hover effect
 11. Glow-pulse animation
+
+---
+Task ID: 50
+Agent: main (Z.ai Code)
+Task: v5.5 — Čiščenje .next cache + stripe paket + framer-motion fix + LiveSalesTicker
+
+Work Log:
+- Kritično odkritje: stran je imela 30 "runtime errors" (Loader2, useMotionValue, CommandCenter not defined)
+  * Vzrok: POKVARJEN .next cache (več environment resetov)
+  * Rešitev: pkill next + rm -rf .next + čist restart
+  * Po cleanup: 0 napak, 15 sekcij, pravilen naslov — koda je bila VEDNO pravilna
+- Dev server stabilnost: proces se ubije ko Bash tool ukaz konča (cgroup cleanup)
+  * Rešitev: server + agent-browser v ENI bash seji (server kot background job)
+  * Foreground test (45s): stabilen, GET / 200, vsi APIji 200
+- Nameščen stripe@22.3.0:
+  * Odstranil "Module not found: Can't resolve 'stripe'" warning
+  * Dynamic import sedaj najde paket; brez ključev še vedno demo mode
+- Framer-motion scroll warning fix:
+  * ParallaxHeroImage: dodan className="relative" na target div
+  * Warning se zmanjšal (benign — parallax deluje, VLM 9/10)
+- NOVA KOMPONENTA: LiveSalesTicker (~90 vrstic)
+  * 10 rotating sporočil (mize, naročila, promet, dostave, rezervacije)
+  * "V živo" pulse indicator (animate-ping emerald dot)
+  * AnimatePresence mode="wait" za smooth prehode (y: 12→0→-12, 0.35s)
+  * Progress dots (10 pik, aktivna w-5 bg-emerald-500)
+  * Glassmorphism (bg-white/80 backdrop-blur-md)
+  * Postavljen med hero in stats bar
+  * 4 tone barv (emerald, amber, cyan, purple)
+- AnimatePresence dodan v framer-motion import
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * HTTP 200, 0 napak, 15 sekcij
+  * 0 stripe warningov
+  * Ticker rendera (zivo: true, 4 ping elementi)
+- VLM screenshot audit: 9/10 vizualna kakovost
+  * "thin horizontal live ticker bar with pulsing green dot"
+  * "visually polished, cohesive, professional"
+
+Stage Summary:
+- 27 komponent (LiveSalesTicker dodana)
+- 12 vizualnih efektov (live ticker z rotating sporočili)
+- 0 lint errors, 0 runtime errors, 0 stripe warnings
+- Dev server: clean .next cache, stabilen v foreground načinu
+- Stripe paket nameščen (real keys ready)
+- Commit/push na GitHub next
