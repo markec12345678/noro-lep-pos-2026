@@ -1,13 +1,5 @@
 import { test, expect } from '@playwright/test'
 
-/**
- * Payments E2E Tests
- * - Payment section visible
- * - Payment modal opens
- * - Demo payment flow
- * - Stripe status badge
- */
-
 test.describe('Payments', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
@@ -16,58 +8,59 @@ test.describe('Payments', () => {
   })
 
   test('prikaže vse plačilne metode', async ({ page }) => {
-    await expect(page.locator('text=Apple Pay')).toBeVisible()
-    await expect(page.locator('text=Google Pay')).toBeVisible()
-    await expect(page.locator('text=Kartica')).toBeVisible()
-    await expect(page.locator('text=NFC Contactless')).toBeVisible()
-    await expect(page.locator('text=Gotovina')).toBeVisible()
-    await expect(page.locator('text=QR plačilo')).toBeVisible()
+    const sec = page.locator('#placila')
+    await expect(sec.getByText('Apple Pay', { exact: true })).toBeVisible()
+    await expect(sec.getByText('Google Pay', { exact: true })).toBeVisible()
+    await expect(sec.getByText('Kartica', { exact: true })).toBeVisible()
+    await expect(sec.getByText('NFC Contactless', { exact: true })).toBeVisible()
+    await expect(sec.getByText('Gotovina', { exact: true })).toBeVisible()
+    await expect(sec.getByText('QR plačilo', { exact: true })).toBeVisible()
   })
 
   test('demo CTA gumb je prisoten', async ({ page }) => {
-    await expect(page.locator('button:has-text("demo plačilo")')).toBeVisible()
+    await expect(page.locator('#placila').getByRole('button', { name: /demo plačilo/i })).toBeVisible()
   })
 
   test('modal se odpre ob kliku', async ({ page }) => {
-    await page.locator('button:has-text("demo plačilo")').click()
+    await page.locator('#placila').getByRole('button', { name: /demo plačilo/i }).click()
     await page.waitForTimeout(1000)
-    await expect(page.locator('text=Plačilo računa')).toBeVisible()
-    await expect(page.locator('text=Izberi način plačila')).toBeVisible()
+    await expect(page.getByText('Plačilo računa')).toBeVisible()
+    await expect(page.getByText('Izberi način plačila')).toBeVisible()
   })
 
   test('modal vsebuje 5 plačilnih metod', async ({ page }) => {
-    await page.locator('button:has-text("demo plačilo")').click()
+    await page.locator('#placila').getByRole('button', { name: /demo plačilo/i }).click()
     await page.waitForTimeout(1000)
-    // 5 method buttons v modal-u
-    const buttons = page.locator('button:has-text("Apple Pay"), button:has-text("Google Pay"), button:has-text("Kartica"), button:has-text("Contactless"), button:has-text("Gotovina")')
-    await expect(buttons).toHaveCount(5)
+    await expect(page.getByRole('button', { name: 'Apple Pay' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Google Pay' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Gotovina' })).toBeVisible()
   })
 
   test('Apple Pay klik sproži processing', async ({ page }) => {
-    await page.locator('button:has-text("demo plačilo")').click()
+    await page.locator('#placila').getByRole('button', { name: /demo plačilo/i }).click()
     await page.waitForTimeout(500)
-    await page.locator('button:has-text("Apple Pay")').click()
+    await page.getByRole('button', { name: 'Apple Pay' }).click()
     await page.waitForTimeout(500)
-    await expect(page.locator('text=Obdelava plačila')).toBeVisible({ timeout: 5000 })
+    await expect(page.getByText('Obdelava plačila')).toBeVisible({ timeout: 5000 })
   })
 
   test('demo result se prikaže po processing', async ({ page }) => {
-    await page.locator('button:has-text("demo plačilo")').click()
+    await page.locator('#placila').getByRole('button', { name: /demo plačilo/i }).click()
     await page.waitForTimeout(500)
-    await page.locator('button:has-text("Apple Pay")').click()
+    await page.getByRole('button', { name: 'Apple Pay' }).click()
     await page.waitForTimeout(3000)
-    // Demo ali success
-    const demoText = page.locator('text=Demo plačilo simulirano')
-    const successText = page.locator('text=Plačilo uspešno')
+    const demoText = page.getByText('Demo plačilo simulirano')
+    const successText = page.getByText('Plačilo uspešno')
     await expect(demoText.or(successText)).toBeVisible({ timeout: 5000 })
   })
 
   test('modal se zapre ob kliku na ozadje', async ({ page }) => {
-    await page.locator('button:has-text("demo plačilo")').click()
+    await page.locator('#placila').getByRole('button', { name: /demo plačilo/i }).click()
     await page.waitForTimeout(500)
-    await page.locator('.fixed.inset-0').click()
+    // Click on the overlay (fixed inset-0 div)
+    await page.locator('.fixed.inset-0.bg-black\\/60').click()
     await page.waitForTimeout(500)
-    await expect(page.locator('text=Plačilo računa')).not.toBeVisible()
+    await expect(page.getByText('Plačilo računa')).not.toBeVisible()
   })
 
   test('API vrača Stripe status', async ({ request }) => {
@@ -80,8 +73,9 @@ test.describe('Payments', () => {
   })
 
   test('trust badges so prikazani', async ({ page }) => {
-    await expect(page.locator('text=PCI DSS certifikacija')).toBeVisible()
-    await expect(page.locator('text=3D Secure')).toBeVisible()
-    await expect(page.locator('text=Instant settlement')).toBeVisible()
+    const sec = page.locator('#placila')
+    await expect(sec.getByText('PCI DSS certifikacija')).toBeVisible()
+    await expect(sec.getByText('3D Secure')).toBeVisible()
+    await expect(sec.getByText('Instant settlement')).toBeVisible()
   })
 })

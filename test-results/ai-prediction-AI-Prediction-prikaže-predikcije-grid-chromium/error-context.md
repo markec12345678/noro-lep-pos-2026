@@ -7,16 +7,16 @@
 # Test info
 
 - Name: ai-prediction.spec.ts >> AI Prediction >> prikaže predikcije grid
-- Location: tests/e2e/ai-prediction.spec.ts:26:7
+- Location: tests/e2e/ai-prediction.spec.ts:18:7
 
 # Error details
 
 ```
 Error: expect(locator).toBeVisible() failed
 
-Locator: locator('text=Predikcija/teden')
+Locator: locator('#ai-prediction').getByText('Predikcija/teden')
 Expected: visible
-Error: strict mode violation: locator('text=Predikcija/teden') resolved to 10 elements:
+Error: strict mode violation: locator('#ai-prediction').getByText('Predikcija/teden') resolved to 10 elements:
     1) <div class="text-[9px] text-slate-500 uppercase">Predikcija/teden</div> aka getByText('Predikcija/teden').first()
     2) <div class="text-[9px] text-slate-500 uppercase">Predikcija/teden</div> aka getByText('Predikcija/teden').nth(1)
     3) <div class="text-[9px] text-slate-500 uppercase">Predikcija/teden</div> aka getByText('Predikcija/teden').nth(2)
@@ -30,7 +30,7 @@ Error: strict mode violation: locator('text=Predikcija/teden') resolved to 10 el
 
 Call log:
   - Expect "toBeVisible" with timeout 10000ms
-  - waiting for locator('text=Predikcija/teden')
+  - waiting for locator('#ai-prediction').getByText('Predikcija/teden')
 
 ```
 
@@ -178,15 +178,15 @@ Call log:
             - generic [ref=e184]: "13"
           - generic [ref=e185]:
             - generic [ref=e186]: Čas
-            - generic [ref=e187]: 06:28:11
+            - generic [ref=e187]: 06:37:03
       - generic [ref=e188]:
         - generic [ref=e190]:
           - generic [ref=e191]:
             - img [ref=e193]
             - generic [ref=e196]: POS Blagajna
             - generic [ref=e197]: +18%
-          - generic [ref=e198]: €10.520
-          - generic [ref=e199]: 637 naročil · 16.22€ povprečno
+          - generic [ref=e198]: €10.288
+          - generic [ref=e199]: 636 naročil · 16.22€ povprečno
           - generic [ref=e214]: "Peak: 19h"
         - generic [ref=e216]:
           - generic [ref=e217]:
@@ -219,13 +219,13 @@ Call log:
             - img [ref=e266]
             - generic [ref=e268]: Dostava
             - generic [ref=e269]: 3 NOVA
-          - generic [ref=e270]: €221
+          - generic [ref=e270]: €193
           - generic [ref=e271]: neto prihodek · 5 aktivnih naročil
           - generic [ref=e272]:
             - generic [ref=e273]: ●3 nova
             - generic [ref=e274]: ●1 priprava
             - generic [ref=e275]: ●1 pripravljena
-          - generic [ref=e276]: "Provizija: €23.57"
+          - generic [ref=e276]: "Provizija: €26.94"
         - generic [ref=e278]:
           - generic [ref=e279]:
             - img [ref=e281]
@@ -244,7 +244,7 @@ Call log:
           - generic [ref=e296]:
             - img [ref=e298]
             - generic [ref=e300]: Plačila
-          - generic [ref=e301]: €10.520
+          - generic [ref=e301]: €10.288
           - generic [ref=e302]: danes · 5 metod
           - generic [ref=e303]:
             - generic [ref=e307]: Kartica 45%
@@ -270,7 +270,7 @@ Call log:
           - generic [ref=e348]: Real-time Sync
           - generic [ref=e349]: 7 modulov sinhroniziranih
           - generic [ref=e350]: Osvežitev vsakih 15s
-      - generic [ref=e355]: Live data · osvežitev vsakih 15s · 06:28:11 · vseh 7 sistemov sinhroniziranih v realnem času
+      - generic [ref=e355]: Live data · osvežitev vsakih 15s · 06:37:03 · vseh 7 sistemov sinhroniziranih v realnem času
     - generic [ref=e357]:
       - generic [ref=e358]:
         - generic [ref=e359]:
@@ -2381,10 +2381,10 @@ Call log:
       - generic [ref=e2545]:
         - generic [ref=e2546]:
           - generic [ref=e2547]: Skupaj naročil
-          - generic [ref=e2548]: "7"
+          - generic [ref=e2548]: "11"
         - generic [ref=e2549]:
           - generic [ref=e2550]: Novih
-          - generic [ref=e2551]: "5"
+          - generic [ref=e2551]: "9"
         - generic [ref=e2552]:
           - generic [ref=e2553]: V pripravi
           - generic [ref=e2554]: "1"
@@ -2393,14 +2393,14 @@ Call log:
           - generic [ref=e2557]: "1"
         - generic [ref=e2558]:
           - generic [ref=e2559]: Bruto promet
-          - generic [ref=e2560]: 154€
+          - generic [ref=e2560]: 288€
         - generic [ref=e2561]:
           - generic [ref=e2562]: Neto (po proviziji)
-          - generic [ref=e2563]: 141€
+          - generic [ref=e2563]: 257€
       - generic [ref=e2564]:
         - generic [ref=e2565]:
           - button "Vse" [ref=e2566]
-          - button "Nova (5)" [ref=e2567]
+          - button "Nova (9)" [ref=e2567]
           - button "V pripravi (1)" [ref=e2568]
           - button "Pripravljena (1)" [ref=e2569]
         - generic [ref=e2570]:
@@ -2415,49 +2415,49 @@ Call log:
           - generic [ref=e2577]: 🚗
           - generic [ref=e2578]:
             - generic [ref=e2579]:
-              - generic [ref=e2580]: Nina R.
+              - generic [ref=e2580]: Eva M.
               - generic [ref=e2581]: Novo
               - generic [ref=e2582]: ● ZDAJ
-            - generic [ref=e2583]: Trubarjeva cesta 12, Ljubljana
-            - generic [ref=e2584]: 3× Coca Cola (0.33l), 3× Becka kava
-          - generic [ref=e2585]:
-            - generic [ref=e2586]: 16.37€
-            - generic [ref=e2587]: "provizija: 2.03€"
-            - generic [ref=e2588]: ~23min priprava
-          - generic [ref=e2589]:
-            - button "✓ Sprejmi" [ref=e2590]
-            - button "✗ Zavrni" [ref=e2591]
-        - generic [ref=e2592]:
-          - generic [ref=e2593]: 🚗
-          - generic [ref=e2594]:
-            - generic [ref=e2595]:
-              - generic [ref=e2596]: Eva M.
-              - generic [ref=e2597]: Novo
-              - generic [ref=e2598]: ● ZDAJ
-            - generic [ref=e2599]: Kongresni trg 8, Ljubljana
-            - generic [ref=e2600]: 3× Laško Zlatorog (0.5l), 2× Čevapi s kajmakom, 1× Trški pršut
-            - generic [ref=e2601]: 📝 Pikantno
-          - generic [ref=e2602]:
-            - generic [ref=e2603]: 49.87€
-            - generic [ref=e2604]: "provizija: 6.98€"
-            - generic [ref=e2605]: ~12min priprava
-          - generic [ref=e2606]:
-            - button "✓ Sprejmi" [ref=e2607]
-            - button "✗ Zavrni" [ref=e2608]
-        - generic [ref=e2609]:
-          - generic [ref=e2610]: 📱
-          - generic [ref=e2611]:
-            - generic [ref=e2612]:
-              - generic [ref=e2613]: Eva M.
-              - generic [ref=e2614]: Novo
-              - generic [ref=e2615]: 6min nazaj
-            - generic [ref=e2616]: Vodnikov trg 2, Ljubljana
-            - generic [ref=e2617]: 3× Pizza Capricciosa, 1× Tiramisu, 1× Trški pršut
-            - generic [ref=e2618]: 📝 Pikantno
+            - generic [ref=e2583]: Cankarjeva cesta 3, Ljubljana
+            - generic [ref=e2584]: 3× Pizza Capricciosa
+            - generic [ref=e2585]: 📝 Pustite pred vrati
+          - generic [ref=e2586]:
+            - generic [ref=e2587]: 40.65€
+            - generic [ref=e2588]: "provizija: 5.85€"
+            - generic [ref=e2589]: ~12min priprava
+          - generic [ref=e2590]:
+            - button "✓ Sprejmi" [ref=e2591]
+            - button "✗ Zavrni" [ref=e2592]
+        - generic [ref=e2593]:
+          - generic [ref=e2594]: 🟦
+          - generic [ref=e2595]:
+            - generic [ref=e2596]:
+              - generic [ref=e2597]: Jan K.
+              - generic [ref=e2598]: Novo
+              - generic [ref=e2599]: ● ZDAJ
+            - generic [ref=e2600]: Slovenska cesta 45, Ljubljana
+            - generic [ref=e2601]: 2× Pizza Capricciosa, 2× Coca Cola (0.33l), 1× Tiramisu
+            - generic [ref=e2602]: 📝 Pustite pred vrati
+          - generic [ref=e2603]:
+            - generic [ref=e2604]: 40.20€
+            - generic [ref=e2605]: "provizija: 4.50€"
+            - generic [ref=e2606]: ~11min priprava
+          - generic [ref=e2607]:
+            - button "✓ Sprejmi" [ref=e2608]
+            - button "✗ Zavrni" [ref=e2609]
+        - generic [ref=e2610]:
+          - generic [ref=e2611]: ⏱️
+          - generic [ref=e2612]:
+            - generic [ref=e2613]:
+              - generic [ref=e2614]: Maja P.
+              - generic [ref=e2615]: Novo
+              - generic [ref=e2616]: 3min nazaj
+            - generic [ref=e2617]: Čopova ulica 5, Ljubljana
+            - generic [ref=e2618]: 3× Coca Cola (0.33l), 1× Burger Noro Lep
           - generic [ref=e2619]:
-            - generic [ref=e2620]: 56.90€
-            - generic [ref=e2621]: "provizija: 0.00€"
-            - generic [ref=e2622]: ~10min priprava
+            - generic [ref=e2620]: 24.93€
+            - generic [ref=e2621]: "provizija: 1.80€"
+            - generic [ref=e2622]: ~21min priprava
           - generic [ref=e2623]:
             - button "✓ Sprejmi" [ref=e2624]
             - button "✗ Zavrni" [ref=e2625]
@@ -2465,1078 +2465,1144 @@ Call log:
           - generic [ref=e2627]: 🚗
           - generic [ref=e2628]:
             - generic [ref=e2629]:
-              - generic [ref=e2630]: Ana Z.
+              - generic [ref=e2630]: Nejc S.
               - generic [ref=e2631]: Novo
-              - generic [ref=e2632]: 7min nazaj
-            - generic [ref=e2633]: Slovenska cesta 45, Ljubljana
-            - generic [ref=e2634]: 1× Becka kava, 1× Tiramisu
+              - generic [ref=e2632]: 3min nazaj
+            - generic [ref=e2633]: Cankarjeva cesta 3, Ljubljana
+            - generic [ref=e2634]: 1× Rižota s sadeži, 2× Becka kava, 1× Čevapi s kajmakom
           - generic [ref=e2635]:
-            - generic [ref=e2636]: 12.33€
-            - generic [ref=e2637]: "provizija: 1.27€"
-            - generic [ref=e2638]: ~10min priprava
+            - generic [ref=e2636]: 36.72€
+            - generic [ref=e2637]: "provizija: 5.18€"
+            - generic [ref=e2638]: ~15min priprava
           - generic [ref=e2639]:
             - button "✓ Sprejmi" [ref=e2640]
             - button "✗ Zavrni" [ref=e2641]
         - generic [ref=e2642]:
-          - generic [ref=e2643]: 🟦
+          - generic [ref=e2643]: 🚗
           - generic [ref=e2644]:
             - generic [ref=e2645]:
-              - generic [ref=e2646]: Ana Z.
+              - generic [ref=e2646]: Nina R.
               - generic [ref=e2647]: Novo
               - generic [ref=e2648]: 8min nazaj
-            - generic [ref=e2649]: Wolfova ulica 9, Ljubljana
-            - generic [ref=e2650]: 1× Tiramisu
-            - generic [ref=e2651]: 📝 Pustite pred vrati
-          - generic [ref=e2652]:
-            - generic [ref=e2653]: 9.75€
-            - generic [ref=e2654]: "provizija: 0.78€"
-            - generic [ref=e2655]: ~12min priprava
-          - generic [ref=e2656]:
-            - button "✓ Sprejmi" [ref=e2657]
-            - button "✗ Zavrni" [ref=e2658]
-        - generic [ref=e2659]:
-          - generic [ref=e2660]: 🟡
-          - generic [ref=e2661]:
-            - generic [ref=e2662]:
-              - generic [ref=e2663]: Tomaž H.
-              - generic [ref=e2664]: V pripravi
-              - generic [ref=e2665]: 9min nazaj
-            - generic [ref=e2666]: Čopova ulica 5, Ljubljana
-            - generic [ref=e2667]: 1× Laško Zlatorog (0.5l)
+            - generic [ref=e2649]: Trubarjeva cesta 12, Ljubljana
+            - generic [ref=e2650]: 3× Coca Cola (0.33l), 3× Becka kava
+          - generic [ref=e2651]:
+            - generic [ref=e2652]: 16.37€
+            - generic [ref=e2653]: "provizija: 2.03€"
+            - generic [ref=e2654]: ~23min priprava
+          - generic [ref=e2655]:
+            - button "✓ Sprejmi" [ref=e2656]
+            - button "✗ Zavrni" [ref=e2657]
+        - generic [ref=e2658]:
+          - generic [ref=e2659]: 🚗
+          - generic [ref=e2660]:
+            - generic [ref=e2661]:
+              - generic [ref=e2662]: Eva M.
+              - generic [ref=e2663]: Novo
+              - generic [ref=e2664]: 9min nazaj
+            - generic [ref=e2665]: Kongresni trg 8, Ljubljana
+            - generic [ref=e2666]: 3× Laško Zlatorog (0.5l), 2× Čevapi s kajmakom, 1× Trški pršut
+            - generic [ref=e2667]: 📝 Pikantno
           - generic [ref=e2668]:
-            - generic [ref=e2669]: 4.57€
-            - generic [ref=e2670]: "provizija: 0.30€"
-            - generic [ref=e2671]: ~21min priprava
-          - button "Pripravljeno" [ref=e2673]
-        - generic [ref=e2674]:
-          - generic [ref=e2675]: ⏱️
-          - generic [ref=e2676]:
-            - generic [ref=e2677]:
-              - generic [ref=e2678]: Ana Z.
-              - generic [ref=e2679]: Pripravljeno
-              - generic [ref=e2680]: 10min nazaj
-            - generic [ref=e2681]: Vodnikov trg 2, Ljubljana
-            - generic [ref=e2682]: 2× Pizza Margherita
-            - generic [ref=e2683]: 📝 Pikantno
-          - generic [ref=e2684]:
-            - generic [ref=e2685]: 24.32€
-            - generic [ref=e2686]: "provizija: 1.76€"
-            - generic [ref=e2687]: ~20min priprava
-          - button "Prevzeto" [ref=e2689]
-      - generic [ref=e2690]:
-        - img [ref=e2691]
-        - generic [ref=e2695]:
-          - strong [ref=e2696]: Live feed
+            - generic [ref=e2669]: 49.87€
+            - generic [ref=e2670]: "provizija: 6.98€"
+            - generic [ref=e2671]: ~12min priprava
+          - generic [ref=e2672]:
+            - button "✓ Sprejmi" [ref=e2673]
+            - button "✗ Zavrni" [ref=e2674]
+        - generic [ref=e2675]:
+          - generic [ref=e2676]: 📱
+          - generic [ref=e2677]:
+            - generic [ref=e2678]:
+              - generic [ref=e2679]: Eva M.
+              - generic [ref=e2680]: Novo
+              - generic [ref=e2681]: 15min nazaj
+            - generic [ref=e2682]: Vodnikov trg 2, Ljubljana
+            - generic [ref=e2683]: 3× Pizza Capricciosa, 1× Tiramisu, 1× Trški pršut
+            - generic [ref=e2684]: 📝 Pikantno
+          - generic [ref=e2685]:
+            - generic [ref=e2686]: 56.90€
+            - generic [ref=e2687]: "provizija: 0.00€"
+            - generic [ref=e2688]: ~10min priprava
+          - generic [ref=e2689]:
+            - button "✓ Sprejmi" [ref=e2690]
+            - button "✗ Zavrni" [ref=e2691]
+        - generic [ref=e2692]:
+          - generic [ref=e2693]: 🚗
+          - generic [ref=e2694]:
+            - generic [ref=e2695]:
+              - generic [ref=e2696]: Ana Z.
+              - generic [ref=e2697]: Novo
+              - generic [ref=e2698]: 16min nazaj
+            - generic [ref=e2699]: Slovenska cesta 45, Ljubljana
+            - generic [ref=e2700]: 1× Becka kava, 1× Tiramisu
+          - generic [ref=e2701]:
+            - generic [ref=e2702]: 12.33€
+            - generic [ref=e2703]: "provizija: 1.27€"
+            - generic [ref=e2704]: ~10min priprava
+          - generic [ref=e2705]:
+            - button "✓ Sprejmi" [ref=e2706]
+            - button "✗ Zavrni" [ref=e2707]
+        - generic [ref=e2708]:
+          - generic [ref=e2709]: 🟦
+          - generic [ref=e2710]:
+            - generic [ref=e2711]:
+              - generic [ref=e2712]: Ana Z.
+              - generic [ref=e2713]: Novo
+              - generic [ref=e2714]: 17min nazaj
+            - generic [ref=e2715]: Wolfova ulica 9, Ljubljana
+            - generic [ref=e2716]: 1× Tiramisu
+            - generic [ref=e2717]: 📝 Pustite pred vrati
+          - generic [ref=e2718]:
+            - generic [ref=e2719]: 9.75€
+            - generic [ref=e2720]: "provizija: 0.78€"
+            - generic [ref=e2721]: ~12min priprava
+          - generic [ref=e2722]:
+            - button "✓ Sprejmi" [ref=e2723]
+            - button "✗ Zavrni" [ref=e2724]
+        - generic [ref=e2725]:
+          - generic [ref=e2726]: 🟡
+          - generic [ref=e2727]:
+            - generic [ref=e2728]:
+              - generic [ref=e2729]: Tomaž H.
+              - generic [ref=e2730]: V pripravi
+              - generic [ref=e2731]: 18min nazaj
+            - generic [ref=e2732]: Čopova ulica 5, Ljubljana
+            - generic [ref=e2733]: 1× Laško Zlatorog (0.5l)
+          - generic [ref=e2734]:
+            - generic [ref=e2735]: 4.57€
+            - generic [ref=e2736]: "provizija: 0.30€"
+            - generic [ref=e2737]: ~21min priprava
+          - button "Pripravljeno" [ref=e2739]
+        - generic [ref=e2740]:
+          - generic [ref=e2741]: ⏱️
+          - generic [ref=e2742]:
+            - generic [ref=e2743]:
+              - generic [ref=e2744]: Ana Z.
+              - generic [ref=e2745]: Pripravljeno
+              - generic [ref=e2746]: 19min nazaj
+            - generic [ref=e2747]: Vodnikov trg 2, Ljubljana
+            - generic [ref=e2748]: 2× Pizza Margherita
+            - generic [ref=e2749]: 📝 Pikantno
+          - generic [ref=e2750]:
+            - generic [ref=e2751]: 24.32€
+            - generic [ref=e2752]: "provizija: 1.76€"
+            - generic [ref=e2753]: ~20min priprava
+          - button "Prevzeto" [ref=e2755]
+      - generic [ref=e2756]:
+        - img [ref=e2757]
+        - generic [ref=e2761]:
+          - strong [ref=e2762]: Live feed
           - text: "— osvežitev vsakih 10s. V produkciji:"
-          - code [ref=e2697]: Wolt Partner API
+          - code [ref=e2763]: Wolt Partner API
           - text: +
-          - code [ref=e2698]: Uber Eats API
+          - code [ref=e2764]: Uber Eats API
           - text: .
-    - generic [ref=e2700]:
-      - generic [ref=e2701]:
-        - generic [ref=e2702]:
+    - generic [ref=e2766]:
+      - generic [ref=e2767]:
+        - generic [ref=e2768]:
           - img
           - text: AI predikcija zalog
-        - heading "AI ve kaj boš prodal naslednji teden" [level=2] [ref=e2703]
-        - paragraph [ref=e2704]:
+        - heading "AI ve kaj boš prodal naslednji teden" [level=2] [ref=e2769]
+        - paragraph [ref=e2770]:
           - text: Analiza prodaje, trend detection in samodejne dobavnice. AI predvidi povpraševanje in pove, kdaj in koliko naročiti —
-          - strong [ref=e2705]: preden zmanjka
+          - strong [ref=e2771]: preden zmanjka
           - text: .
-      - generic [ref=e2706]:
-        - generic [ref=e2707]:
-          - generic [ref=e2708]:
-            - img [ref=e2710]
-            - generic [ref=e2712]: Analizirano artiklov
-          - generic [ref=e2713]: "10"
-        - generic [ref=e2714]:
-          - generic [ref=e2715]:
-            - img [ref=e2717]
-            - generic [ref=e2719]: Kritičnih (zmanjka <1 dan)
-          - generic [ref=e2720]: "10"
-        - generic [ref=e2721]:
-          - generic [ref=e2722]:
-            - img [ref=e2724]
-            - generic [ref=e2726]: Povprečno zaupanje
-          - generic [ref=e2727]: 81%
-        - generic [ref=e2728]:
-          - generic [ref=e2729]:
-            - img [ref=e2731]
-            - generic [ref=e2735]: Vrednost dobavnice
-          - generic [ref=e2736]: 6980 €
-      - generic [ref=e2738]:
-        - button "Predikcije (10)" [ref=e2739]:
-          - img [ref=e2740]
-          - text: Predikcije (10)
-        - button "Dobavnica (10)" [ref=e2742]:
-          - img [ref=e2743]
-          - text: Dobavnica (10)
-      - generic [ref=e2747]:
-        - generic [ref=e2749]:
-          - generic [ref=e2750]:
-            - generic [ref=e2751]:
-              - generic [ref=e2752]: Pizza Margherita
-              - generic [ref=e2753]: Pice
-            - generic [ref=e2754]: KRITIČNO
-          - generic [ref=e2755]:
-            - generic [ref=e2756]:
-              - generic [ref=e2757]: Zaloga
-              - generic [ref=e2758]: "15"
-            - generic [ref=e2759]:
-              - generic [ref=e2760]: Predikcija/teden
-              - generic [ref=e2761]: "348"
-            - generic [ref=e2762]:
-              - generic [ref=e2763]: Zmanjka v
-              - generic [ref=e2764]: 0d
-          - generic [ref=e2765]:
-            - generic [ref=e2766]: 🎯 Sezonsko (+29%)
-            - generic [ref=e2767]: "Zaupanje: 83%"
-          - generic [ref=e2768]:
-            - generic [ref=e2769]:
-              - generic [ref=e2770]: "AI predlaga naročilo:"
-              - generic [ref=e2771]: 437 pri Metro
-            - generic [ref=e2772]: "Strošek: 1092.50 €"
-          - paragraph [ref=e2773]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 15 kos ne zadošča za predvideno povpraševanje 348 kos/teden. Naroči 437 kos pri Metro.
-        - generic [ref=e2775]:
-          - generic [ref=e2776]:
-            - generic [ref=e2777]:
-              - generic [ref=e2778]: Čevapi s kajmakom
-              - generic [ref=e2779]: Mesne jedi
-            - generic [ref=e2780]: KRITIČNO
+      - generic [ref=e2772]:
+        - generic [ref=e2773]:
+          - generic [ref=e2774]:
+            - img [ref=e2776]
+            - generic [ref=e2778]: Analizirano artiklov
+          - generic [ref=e2779]: "10"
+        - generic [ref=e2780]:
           - generic [ref=e2781]:
-            - generic [ref=e2782]:
-              - generic [ref=e2783]: Zaloga
-              - generic [ref=e2784]: "8"
-            - generic [ref=e2785]:
-              - generic [ref=e2786]: Predikcija/teden
-              - generic [ref=e2787]: "290"
-            - generic [ref=e2788]:
-              - generic [ref=e2789]: Zmanjka v
-              - generic [ref=e2790]: 0d
-          - generic [ref=e2791]:
-            - generic [ref=e2792]: 🎯 Sezonsko (+33%)
-            - generic [ref=e2793]: "Zaupanje: 82%"
-          - generic [ref=e2794]:
-            - generic [ref=e2795]:
-              - generic [ref=e2796]: "AI predlaga naročilo:"
-              - generic [ref=e2797]: 369 pri Jata
-            - generic [ref=e2798]: "Strošek: 1476.00 €"
-          - paragraph [ref=e2799]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 8 kos ne zadošča za predvideno povpraševanje 290 kos/teden. Naroči 369 kos pri Jata.
-        - generic [ref=e2801]:
-          - generic [ref=e2802]:
-            - generic [ref=e2803]:
-              - generic [ref=e2804]: Laško Zlatorog (0.5l)
-              - generic [ref=e2805]: Pivo
-            - generic [ref=e2806]: KRITIČNO
-          - generic [ref=e2807]:
-            - generic [ref=e2808]:
-              - generic [ref=e2809]: Zaloga
-              - generic [ref=e2810]: "24"
-            - generic [ref=e2811]:
-              - generic [ref=e2812]: Predikcija/teden
-              - generic [ref=e2813]: "731"
-            - generic [ref=e2814]:
-              - generic [ref=e2815]: Zmanjka v
-              - generic [ref=e2816]: 0d
-          - generic [ref=e2817]:
-            - generic [ref=e2818]: 🎯 Sezonsko (+37%)
-            - generic [ref=e2819]: "Zaupanje: 78%"
-          - generic [ref=e2820]:
-            - generic [ref=e2821]:
-              - generic [ref=e2822]: "AI predlaga naročilo:"
-              - generic [ref=e2823]: 926 pri Laško
-            - generic [ref=e2824]: "Strošek: 926.00 €"
-          - paragraph [ref=e2825]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 24 kos ne zadošča za predvideno povpraševanje 731 kos/teden. Naroči 926 kos pri Laško.
-        - generic [ref=e2827]:
-          - generic [ref=e2828]:
-            - generic [ref=e2829]:
-              - generic [ref=e2830]: Coca Cola (0.33l)
-              - generic [ref=e2831]: Brezalkoholne
-            - generic [ref=e2832]: KRITIČNO
-          - generic [ref=e2833]:
-            - generic [ref=e2834]:
-              - generic [ref=e2835]: Zaloga
-              - generic [ref=e2836]: "48"
-            - generic [ref=e2837]:
-              - generic [ref=e2838]: Predikcija/teden
-              - generic [ref=e2839]: "515"
-            - generic [ref=e2840]:
-              - generic [ref=e2841]: Zmanjka v
-              - generic [ref=e2842]: 0d
-          - generic [ref=e2843]:
-            - generic [ref=e2844]: 🎯 Sezonsko (+28%)
-            - generic [ref=e2845]: "Zaupanje: 85%"
-          - generic [ref=e2846]:
-            - generic [ref=e2847]:
-              - generic [ref=e2848]: "AI predlaga naročilo:"
-              - generic [ref=e2849]: 622 pri Coca-Cola
-            - generic [ref=e2850]: "Strošek: 497.60 €"
-          - paragraph [ref=e2851]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 48 kos ne zadošča za predvideno povpraševanje 515 kos/teden. Naroči 622 kos pri Coca-Cola.
-        - generic [ref=e2853]:
-          - generic [ref=e2854]:
-            - generic [ref=e2855]:
-              - generic [ref=e2856]: Espresso
-              - generic [ref=e2857]: Tople pijače
-            - generic [ref=e2858]: KRITIČNO
-          - generic [ref=e2859]:
-            - generic [ref=e2860]:
-              - generic [ref=e2861]: Zaloga
-              - generic [ref=e2862]: "100"
-            - generic [ref=e2863]:
-              - generic [ref=e2864]: Predikcija/teden
-              - generic [ref=e2865]: "980"
-            - generic [ref=e2866]:
-              - generic [ref=e2867]: Zmanjka v
-              - generic [ref=e2868]: 0d
-          - generic [ref=e2869]:
-            - generic [ref=e2870]: 📈 Rast (+19%)
-            - generic [ref=e2871]: "Zaupanje: 88%"
-          - generic [ref=e2872]:
-            - generic [ref=e2873]:
-              - generic [ref=e2874]: "AI predlaga naročilo:"
-              - generic [ref=e2875]: 1174 pri Barcaffe
-            - generic [ref=e2876]: "Strošek: 352.20 €"
-          - paragraph [ref=e2877]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 100 kos ne zadošča za predvideno povpraševanje 980 kos/teden. Naroči 1174 kos pri Barcaffe.
-        - generic [ref=e2879]:
-          - generic [ref=e2880]:
-            - generic [ref=e2881]:
-              - generic [ref=e2882]: Tiramisu
-              - generic [ref=e2883]: Sladice
-            - generic [ref=e2884]: KRITIČNO
-          - generic [ref=e2885]:
-            - generic [ref=e2886]:
-              - generic [ref=e2887]: Zaloga
-              - generic [ref=e2888]: "5"
-            - generic [ref=e2889]:
-              - generic [ref=e2890]: Predikcija/teden
-              - generic [ref=e2891]: "160"
-            - generic [ref=e2892]:
-              - generic [ref=e2893]: Zmanjka v
-              - generic [ref=e2894]: 0d
-          - generic [ref=e2895]:
-            - generic [ref=e2896]: 🎯 Sezonsko (+51%)
-            - generic [ref=e2897]: "Zaupanje: 76%"
-          - generic [ref=e2898]:
-            - generic [ref=e2899]:
-              - generic [ref=e2900]: "AI predlaga naročilo:"
-              - generic [ref=e2901]: 203 pri Metro
-            - generic [ref=e2902]: "Strošek: 406.00 €"
-          - paragraph [ref=e2903]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 5 kos ne zadošča za predvideno povpraševanje 160 kos/teden. Naroči 203 kos pri Metro.
-        - generic [ref=e2905]:
-          - generic [ref=e2906]:
-            - generic [ref=e2907]:
-              - generic [ref=e2908]: Becka kava
-              - generic [ref=e2909]: Tople pijače
-            - generic [ref=e2910]: KRITIČNO
-          - generic [ref=e2911]:
-            - generic [ref=e2912]:
-              - generic [ref=e2913]: Zaloga
-              - generic [ref=e2914]: "100"
-            - generic [ref=e2915]:
-              - generic [ref=e2916]: Predikcija/teden
-              - generic [ref=e2917]: "681"
-            - generic [ref=e2918]:
-              - generic [ref=e2919]: Zmanjka v
-              - generic [ref=e2920]: 1d
-          - generic [ref=e2921]:
-            - generic [ref=e2922]: 📈 Rast (+25%)
-            - generic [ref=e2923]: "Zaupanje: 86%"
-          - generic [ref=e2924]:
-            - generic [ref=e2925]:
-              - generic [ref=e2926]: "AI predlaga naročilo:"
-              - generic [ref=e2927]: 785 pri Barcaffe
-            - generic [ref=e2928]: "Strošek: 392.50 €"
-          - paragraph [ref=e2929]: ⚠️ Zaloga bo izčrpana v 1 dneh! Trenutna zaloga 100 kos ne zadošča za predvideno povpraševanje 681 kos/teden. Naroči 785 kos pri Barcaffe.
-        - generic [ref=e2931]:
-          - generic [ref=e2932]:
-            - generic [ref=e2933]:
-              - generic [ref=e2934]: Burger Noro Lep
-              - generic [ref=e2935]: Mesne jedi
-            - generic [ref=e2936]: KRITIČNO
-          - generic [ref=e2937]:
-            - generic [ref=e2938]:
-              - generic [ref=e2939]: Zaloga
-              - generic [ref=e2940]: "3"
-            - generic [ref=e2941]:
-              - generic [ref=e2942]: Predikcija/teden
-              - generic [ref=e2943]: "240"
-            - generic [ref=e2944]:
-              - generic [ref=e2945]: Zmanjka v
-              - generic [ref=e2946]: 0d
-          - generic [ref=e2947]:
-            - generic [ref=e2948]: 🎯 Sezonsko (+45%)
-            - generic [ref=e2949]: "Zaupanje: 78%"
-          - generic [ref=e2950]:
-            - generic [ref=e2951]:
-              - generic [ref=e2952]: "AI predlaga naročilo:"
-              - generic [ref=e2953]: 309 pri Jata
-            - generic [ref=e2954]: "Strošek: 1081.50 €"
-          - paragraph [ref=e2955]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 3 kos ne zadošča za predvideno povpraševanje 240 kos/teden. Naroči 309 kos pri Jata.
-        - generic [ref=e2957]:
-          - generic [ref=e2958]:
-            - generic [ref=e2959]:
-              - generic [ref=e2960]: Rižota s sadeži
-              - generic [ref=e2961]: Testenine
-            - generic [ref=e2962]: KRITIČNO
-          - generic [ref=e2963]:
-            - generic [ref=e2964]:
-              - generic [ref=e2965]: Zaloga
-              - generic [ref=e2966]: "8"
-            - generic [ref=e2967]:
-              - generic [ref=e2968]: Predikcija/teden
-              - generic [ref=e2969]: "110"
-            - generic [ref=e2970]:
-              - generic [ref=e2971]: Zmanjka v
-              - generic [ref=e2972]: 0d
-          - generic [ref=e2973]:
-            - generic [ref=e2974]: 🎯 Sezonsko (+54%)
-            - generic [ref=e2975]: "Zaupanje: 75%"
-          - generic [ref=e2976]:
-            - generic [ref=e2977]:
-              - generic [ref=e2978]: "AI predlaga naročilo:"
-              - generic [ref=e2979]: 135 pri Metro
-            - generic [ref=e2980]: "Strošek: 540.00 €"
-          - paragraph [ref=e2981]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 8 kos ne zadošča za predvideno povpraševanje 110 kos/teden. Naroči 135 kos pri Metro.
-        - generic [ref=e2983]:
-          - generic [ref=e2984]:
-            - generic [ref=e2985]:
-              - generic [ref=e2986]: Voda Radenska (0.5l)
-              - generic [ref=e2987]: Brezalkoholne
-            - generic [ref=e2988]: KRITIČNO
-          - generic [ref=e2989]:
-            - generic [ref=e2990]:
-              - generic [ref=e2991]: Zaloga
-              - generic [ref=e2992]: "36"
-            - generic [ref=e2993]:
-              - generic [ref=e2994]: Predikcija/teden
-              - generic [ref=e2995]: "442"
-            - generic [ref=e2996]:
-              - generic [ref=e2997]: Zmanjka v
-              - generic [ref=e2998]: 0d
-          - generic [ref=e2999]:
-            - generic [ref=e3000]: 🎯 Sezonsko (+31%)
-            - generic [ref=e3001]: "Zaupanje: 83%"
-          - generic [ref=e3002]:
-            - generic [ref=e3003]:
-              - generic [ref=e3004]: "AI predlaga naročilo:"
-              - generic [ref=e3005]: 539 pri Radenska
-            - generic [ref=e3006]: "Strošek: 215.60 €"
-          - paragraph [ref=e3007]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 36 kos ne zadošča za predvideno povpraševanje 442 kos/teden. Naroči 539 kos pri Radenska.
-      - generic [ref=e3008]:
-        - img [ref=e3009]
-        - generic [ref=e3011]:
-          - strong [ref=e3012]: "AI model:"
-          - text: "7-dnevna analiza prodaje + trend detection + sezonski model. V produkciji:"
-          - code [ref=e3013]: TensorFlow.js
-          - text: z realnimi podatki.
-    - generic [ref=e3017]:
-      - generic [ref=e3018]:
-        - generic [ref=e3019]:
-          - img
-          - text: Zakaj Noro Lep?
-        - heading "3 razloga zakaj gostinci izbirajo nas" [level=2] [ref=e3020]
-      - generic [ref=e3021]:
+            - img [ref=e2783]
+            - generic [ref=e2785]: Kritičnih (zmanjka <1 dan)
+          - generic [ref=e2786]: "10"
+        - generic [ref=e2787]:
+          - generic [ref=e2788]:
+            - img [ref=e2790]
+            - generic [ref=e2792]: Povprečno zaupanje
+          - generic [ref=e2793]: 81%
+        - generic [ref=e2794]:
+          - generic [ref=e2795]:
+            - img [ref=e2797]
+            - generic [ref=e2801]: Vrednost dobavnice
+          - generic [ref=e2802]: 6980 €
+      - generic [ref=e2804]:
+        - button "Predikcije (10)" [ref=e2805]:
+          - img [ref=e2806]
+          - text: Predikcije (10)
+        - button "Dobavnica (10)" [ref=e2808]:
+          - img [ref=e2809]
+          - text: Dobavnica (10)
+      - generic [ref=e2813]:
+        - generic [ref=e2815]:
+          - generic [ref=e2816]:
+            - generic [ref=e2817]:
+              - generic [ref=e2818]: Pizza Margherita
+              - generic [ref=e2819]: Pice
+            - generic [ref=e2820]: KRITIČNO
+          - generic [ref=e2821]:
+            - generic [ref=e2822]:
+              - generic [ref=e2823]: Zaloga
+              - generic [ref=e2824]: "15"
+            - generic [ref=e2825]:
+              - generic [ref=e2826]: Predikcija/teden
+              - generic [ref=e2827]: "348"
+            - generic [ref=e2828]:
+              - generic [ref=e2829]: Zmanjka v
+              - generic [ref=e2830]: 0d
+          - generic [ref=e2831]:
+            - generic [ref=e2832]: 🎯 Sezonsko (+29%)
+            - generic [ref=e2833]: "Zaupanje: 83%"
+          - generic [ref=e2834]:
+            - generic [ref=e2835]:
+              - generic [ref=e2836]: "AI predlaga naročilo:"
+              - generic [ref=e2837]: 437 pri Metro
+            - generic [ref=e2838]: "Strošek: 1092.50 €"
+          - paragraph [ref=e2839]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 15 kos ne zadošča za predvideno povpraševanje 348 kos/teden. Naroči 437 kos pri Metro.
+        - generic [ref=e2841]:
+          - generic [ref=e2842]:
+            - generic [ref=e2843]:
+              - generic [ref=e2844]: Čevapi s kajmakom
+              - generic [ref=e2845]: Mesne jedi
+            - generic [ref=e2846]: KRITIČNO
+          - generic [ref=e2847]:
+            - generic [ref=e2848]:
+              - generic [ref=e2849]: Zaloga
+              - generic [ref=e2850]: "8"
+            - generic [ref=e2851]:
+              - generic [ref=e2852]: Predikcija/teden
+              - generic [ref=e2853]: "290"
+            - generic [ref=e2854]:
+              - generic [ref=e2855]: Zmanjka v
+              - generic [ref=e2856]: 0d
+          - generic [ref=e2857]:
+            - generic [ref=e2858]: 🎯 Sezonsko (+33%)
+            - generic [ref=e2859]: "Zaupanje: 82%"
+          - generic [ref=e2860]:
+            - generic [ref=e2861]:
+              - generic [ref=e2862]: "AI predlaga naročilo:"
+              - generic [ref=e2863]: 369 pri Jata
+            - generic [ref=e2864]: "Strošek: 1476.00 €"
+          - paragraph [ref=e2865]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 8 kos ne zadošča za predvideno povpraševanje 290 kos/teden. Naroči 369 kos pri Jata.
+        - generic [ref=e2867]:
+          - generic [ref=e2868]:
+            - generic [ref=e2869]:
+              - generic [ref=e2870]: Laško Zlatorog (0.5l)
+              - generic [ref=e2871]: Pivo
+            - generic [ref=e2872]: KRITIČNO
+          - generic [ref=e2873]:
+            - generic [ref=e2874]:
+              - generic [ref=e2875]: Zaloga
+              - generic [ref=e2876]: "24"
+            - generic [ref=e2877]:
+              - generic [ref=e2878]: Predikcija/teden
+              - generic [ref=e2879]: "731"
+            - generic [ref=e2880]:
+              - generic [ref=e2881]: Zmanjka v
+              - generic [ref=e2882]: 0d
+          - generic [ref=e2883]:
+            - generic [ref=e2884]: 🎯 Sezonsko (+37%)
+            - generic [ref=e2885]: "Zaupanje: 78%"
+          - generic [ref=e2886]:
+            - generic [ref=e2887]:
+              - generic [ref=e2888]: "AI predlaga naročilo:"
+              - generic [ref=e2889]: 926 pri Laško
+            - generic [ref=e2890]: "Strošek: 926.00 €"
+          - paragraph [ref=e2891]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 24 kos ne zadošča za predvideno povpraševanje 731 kos/teden. Naroči 926 kos pri Laško.
+        - generic [ref=e2893]:
+          - generic [ref=e2894]:
+            - generic [ref=e2895]:
+              - generic [ref=e2896]: Coca Cola (0.33l)
+              - generic [ref=e2897]: Brezalkoholne
+            - generic [ref=e2898]: KRITIČNO
+          - generic [ref=e2899]:
+            - generic [ref=e2900]:
+              - generic [ref=e2901]: Zaloga
+              - generic [ref=e2902]: "48"
+            - generic [ref=e2903]:
+              - generic [ref=e2904]: Predikcija/teden
+              - generic [ref=e2905]: "515"
+            - generic [ref=e2906]:
+              - generic [ref=e2907]: Zmanjka v
+              - generic [ref=e2908]: 0d
+          - generic [ref=e2909]:
+            - generic [ref=e2910]: 🎯 Sezonsko (+28%)
+            - generic [ref=e2911]: "Zaupanje: 85%"
+          - generic [ref=e2912]:
+            - generic [ref=e2913]:
+              - generic [ref=e2914]: "AI predlaga naročilo:"
+              - generic [ref=e2915]: 622 pri Coca-Cola
+            - generic [ref=e2916]: "Strošek: 497.60 €"
+          - paragraph [ref=e2917]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 48 kos ne zadošča za predvideno povpraševanje 515 kos/teden. Naroči 622 kos pri Coca-Cola.
+        - generic [ref=e2919]:
+          - generic [ref=e2920]:
+            - generic [ref=e2921]:
+              - generic [ref=e2922]: Espresso
+              - generic [ref=e2923]: Tople pijače
+            - generic [ref=e2924]: KRITIČNO
+          - generic [ref=e2925]:
+            - generic [ref=e2926]:
+              - generic [ref=e2927]: Zaloga
+              - generic [ref=e2928]: "100"
+            - generic [ref=e2929]:
+              - generic [ref=e2930]: Predikcija/teden
+              - generic [ref=e2931]: "980"
+            - generic [ref=e2932]:
+              - generic [ref=e2933]: Zmanjka v
+              - generic [ref=e2934]: 0d
+          - generic [ref=e2935]:
+            - generic [ref=e2936]: 📈 Rast (+19%)
+            - generic [ref=e2937]: "Zaupanje: 88%"
+          - generic [ref=e2938]:
+            - generic [ref=e2939]:
+              - generic [ref=e2940]: "AI predlaga naročilo:"
+              - generic [ref=e2941]: 1174 pri Barcaffe
+            - generic [ref=e2942]: "Strošek: 352.20 €"
+          - paragraph [ref=e2943]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 100 kos ne zadošča za predvideno povpraševanje 980 kos/teden. Naroči 1174 kos pri Barcaffe.
+        - generic [ref=e2945]:
+          - generic [ref=e2946]:
+            - generic [ref=e2947]:
+              - generic [ref=e2948]: Tiramisu
+              - generic [ref=e2949]: Sladice
+            - generic [ref=e2950]: KRITIČNO
+          - generic [ref=e2951]:
+            - generic [ref=e2952]:
+              - generic [ref=e2953]: Zaloga
+              - generic [ref=e2954]: "5"
+            - generic [ref=e2955]:
+              - generic [ref=e2956]: Predikcija/teden
+              - generic [ref=e2957]: "160"
+            - generic [ref=e2958]:
+              - generic [ref=e2959]: Zmanjka v
+              - generic [ref=e2960]: 0d
+          - generic [ref=e2961]:
+            - generic [ref=e2962]: 🎯 Sezonsko (+51%)
+            - generic [ref=e2963]: "Zaupanje: 76%"
+          - generic [ref=e2964]:
+            - generic [ref=e2965]:
+              - generic [ref=e2966]: "AI predlaga naročilo:"
+              - generic [ref=e2967]: 203 pri Metro
+            - generic [ref=e2968]: "Strošek: 406.00 €"
+          - paragraph [ref=e2969]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 5 kos ne zadošča za predvideno povpraševanje 160 kos/teden. Naroči 203 kos pri Metro.
+        - generic [ref=e2971]:
+          - generic [ref=e2972]:
+            - generic [ref=e2973]:
+              - generic [ref=e2974]: Becka kava
+              - generic [ref=e2975]: Tople pijače
+            - generic [ref=e2976]: KRITIČNO
+          - generic [ref=e2977]:
+            - generic [ref=e2978]:
+              - generic [ref=e2979]: Zaloga
+              - generic [ref=e2980]: "100"
+            - generic [ref=e2981]:
+              - generic [ref=e2982]: Predikcija/teden
+              - generic [ref=e2983]: "681"
+            - generic [ref=e2984]:
+              - generic [ref=e2985]: Zmanjka v
+              - generic [ref=e2986]: 1d
+          - generic [ref=e2987]:
+            - generic [ref=e2988]: 📈 Rast (+25%)
+            - generic [ref=e2989]: "Zaupanje: 86%"
+          - generic [ref=e2990]:
+            - generic [ref=e2991]:
+              - generic [ref=e2992]: "AI predlaga naročilo:"
+              - generic [ref=e2993]: 785 pri Barcaffe
+            - generic [ref=e2994]: "Strošek: 392.50 €"
+          - paragraph [ref=e2995]: ⚠️ Zaloga bo izčrpana v 1 dneh! Trenutna zaloga 100 kos ne zadošča za predvideno povpraševanje 681 kos/teden. Naroči 785 kos pri Barcaffe.
+        - generic [ref=e2997]:
+          - generic [ref=e2998]:
+            - generic [ref=e2999]:
+              - generic [ref=e3000]: Burger Noro Lep
+              - generic [ref=e3001]: Mesne jedi
+            - generic [ref=e3002]: KRITIČNO
+          - generic [ref=e3003]:
+            - generic [ref=e3004]:
+              - generic [ref=e3005]: Zaloga
+              - generic [ref=e3006]: "3"
+            - generic [ref=e3007]:
+              - generic [ref=e3008]: Predikcija/teden
+              - generic [ref=e3009]: "240"
+            - generic [ref=e3010]:
+              - generic [ref=e3011]: Zmanjka v
+              - generic [ref=e3012]: 0d
+          - generic [ref=e3013]:
+            - generic [ref=e3014]: 🎯 Sezonsko (+45%)
+            - generic [ref=e3015]: "Zaupanje: 78%"
+          - generic [ref=e3016]:
+            - generic [ref=e3017]:
+              - generic [ref=e3018]: "AI predlaga naročilo:"
+              - generic [ref=e3019]: 309 pri Jata
+            - generic [ref=e3020]: "Strošek: 1081.50 €"
+          - paragraph [ref=e3021]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 3 kos ne zadošča za predvideno povpraševanje 240 kos/teden. Naroči 309 kos pri Jata.
         - generic [ref=e3023]:
           - generic [ref=e3024]:
-            - generic [ref=e3025]: "01"
-            - img [ref=e3027]
-          - heading "2x hitrejša od tradicionalnih POS" [level=3] [ref=e3029]
-          - paragraph [ref=e3030]: Optimiziran touch workflow, bližnjice na tipkovnici (F1-F3), hitro iskanje jedi. Povprečen račun izstavljen v 8 sekundah.
-          - generic [ref=e3031]:
-            - generic [ref=e3032]: 8s
-            - generic [ref=e3033]: na račun
-        - generic [ref=e3035]:
-          - generic [ref=e3036]:
-            - generic [ref=e3037]: "02"
-            - img [ref=e3039]
-          - heading "AI ki resnično prihrani denar" [level=3] [ref=e3042]
-          - paragraph [ref=e3043]: Predikcija prometa za naslednji teden, optimizacija zalog, prepoznavanje najbolj donosnih jedi (menu engineering).
-          - generic [ref=e3044]:
-            - generic [ref=e3045]: 15%
-            - generic [ref=e3046]: manj odpada
-        - generic [ref=e3048]:
-          - generic [ref=e3049]:
-            - generic [ref=e3050]: "03"
-            - img [ref=e3052]
-          - heading "Vzpostavljeno v 15 minutah" [level=3] [ref=e3055]
-          - paragraph [ref=e3056]: Brez namestitve, brez usposabljanja. Uvozi meni iz Excela, aktiviraj FURS in izstavi prvi račun še danes.
-          - generic [ref=e3057]:
-            - generic [ref=e3058]: 15min
-            - generic [ref=e3059]: do prvega računa
-    - generic [ref=e3061]:
-      - generic [ref=e3062]:
-        - generic [ref=e3063]:
+            - generic [ref=e3025]:
+              - generic [ref=e3026]: Rižota s sadeži
+              - generic [ref=e3027]: Testenine
+            - generic [ref=e3028]: KRITIČNO
+          - generic [ref=e3029]:
+            - generic [ref=e3030]:
+              - generic [ref=e3031]: Zaloga
+              - generic [ref=e3032]: "8"
+            - generic [ref=e3033]:
+              - generic [ref=e3034]: Predikcija/teden
+              - generic [ref=e3035]: "110"
+            - generic [ref=e3036]:
+              - generic [ref=e3037]: Zmanjka v
+              - generic [ref=e3038]: 0d
+          - generic [ref=e3039]:
+            - generic [ref=e3040]: 🎯 Sezonsko (+54%)
+            - generic [ref=e3041]: "Zaupanje: 75%"
+          - generic [ref=e3042]:
+            - generic [ref=e3043]:
+              - generic [ref=e3044]: "AI predlaga naročilo:"
+              - generic [ref=e3045]: 135 pri Metro
+            - generic [ref=e3046]: "Strošek: 540.00 €"
+          - paragraph [ref=e3047]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 8 kos ne zadošča za predvideno povpraševanje 110 kos/teden. Naroči 135 kos pri Metro.
+        - generic [ref=e3049]:
+          - generic [ref=e3050]:
+            - generic [ref=e3051]:
+              - generic [ref=e3052]: Voda Radenska (0.5l)
+              - generic [ref=e3053]: Brezalkoholne
+            - generic [ref=e3054]: KRITIČNO
+          - generic [ref=e3055]:
+            - generic [ref=e3056]:
+              - generic [ref=e3057]: Zaloga
+              - generic [ref=e3058]: "36"
+            - generic [ref=e3059]:
+              - generic [ref=e3060]: Predikcija/teden
+              - generic [ref=e3061]: "442"
+            - generic [ref=e3062]:
+              - generic [ref=e3063]: Zmanjka v
+              - generic [ref=e3064]: 0d
+          - generic [ref=e3065]:
+            - generic [ref=e3066]: 🎯 Sezonsko (+31%)
+            - generic [ref=e3067]: "Zaupanje: 83%"
+          - generic [ref=e3068]:
+            - generic [ref=e3069]:
+              - generic [ref=e3070]: "AI predlaga naročilo:"
+              - generic [ref=e3071]: 539 pri Radenska
+            - generic [ref=e3072]: "Strošek: 215.60 €"
+          - paragraph [ref=e3073]: ⚠️ Zaloga bo izčrpana v 0 dneh! Trenutna zaloga 36 kos ne zadošča za predvideno povpraševanje 442 kos/teden. Naroči 539 kos pri Radenska.
+      - generic [ref=e3074]:
+        - img [ref=e3075]
+        - generic [ref=e3077]:
+          - strong [ref=e3078]: "AI model:"
+          - text: "7-dnevna analiza prodaje + trend detection + sezonski model. V produkciji:"
+          - code [ref=e3079]: TensorFlow.js
+          - text: z realnimi podatki.
+    - generic [ref=e3083]:
+      - generic [ref=e3084]:
+        - generic [ref=e3085]:
+          - img
+          - text: Zakaj Noro Lep?
+        - heading "3 razloga zakaj gostinci izbirajo nas" [level=2] [ref=e3086]
+      - generic [ref=e3087]:
+        - generic [ref=e3089]:
+          - generic [ref=e3090]:
+            - generic [ref=e3091]: "01"
+            - img [ref=e3093]
+          - heading "2x hitrejša od tradicionalnih POS" [level=3] [ref=e3095]
+          - paragraph [ref=e3096]: Optimiziran touch workflow, bližnjice na tipkovnici (F1-F3), hitro iskanje jedi. Povprečen račun izstavljen v 8 sekundah.
+          - generic [ref=e3097]:
+            - generic [ref=e3098]: 8s
+            - generic [ref=e3099]: na račun
+        - generic [ref=e3101]:
+          - generic [ref=e3102]:
+            - generic [ref=e3103]: "02"
+            - img [ref=e3105]
+          - heading "AI ki resnično prihrani denar" [level=3] [ref=e3108]
+          - paragraph [ref=e3109]: Predikcija prometa za naslednji teden, optimizacija zalog, prepoznavanje najbolj donosnih jedi (menu engineering).
+          - generic [ref=e3110]:
+            - generic [ref=e3111]: 15%
+            - generic [ref=e3112]: manj odpada
+        - generic [ref=e3114]:
+          - generic [ref=e3115]:
+            - generic [ref=e3116]: "03"
+            - img [ref=e3118]
+          - heading "Vzpostavljeno v 15 minutah" [level=3] [ref=e3121]
+          - paragraph [ref=e3122]: Brez namestitve, brez usposabljanja. Uvozi meni iz Excela, aktiviraj FURS in izstavi prvi račun še danes.
+          - generic [ref=e3123]:
+            - generic [ref=e3124]: 15min
+            - generic [ref=e3125]: do prvega računa
+    - generic [ref=e3127]:
+      - generic [ref=e3128]:
+        - generic [ref=e3129]:
           - img
           - text: Oglej si izdelano
-        - heading "Enota nadzorni panel v živo" [level=2] [ref=e3064]
-        - paragraph [ref=e3065]: Vse metrike, vsa naročila, vse mize — na enem zaslonu. Premakni miško za interaktivnost.
-      - generic [ref=e3066]:
-        - img "Noro Lep POS nadzorni panel z analitiko, mizami in naročili" [ref=e3069]
-        - generic [ref=e3070]:
-          - generic [ref=e3071]:
-            - img [ref=e3073]
-            - generic [ref=e3075]: Analitika v živo
-          - paragraph [ref=e3076]: Promet, pokritost, jedi v realnem času
-        - generic [ref=e3077]:
-          - generic [ref=e3078]:
-            - img [ref=e3080]
-            - generic [ref=e3085]: Tloris miz
-          - paragraph [ref=e3086]: Barvno kodirani statusi miz z rezervacijami
-    - generic [ref=e3088]:
-      - generic [ref=e3089]:
-        - generic [ref=e3090]:
+        - heading "Enota nadzorni panel v živo" [level=2] [ref=e3130]
+        - paragraph [ref=e3131]: Vse metrike, vsa naročila, vse mize — na enem zaslonu. Premakni miško za interaktivnost.
+      - generic [ref=e3132]:
+        - img "Noro Lep POS nadzorni panel z analitiko, mizami in naročili" [ref=e3135]
+        - generic [ref=e3136]:
+          - generic [ref=e3137]:
+            - img [ref=e3139]
+            - generic [ref=e3141]: Analitika v živo
+          - paragraph [ref=e3142]: Promet, pokritost, jedi v realnem času
+        - generic [ref=e3143]:
+          - generic [ref=e3144]:
+            - img [ref=e3146]
+            - generic [ref=e3151]: Tloris miz
+          - paragraph [ref=e3152]: Barvno kodirani statusi miz z rezervacijami
+    - generic [ref=e3154]:
+      - generic [ref=e3155]:
+        - generic [ref=e3156]:
           - img
           - text: Odprt ekosistem
-        - heading "Integrira se z čim že imaš" [level=2] [ref=e3091]
-        - paragraph [ref=e3092]: 20+ integracij z najpogostejšimi orodji za gostince. REST API za vse ostalo.
-      - generic [ref=e3093]:
-        - generic [ref=e3096] [cursor=pointer]:
-          - generic [ref=e3097]: S
-          - generic [ref=e3098]:
-            - generic [ref=e3099]: Stripe
-            - generic [ref=e3100]: Plačila
-        - generic [ref=e3103] [cursor=pointer]:
-          - generic [ref=e3104]: F
-          - generic [ref=e3105]:
-            - generic [ref=e3106]: FURS
-            - generic [ref=e3107]: Fiskal
-        - generic [ref=e3110] [cursor=pointer]:
-          - generic [ref=e3111]: G
-          - generic [ref=e3112]:
-            - generic [ref=e3113]: Google Calendar
-            - generic [ref=e3114]: Rezervacije
-        - generic [ref=e3117] [cursor=pointer]:
-          - generic [ref=e3118]: M
-          - generic [ref=e3119]:
-            - generic [ref=e3120]: Mailchimp
-            - generic [ref=e3121]: Email
-        - generic [ref=e3124] [cursor=pointer]:
-          - generic [ref=e3125]: T
-          - generic [ref=e3126]:
-            - generic [ref=e3127]: Stripe Terminal
-            - generic [ref=e3128]: Kartice
-        - generic [ref=e3131] [cursor=pointer]:
-          - generic [ref=e3132]: T
-          - generic [ref=e3133]:
-            - generic [ref=e3134]: Twilio SMS
-            - generic [ref=e3135]: SMS opomniki
-        - generic [ref=e3138] [cursor=pointer]:
-          - generic [ref=e3139]: S
-          - generic [ref=e3140]:
-            - generic [ref=e3141]: SAP Business One
-            - generic [ref=e3142]: ERP
-        - generic [ref=e3145] [cursor=pointer]:
-          - generic [ref=e3146]: Q
-          - generic [ref=e3147]:
-            - generic [ref=e3148]: QuickBooks
-            - generic [ref=e3149]: Računovodstvo
-        - generic [ref=e3152] [cursor=pointer]:
-          - generic [ref=e3153]: U
-          - generic [ref=e3154]:
-            - generic [ref=e3155]: Uber Eats
-            - generic [ref=e3156]: Dostava
-        - generic [ref=e3159] [cursor=pointer]:
-          - generic [ref=e3160]: W
-          - generic [ref=e3161]:
-            - generic [ref=e3162]: Wolt
-            - generic [ref=e3163]: Dostava
-        - generic [ref=e3166] [cursor=pointer]:
-          - generic [ref=e3167]: R
-          - generic [ref=e3168]:
-            - generic [ref=e3169]: Revolut
-            - generic [ref=e3170]: Plačila
-        - generic [ref=e3173] [cursor=pointer]:
-          - generic [ref=e3174]: "N"
-          - generic [ref=e3175]:
-            - generic [ref=e3176]: NLB Klik
-            - generic [ref=e3177]: Banka
-        - generic [ref=e3180] [cursor=pointer]:
-          - generic [ref=e3181]: I
-          - generic [ref=e3182]:
-            - generic [ref=e3183]: Instagram
-            - generic [ref=e3184]: Marketing
-        - generic [ref=e3187] [cursor=pointer]:
-          - generic [ref=e3188]: f
-          - generic [ref=e3189]:
-            - generic [ref=e3190]: Facebook
-            - generic [ref=e3191]: Rezervacije
-        - generic [ref=e3194] [cursor=pointer]:
-          - generic [ref=e3195]: "{ }"
-          - generic [ref=e3196]:
-            - generic [ref=e3197]: REST API
-            - generic [ref=e3198]: Poljubno
-      - button "Oglej si vse 20+ integracij" [ref=e3200]:
+        - heading "Integrira se z čim že imaš" [level=2] [ref=e3157]
+        - paragraph [ref=e3158]: 20+ integracij z najpogostejšimi orodji za gostince. REST API za vse ostalo.
+      - generic [ref=e3159]:
+        - generic [ref=e3162] [cursor=pointer]:
+          - generic [ref=e3163]: S
+          - generic [ref=e3164]:
+            - generic [ref=e3165]: Stripe
+            - generic [ref=e3166]: Plačila
+        - generic [ref=e3169] [cursor=pointer]:
+          - generic [ref=e3170]: F
+          - generic [ref=e3171]:
+            - generic [ref=e3172]: FURS
+            - generic [ref=e3173]: Fiskal
+        - generic [ref=e3176] [cursor=pointer]:
+          - generic [ref=e3177]: G
+          - generic [ref=e3178]:
+            - generic [ref=e3179]: Google Calendar
+            - generic [ref=e3180]: Rezervacije
+        - generic [ref=e3183] [cursor=pointer]:
+          - generic [ref=e3184]: M
+          - generic [ref=e3185]:
+            - generic [ref=e3186]: Mailchimp
+            - generic [ref=e3187]: Email
+        - generic [ref=e3190] [cursor=pointer]:
+          - generic [ref=e3191]: T
+          - generic [ref=e3192]:
+            - generic [ref=e3193]: Stripe Terminal
+            - generic [ref=e3194]: Kartice
+        - generic [ref=e3197] [cursor=pointer]:
+          - generic [ref=e3198]: T
+          - generic [ref=e3199]:
+            - generic [ref=e3200]: Twilio SMS
+            - generic [ref=e3201]: SMS opomniki
+        - generic [ref=e3204] [cursor=pointer]:
+          - generic [ref=e3205]: S
+          - generic [ref=e3206]:
+            - generic [ref=e3207]: SAP Business One
+            - generic [ref=e3208]: ERP
+        - generic [ref=e3211] [cursor=pointer]:
+          - generic [ref=e3212]: Q
+          - generic [ref=e3213]:
+            - generic [ref=e3214]: QuickBooks
+            - generic [ref=e3215]: Računovodstvo
+        - generic [ref=e3218] [cursor=pointer]:
+          - generic [ref=e3219]: U
+          - generic [ref=e3220]:
+            - generic [ref=e3221]: Uber Eats
+            - generic [ref=e3222]: Dostava
+        - generic [ref=e3225] [cursor=pointer]:
+          - generic [ref=e3226]: W
+          - generic [ref=e3227]:
+            - generic [ref=e3228]: Wolt
+            - generic [ref=e3229]: Dostava
+        - generic [ref=e3232] [cursor=pointer]:
+          - generic [ref=e3233]: R
+          - generic [ref=e3234]:
+            - generic [ref=e3235]: Revolut
+            - generic [ref=e3236]: Plačila
+        - generic [ref=e3239] [cursor=pointer]:
+          - generic [ref=e3240]: "N"
+          - generic [ref=e3241]:
+            - generic [ref=e3242]: NLB Klik
+            - generic [ref=e3243]: Banka
+        - generic [ref=e3246] [cursor=pointer]:
+          - generic [ref=e3247]: I
+          - generic [ref=e3248]:
+            - generic [ref=e3249]: Instagram
+            - generic [ref=e3250]: Marketing
+        - generic [ref=e3253] [cursor=pointer]:
+          - generic [ref=e3254]: f
+          - generic [ref=e3255]:
+            - generic [ref=e3256]: Facebook
+            - generic [ref=e3257]: Rezervacije
+        - generic [ref=e3260] [cursor=pointer]:
+          - generic [ref=e3261]: "{ }"
+          - generic [ref=e3262]:
+            - generic [ref=e3263]: REST API
+            - generic [ref=e3264]: Poljubno
+      - button "Oglej si vse 20+ integracij" [ref=e3266]:
         - text: Oglej si vse 20+ integracij
         - img
-    - generic [ref=e3202]:
-      - generic [ref=e3203]:
-        - generic [ref=e3204]:
+    - generic [ref=e3268]:
+      - generic [ref=e3269]:
+        - generic [ref=e3270]:
           - img
           - text: Od namestitve do računa
-        - heading "Pripravljen v 3 preprostih korakih" [level=2] [ref=e3205]
-      - generic [ref=e3206]:
-        - generic [ref=e3208]:
-          - generic [ref=e3209]:
-            - img [ref=e3211]
-            - generic [ref=e3216]: "1"
-          - heading "Ustvari račun" [level=3] [ref=e3217]
-          - paragraph [ref=e3218]: Registriraj se v 2 minutah. Brez kreditne kartice, brez obveznosti.
-        - generic [ref=e3219]:
-          - generic [ref=e3220]:
-            - img [ref=e3222]
-            - generic [ref=e3225]: "2"
-          - heading "Uvozi meni" [level=3] [ref=e3226]
-          - paragraph [ref=e3227]: Povleci Excel datoteko ali ročno vnesej jedi. FURS podatke aktiviramo zate.
-        - generic [ref=e3228]:
-          - generic [ref=e3229]:
-            - img [ref=e3231]
-            - generic [ref=e3234]: "3"
-          - heading "Izdaj prvi račun" [level=3] [ref=e3235]
-          - paragraph [ref=e3236]: Odpri aplikacijo na tablici, tapni jed, izdaj račun. FURS potrjen avtomatsko.
-      - generic [ref=e3237]:
-        - button "Začni zdaj — brezplačno" [ref=e3238]:
+        - heading "Pripravljen v 3 preprostih korakih" [level=2] [ref=e3271]
+      - generic [ref=e3272]:
+        - generic [ref=e3274]:
+          - generic [ref=e3275]:
+            - img [ref=e3277]
+            - generic [ref=e3282]: "1"
+          - heading "Ustvari račun" [level=3] [ref=e3283]
+          - paragraph [ref=e3284]: Registriraj se v 2 minutah. Brez kreditne kartice, brez obveznosti.
+        - generic [ref=e3285]:
+          - generic [ref=e3286]:
+            - img [ref=e3288]
+            - generic [ref=e3291]: "2"
+          - heading "Uvozi meni" [level=3] [ref=e3292]
+          - paragraph [ref=e3293]: Povleci Excel datoteko ali ročno vnesej jedi. FURS podatke aktiviramo zate.
+        - generic [ref=e3294]:
+          - generic [ref=e3295]:
+            - img [ref=e3297]
+            - generic [ref=e3300]: "3"
+          - heading "Izdaj prvi račun" [level=3] [ref=e3301]
+          - paragraph [ref=e3302]: Odpri aplikacijo na tablici, tapni jed, izdaj račun. FURS potrjen avtomatsko.
+      - generic [ref=e3303]:
+        - button "Začni zdaj — brezplačno" [ref=e3304]:
           - text: Začni zdaj — brezplačno
           - img
-        - paragraph [ref=e3239]: Brez kreditne kartice · 30 dni brezplačno · prekliči kadarkoli
-    - generic [ref=e3241]:
-      - generic [ref=e3242]:
-        - generic [ref=e3243]:
+        - paragraph [ref=e3305]: Brez kreditne kartice · 30 dni brezplačno · prekliči kadarkoli
+    - generic [ref=e3307]:
+      - generic [ref=e3308]:
+        - generic [ref=e3309]:
           - img
           - text: Glasovi gostincev
-        - heading "542 restavracij že prihranilo čas" [level=2] [ref=e3244]
-      - generic [ref=e3245]:
-        - generic [ref=e3247]:
-          - generic [ref=e3248]:
-            - img [ref=e3249]
-            - img [ref=e3251]
-            - img [ref=e3253]
-            - img [ref=e3255]
-            - img [ref=e3257]
-          - paragraph [ref=e3259]: “Po prehodu na Noro Lep POS smo skrajšali čas izdaje računa za 40%. FURS dela avtomatsko, kuharji pa končno vidijo vsa naročila na enem zaslonu.”
-          - generic [ref=e3260]:
-            - generic [ref=e3261]: MK
-            - generic [ref=e3262]:
-              - generic [ref=e3263]: Marko Kovač
-              - generic [ref=e3264]: Lastnik, Gostilna Pri Lovru
-              - generic [ref=e3265]: Ljubljana
-        - generic [ref=e3267]:
-          - generic [ref=e3268]:
-            - img [ref=e3269]
-            - img [ref=e3271]
-            - img [ref=e3273]
-            - img [ref=e3275]
-            - img [ref=e3277]
-          - paragraph [ref=e3279]: “AI predikcija prometa je zaklad. Zdaj vemo, koliko zaloge naročiti za vikend, brez da bi karkoli ugibali. Prihranili smo 15% na odpadu.”
-          - generic [ref=e3280]:
-            - generic [ref=e3281]: AZ
-            - generic [ref=e3282]:
-              - generic [ref=e3283]: Ana Zupan
-              - generic [ref=e3284]: Direktorica, Restavracija Mariana
-              - generic [ref=e3285]: Bled
-        - generic [ref=e3287]:
-          - generic [ref=e3288]:
-            - img [ref=e3289]
-            - img [ref=e3291]
-            - img [ref=e3293]
-            - img [ref=e3295]
-            - img [ref=e3297]
-          - paragraph [ref=e3299]: “Mobilna aplikacija za goste je dvignila naš povprečni račun za 22%. QR naročanje deluje v 3 sekundah, gostje so navdušeni.”
-          - generic [ref=e3300]:
-            - generic [ref=e3301]: TH
-            - generic [ref=e3302]:
-              - generic [ref=e3303]: Tomaž Horvat
-              - generic [ref=e3304]: Upravljalec, Pizza Factory
-              - generic [ref=e3305]: Maribor
-    - generic [ref=e3308]:
-      - generic [ref=e3309]:
-        - generic [ref=e3310]:
+        - heading "542 restavracij že prihranilo čas" [level=2] [ref=e3310]
+      - generic [ref=e3311]:
+        - generic [ref=e3313]:
+          - generic [ref=e3314]:
+            - img [ref=e3315]
+            - img [ref=e3317]
+            - img [ref=e3319]
+            - img [ref=e3321]
+            - img [ref=e3323]
+          - paragraph [ref=e3325]: “Po prehodu na Noro Lep POS smo skrajšali čas izdaje računa za 40%. FURS dela avtomatsko, kuharji pa končno vidijo vsa naročila na enem zaslonu.”
+          - generic [ref=e3326]:
+            - generic [ref=e3327]: MK
+            - generic [ref=e3328]:
+              - generic [ref=e3329]: Marko Kovač
+              - generic [ref=e3330]: Lastnik, Gostilna Pri Lovru
+              - generic [ref=e3331]: Ljubljana
+        - generic [ref=e3333]:
+          - generic [ref=e3334]:
+            - img [ref=e3335]
+            - img [ref=e3337]
+            - img [ref=e3339]
+            - img [ref=e3341]
+            - img [ref=e3343]
+          - paragraph [ref=e3345]: “AI predikcija prometa je zaklad. Zdaj vemo, koliko zaloge naročiti za vikend, brez da bi karkoli ugibali. Prihranili smo 15% na odpadu.”
+          - generic [ref=e3346]:
+            - generic [ref=e3347]: AZ
+            - generic [ref=e3348]:
+              - generic [ref=e3349]: Ana Zupan
+              - generic [ref=e3350]: Direktorica, Restavracija Mariana
+              - generic [ref=e3351]: Bled
+        - generic [ref=e3353]:
+          - generic [ref=e3354]:
+            - img [ref=e3355]
+            - img [ref=e3357]
+            - img [ref=e3359]
+            - img [ref=e3361]
+            - img [ref=e3363]
+          - paragraph [ref=e3365]: “Mobilna aplikacija za goste je dvignila naš povprečni račun za 22%. QR naročanje deluje v 3 sekundah, gostje so navdušeni.”
+          - generic [ref=e3366]:
+            - generic [ref=e3367]: TH
+            - generic [ref=e3368]:
+              - generic [ref=e3369]: Tomaž Horvat
+              - generic [ref=e3370]: Upravljalec, Pizza Factory
+              - generic [ref=e3371]: Maribor
+    - generic [ref=e3374]:
+      - generic [ref=e3375]:
+        - generic [ref=e3376]:
           - img
           - text: Realni rezultati
-        - heading "3 restavracije. 3 preboji." [level=2] [ref=e3311]
-        - paragraph [ref=e3312]: Konkretni primeri slovenskih restavracij, ki so z Noro Lep POS preoblikovale poslovanje.
-      - generic [ref=e3313]:
-        - generic [ref=e3316]:
-          - generic [ref=e3317]:
-            - img "Restavracija Mariana" [ref=e3318]
-            - generic [ref=e3320]:
-              - generic [ref=e3321]: Bled · Fine Dining
-              - heading "Restavracija Mariana" [level=3] [ref=e3322]
-          - generic [ref=e3323]:
-            - generic [ref=e3324]:
-              - generic [ref=e3325]: “
-              - paragraph [ref=e3326]: AI predikcija prometa je zaklad. Zdaj vemo, koliko zaloge naročiti za vikend, brez da bi karkoli ugibali.
-              - generic [ref=e3327]: Ana Zupan, Direktorica
-            - generic [ref=e3328]:
-              - generic [ref=e3329]:
-                - generic [ref=e3330]: +18%
-                - generic [ref=e3331]: povprečni račun
-              - generic [ref=e3332]:
-                - generic [ref=e3333]: −15%
-                - generic [ref=e3334]: odpad hrane
-              - generic [ref=e3335]:
-                - generic [ref=e3336]: 4.9★
-                - generic [ref=e3337]: ocena gostov
-        - generic [ref=e3340]:
-          - generic [ref=e3341]:
-            - img "Pizza Factory" [ref=e3342]
-            - generic [ref=e3344]:
-              - generic [ref=e3345]: Maribor · Fast Casual
-              - heading "Pizza Factory" [level=3] [ref=e3346]
-          - generic [ref=e3347]:
-            - generic [ref=e3348]:
-              - generic [ref=e3349]: “
-              - paragraph [ref=e3350]: Mobilna aplikacija za goste je dvignila naš povprečni račun za 22%. QR naročanje deluje v 3 sekundah.
-              - generic [ref=e3351]: Tomaž Horvat, Upravljalec
-            - generic [ref=e3352]:
-              - generic [ref=e3353]:
-                - generic [ref=e3354]: +22%
-                - generic [ref=e3355]: povr. račun
-              - generic [ref=e3356]:
-                - generic [ref=e3357]: −40%
-                - generic [ref=e3358]: čas na račun
-              - generic [ref=e3359]:
-                - generic [ref=e3360]: 3.2s
-                - generic [ref=e3361]: QR naročilo
-        - generic [ref=e3364]:
-          - generic [ref=e3365]:
-            - img "Gostilna Pri Lovru" [ref=e3366]
-            - generic [ref=e3368]:
-              - generic [ref=e3369]: Ljubljana · Tradicionalna
-              - heading "Gostilna Pri Lovru" [level=3] [ref=e3370]
-          - generic [ref=e3371]:
-            - generic [ref=e3372]:
-              - generic [ref=e3373]: “
-              - paragraph [ref=e3374]: Po prehodu na Noro Lep POS smo skrajšali čas izdaje računa za 40%. FURS dela avtomatsko, kuharji končno vidijo vsa naročila.
-              - generic [ref=e3375]: Marko Kovač, Lastnik
-            - generic [ref=e3376]:
-              - generic [ref=e3377]:
-                - generic [ref=e3378]: −40%
-                - generic [ref=e3379]: čas na račun
-              - generic [ref=e3380]:
-                - generic [ref=e3381]: +30%
-                - generic [ref=e3382]: povratni gostje
-              - generic [ref=e3383]:
-                - generic [ref=e3384]: 0.3s
-                - generic [ref=e3385]: FURS EOR
-    - generic [ref=e3387]:
-      - generic [ref=e3388]:
-        - generic [ref=e3389]:
+        - heading "3 restavracije. 3 preboji." [level=2] [ref=e3377]
+        - paragraph [ref=e3378]: Konkretni primeri slovenskih restavracij, ki so z Noro Lep POS preoblikovale poslovanje.
+      - generic [ref=e3379]:
+        - generic [ref=e3382]:
+          - generic [ref=e3383]:
+            - img "Restavracija Mariana" [ref=e3384]
+            - generic [ref=e3386]:
+              - generic [ref=e3387]: Bled · Fine Dining
+              - heading "Restavracija Mariana" [level=3] [ref=e3388]
+          - generic [ref=e3389]:
+            - generic [ref=e3390]:
+              - generic [ref=e3391]: “
+              - paragraph [ref=e3392]: AI predikcija prometa je zaklad. Zdaj vemo, koliko zaloge naročiti za vikend, brez da bi karkoli ugibali.
+              - generic [ref=e3393]: Ana Zupan, Direktorica
+            - generic [ref=e3394]:
+              - generic [ref=e3395]:
+                - generic [ref=e3396]: +18%
+                - generic [ref=e3397]: povprečni račun
+              - generic [ref=e3398]:
+                - generic [ref=e3399]: −15%
+                - generic [ref=e3400]: odpad hrane
+              - generic [ref=e3401]:
+                - generic [ref=e3402]: 4.9★
+                - generic [ref=e3403]: ocena gostov
+        - generic [ref=e3406]:
+          - generic [ref=e3407]:
+            - img "Pizza Factory" [ref=e3408]
+            - generic [ref=e3410]:
+              - generic [ref=e3411]: Maribor · Fast Casual
+              - heading "Pizza Factory" [level=3] [ref=e3412]
+          - generic [ref=e3413]:
+            - generic [ref=e3414]:
+              - generic [ref=e3415]: “
+              - paragraph [ref=e3416]: Mobilna aplikacija za goste je dvignila naš povprečni račun za 22%. QR naročanje deluje v 3 sekundah.
+              - generic [ref=e3417]: Tomaž Horvat, Upravljalec
+            - generic [ref=e3418]:
+              - generic [ref=e3419]:
+                - generic [ref=e3420]: +22%
+                - generic [ref=e3421]: povr. račun
+              - generic [ref=e3422]:
+                - generic [ref=e3423]: −40%
+                - generic [ref=e3424]: čas na račun
+              - generic [ref=e3425]:
+                - generic [ref=e3426]: 3.2s
+                - generic [ref=e3427]: QR naročilo
+        - generic [ref=e3430]:
+          - generic [ref=e3431]:
+            - img "Gostilna Pri Lovru" [ref=e3432]
+            - generic [ref=e3434]:
+              - generic [ref=e3435]: Ljubljana · Tradicionalna
+              - heading "Gostilna Pri Lovru" [level=3] [ref=e3436]
+          - generic [ref=e3437]:
+            - generic [ref=e3438]:
+              - generic [ref=e3439]: “
+              - paragraph [ref=e3440]: Po prehodu na Noro Lep POS smo skrajšali čas izdaje računa za 40%. FURS dela avtomatsko, kuharji končno vidijo vsa naročila.
+              - generic [ref=e3441]: Marko Kovač, Lastnik
+            - generic [ref=e3442]:
+              - generic [ref=e3443]:
+                - generic [ref=e3444]: −40%
+                - generic [ref=e3445]: čas na račun
+              - generic [ref=e3446]:
+                - generic [ref=e3447]: +30%
+                - generic [ref=e3448]: povratni gostje
+              - generic [ref=e3449]:
+                - generic [ref=e3450]: 0.3s
+                - generic [ref=e3451]: FURS EOR
+    - generic [ref=e3453]:
+      - generic [ref=e3454]:
+        - generic [ref=e3455]:
           - img
           - text: Noro Lep vs. tradicionalni POS
-        - heading "Zakaj ne stare blagajne?" [level=2] [ref=e3390]
-        - paragraph [ref=e3391]: Primerjaj Noro Lep z običajnim POS sistemom in poglej razliko.
-      - generic [ref=e3393]:
-        - generic [ref=e3394]:
-          - generic [ref=e3395]: Funkcija
-          - generic [ref=e3396]: Tradicionalni POS
-          - generic [ref=e3398]:
-            - img [ref=e3399]
+        - heading "Zakaj ne stare blagajne?" [level=2] [ref=e3456]
+        - paragraph [ref=e3457]: Primerjaj Noro Lep z običajnim POS sistemom in poglej razliko.
+      - generic [ref=e3459]:
+        - generic [ref=e3460]:
+          - generic [ref=e3461]: Funkcija
+          - generic [ref=e3462]: Tradicionalni POS
+          - generic [ref=e3464]:
+            - img [ref=e3465]
             - text: Noro Lep POS
-        - generic [ref=e3401]:
-          - generic [ref=e3402]: FURS ZOI/EOR avtomatsko
-          - img [ref=e3404]
-          - img [ref=e3406]
-        - generic [ref=e3409]:
-          - generic [ref=e3410]: AI predikcija prometa
-          - img [ref=e3412]
-          - img [ref=e3414]
-        - generic [ref=e3417]:
-          - generic [ref=e3418]: Kuhinjski zaslon (KDS)
-          - img [ref=e3420]
-          - img [ref=e3422]
-        - generic [ref=e3425]:
-          - generic [ref=e3426]: Mobilno naročanje (QR)
-          - img [ref=e3428]
-          - img [ref=e3430]
-        - generic [ref=e3433]:
-          - generic [ref=e3434]: Offline način
-          - img [ref=e3436]
-          - img [ref=e3438]
-        - generic [ref=e3441]:
-          - generic [ref=e3442]: Vernostni program
-          - img [ref=e3444]
-          - img [ref=e3446]
-        - generic [ref=e3449]:
-          - generic [ref=e3450]: Čas do prvega računa
-          - generic [ref=e3452]: 2-3 dni
-          - generic [ref=e3454]: 15 minut
-        - generic [ref=e3455]:
-          - generic [ref=e3456]: Mesečna cena
-          - generic [ref=e3458]: 89€+
-          - generic [ref=e3460]: 0€
-    - generic [ref=e3462]:
-      - generic [ref=e3463]:
-        - generic [ref=e3464]:
+        - generic [ref=e3467]:
+          - generic [ref=e3468]: FURS ZOI/EOR avtomatsko
+          - img [ref=e3470]
+          - img [ref=e3472]
+        - generic [ref=e3475]:
+          - generic [ref=e3476]: AI predikcija prometa
+          - img [ref=e3478]
+          - img [ref=e3480]
+        - generic [ref=e3483]:
+          - generic [ref=e3484]: Kuhinjski zaslon (KDS)
+          - img [ref=e3486]
+          - img [ref=e3488]
+        - generic [ref=e3491]:
+          - generic [ref=e3492]: Mobilno naročanje (QR)
+          - img [ref=e3494]
+          - img [ref=e3496]
+        - generic [ref=e3499]:
+          - generic [ref=e3500]: Offline način
+          - img [ref=e3502]
+          - img [ref=e3504]
+        - generic [ref=e3507]:
+          - generic [ref=e3508]: Vernostni program
+          - img [ref=e3510]
+          - img [ref=e3512]
+        - generic [ref=e3515]:
+          - generic [ref=e3516]: Čas do prvega računa
+          - generic [ref=e3518]: 2-3 dni
+          - generic [ref=e3520]: 15 minut
+        - generic [ref=e3521]:
+          - generic [ref=e3522]: Mesečna cena
+          - generic [ref=e3524]: 89€+
+          - generic [ref=e3526]: 0€
+    - generic [ref=e3528]:
+      - generic [ref=e3529]:
+        - generic [ref=e3530]:
           - img
           - text: Iskrena primerjava s svetom
-        - heading "Noro Lep POS vs svetovni liderji" [level=2] [ref=e3465]
-        - paragraph [ref=e3466]: Z VLM modelom GLM-4.6V sem primerjal našo stran z najboljšimi POS blagajnami na svetu. Tu so odkriti rezultati — pošteno in brez olepševanja.
-      - generic [ref=e3467]:
-        - generic [ref=e3469]:
-          - generic [ref=e3470]:
-            - img "Noro Lep POS hero" [ref=e3471]
-            - generic [ref=e3473]: "7.5"
-            - generic [ref=e3474]: Naš izdelek
-            - generic [ref=e3476]:
+        - heading "Noro Lep POS vs svetovni liderji" [level=2] [ref=e3531]
+        - paragraph [ref=e3532]: Z VLM modelom GLM-4.6V sem primerjal našo stran z najboljšimi POS blagajnami na svetu. Tu so odkriti rezultati — pošteno in brez olepševanja.
+      - generic [ref=e3533]:
+        - generic [ref=e3535]:
+          - generic [ref=e3536]:
+            - img "Noro Lep POS hero" [ref=e3537]
+            - generic [ref=e3539]: "7.5"
+            - generic [ref=e3540]: Naš izdelek
+            - generic [ref=e3542]:
               - img
               - text: Naš izdelek
-          - generic [ref=e3477]:
-            - generic [ref=e3478]:
-              - heading "Noro Lep POS" [level=3] [ref=e3479]
-              - generic [ref=e3480]: Slovenija 🇸🇮
-            - generic [ref=e3481]:
-              - generic [ref=e3483]: Emerald
-              - generic [ref=e3484]: ·
-              - generic [ref=e3485]: 7.5/10
-            - generic [ref=e3486]:
-              - generic [ref=e3487]:
-                - img [ref=e3488]
-                - generic [ref=e3491]: Lokalna FURS skladnost
-              - generic [ref=e3492]:
-                - img [ref=e3493]
-                - generic [ref=e3496]: AI-generirane slike (3x)
-              - generic [ref=e3497]:
-                - img [ref=e3498]
-                - generic [ref=e3501]: Floating cards v hero
-              - generic [ref=e3502]:
-                - img [ref=e3503]
-                - generic [ref=e3506]: Slovenski jezik & kontekst
-              - generic [ref=e3507]:
-                - img [ref=e3508]
-                - generic [ref=e3509]: Manj globalnega brand trust-a
-        - generic [ref=e3513]:
-          - generic [ref=e3514]:
-            - img "Square POS hero" [ref=e3515]
-            - generic [ref=e3517]: "9.2"
-            - generic [ref=e3518]: "Svetovni #1"
-          - generic [ref=e3519]:
-            - generic [ref=e3520]:
-              - heading "Square POS" [level=3] [ref=e3521]
-              - generic [ref=e3522]: ZDA 🇺🇸
-            - generic [ref=e3523]:
-              - generic [ref=e3525]: Square Blue
-              - generic [ref=e3526]: ·
-              - generic [ref=e3527]: 9.2/10
-            - generic [ref=e3528]:
-              - generic [ref=e3529]:
-                - img [ref=e3530]
-                - generic [ref=e3533]: Najboljši minimalizem
-              - generic [ref=e3534]:
-                - img [ref=e3535]
-                - generic [ref=e3538]: Pricing tier kartice
-              - generic [ref=e3539]:
-                - img [ref=e3540]
-                - generic [ref=e3543]: FAQ accordion
-              - generic [ref=e3544]:
-                - img [ref=e3545]
-                - generic [ref=e3548]: Globalni brand authority
-              - generic [ref=e3549]:
-                - img [ref=e3550]
-                - generic [ref=e3551]: Preveč "corporate"
-        - generic [ref=e3555]:
-          - generic [ref=e3556]:
-            - img "Shopify POS hero" [ref=e3557]
-            - generic [ref=e3559]: "9.0"
-            - generic [ref=e3560]: "Svetovni #2"
-          - generic [ref=e3561]:
-            - generic [ref=e3562]:
-              - heading "Shopify POS" [level=3] [ref=e3563]
-              - generic [ref=e3564]: Kanada 🇨🇦
-            - generic [ref=e3565]:
-              - generic [ref=e3567]: Shopify Green
-              - generic [ref=e3568]: ·
-              - generic [ref=e3569]: 9.0/10
-            - generic [ref=e3570]:
-              - generic [ref=e3571]:
-                - img [ref=e3572]
-                - generic [ref=e3575]: Brand konsistenca
-              - generic [ref=e3576]:
-                - img [ref=e3577]
-                - generic [ref=e3580]: Dark mode sekcije
-              - generic [ref=e3581]:
-                - img [ref=e3582]
-                - generic [ref=e3585]: 3-column cards
-              - generic [ref=e3586]:
-                - img [ref=e3587]
-                - generic [ref=e3590]: Ecosystem integracije
-              - generic [ref=e3591]:
-                - img [ref=e3592]
-                - generic [ref=e3593]: Manj restaurant-specific
-        - generic [ref=e3597]:
-          - generic [ref=e3598]:
-            - img "Lightspeed hero" [ref=e3599]
-            - generic [ref=e3601]: "8.8"
-            - generic [ref=e3602]: "Svetovni #3"
-          - generic [ref=e3603]:
-            - generic [ref=e3604]:
-              - heading "Lightspeed" [level=3] [ref=e3605]
-              - generic [ref=e3606]: Kanada 🇨🇦
-            - generic [ref=e3607]:
-              - generic [ref=e3609]: Lightspeed Red
-              - generic [ref=e3610]: ·
-              - generic [ref=e3611]: 8.8/10
-            - generic [ref=e3612]:
-              - generic [ref=e3613]:
-                - img [ref=e3614]
-                - generic [ref=e3617]: Premium občutek
-              - generic [ref=e3618]:
-                - img [ref=e3619]
-                - generic [ref=e3622]: Inter typography
-              - generic [ref=e3623]:
-                - img [ref=e3624]
-                - generic [ref=e3627]: Brand logos (Five Guys)
-              - generic [ref=e3628]:
-                - img [ref=e3629]
-                - generic [ref=e3632]: Lifestyle fotografija
-              - generic [ref=e3633]:
-                - img [ref=e3634]
-                - generic [ref=e3635]: Rdeča je agresivna
-      - generic [ref=e3640]:
-        - generic [ref=e3641]:
-          - img [ref=e3643]
-          - generic [ref=e3645]:
-            - generic [ref=e3646]: VLM odkrit zaključek
-            - generic [ref=e3647]: Iskrena ocena
-        - generic [ref=e3648]:
-          - paragraph [ref=e3649]:
+          - generic [ref=e3543]:
+            - generic [ref=e3544]:
+              - heading "Noro Lep POS" [level=3] [ref=e3545]
+              - generic [ref=e3546]: Slovenija 🇸🇮
+            - generic [ref=e3547]:
+              - generic [ref=e3549]: Emerald
+              - generic [ref=e3550]: ·
+              - generic [ref=e3551]: 7.5/10
+            - generic [ref=e3552]:
+              - generic [ref=e3553]:
+                - img [ref=e3554]
+                - generic [ref=e3557]: Lokalna FURS skladnost
+              - generic [ref=e3558]:
+                - img [ref=e3559]
+                - generic [ref=e3562]: AI-generirane slike (3x)
+              - generic [ref=e3563]:
+                - img [ref=e3564]
+                - generic [ref=e3567]: Floating cards v hero
+              - generic [ref=e3568]:
+                - img [ref=e3569]
+                - generic [ref=e3572]: Slovenski jezik & kontekst
+              - generic [ref=e3573]:
+                - img [ref=e3574]
+                - generic [ref=e3575]: Manj globalnega brand trust-a
+        - generic [ref=e3579]:
+          - generic [ref=e3580]:
+            - img "Square POS hero" [ref=e3581]
+            - generic [ref=e3583]: "9.2"
+            - generic [ref=e3584]: "Svetovni #1"
+          - generic [ref=e3585]:
+            - generic [ref=e3586]:
+              - heading "Square POS" [level=3] [ref=e3587]
+              - generic [ref=e3588]: ZDA 🇺🇸
+            - generic [ref=e3589]:
+              - generic [ref=e3591]: Square Blue
+              - generic [ref=e3592]: ·
+              - generic [ref=e3593]: 9.2/10
+            - generic [ref=e3594]:
+              - generic [ref=e3595]:
+                - img [ref=e3596]
+                - generic [ref=e3599]: Najboljši minimalizem
+              - generic [ref=e3600]:
+                - img [ref=e3601]
+                - generic [ref=e3604]: Pricing tier kartice
+              - generic [ref=e3605]:
+                - img [ref=e3606]
+                - generic [ref=e3609]: FAQ accordion
+              - generic [ref=e3610]:
+                - img [ref=e3611]
+                - generic [ref=e3614]: Globalni brand authority
+              - generic [ref=e3615]:
+                - img [ref=e3616]
+                - generic [ref=e3617]: Preveč "corporate"
+        - generic [ref=e3621]:
+          - generic [ref=e3622]:
+            - img "Shopify POS hero" [ref=e3623]
+            - generic [ref=e3625]: "9.0"
+            - generic [ref=e3626]: "Svetovni #2"
+          - generic [ref=e3627]:
+            - generic [ref=e3628]:
+              - heading "Shopify POS" [level=3] [ref=e3629]
+              - generic [ref=e3630]: Kanada 🇨🇦
+            - generic [ref=e3631]:
+              - generic [ref=e3633]: Shopify Green
+              - generic [ref=e3634]: ·
+              - generic [ref=e3635]: 9.0/10
+            - generic [ref=e3636]:
+              - generic [ref=e3637]:
+                - img [ref=e3638]
+                - generic [ref=e3641]: Brand konsistenca
+              - generic [ref=e3642]:
+                - img [ref=e3643]
+                - generic [ref=e3646]: Dark mode sekcije
+              - generic [ref=e3647]:
+                - img [ref=e3648]
+                - generic [ref=e3651]: 3-column cards
+              - generic [ref=e3652]:
+                - img [ref=e3653]
+                - generic [ref=e3656]: Ecosystem integracije
+              - generic [ref=e3657]:
+                - img [ref=e3658]
+                - generic [ref=e3659]: Manj restaurant-specific
+        - generic [ref=e3663]:
+          - generic [ref=e3664]:
+            - img "Lightspeed hero" [ref=e3665]
+            - generic [ref=e3667]: "8.8"
+            - generic [ref=e3668]: "Svetovni #3"
+          - generic [ref=e3669]:
+            - generic [ref=e3670]:
+              - heading "Lightspeed" [level=3] [ref=e3671]
+              - generic [ref=e3672]: Kanada 🇨🇦
+            - generic [ref=e3673]:
+              - generic [ref=e3675]: Lightspeed Red
+              - generic [ref=e3676]: ·
+              - generic [ref=e3677]: 8.8/10
+            - generic [ref=e3678]:
+              - generic [ref=e3679]:
+                - img [ref=e3680]
+                - generic [ref=e3683]: Premium občutek
+              - generic [ref=e3684]:
+                - img [ref=e3685]
+                - generic [ref=e3688]: Inter typography
+              - generic [ref=e3689]:
+                - img [ref=e3690]
+                - generic [ref=e3693]: Brand logos (Five Guys)
+              - generic [ref=e3694]:
+                - img [ref=e3695]
+                - generic [ref=e3698]: Lifestyle fotografija
+              - generic [ref=e3699]:
+                - img [ref=e3700]
+                - generic [ref=e3701]: Rdeča je agresivna
+      - generic [ref=e3706]:
+        - generic [ref=e3707]:
+          - img [ref=e3709]
+          - generic [ref=e3711]:
+            - generic [ref=e3712]: VLM odkrit zaključek
+            - generic [ref=e3713]: Iskrena ocena
+        - generic [ref=e3714]:
+          - paragraph [ref=e3715]:
             - text: Pri direktni primerjavi
-            - strong [ref=e3650]: Noro Lep POS dobi 7.5/10
+            - strong [ref=e3716]: Noro Lep POS dobi 7.5/10
             - text: ", medtem ko vodilni svetovni sistemi (Square 9.2, Shopify 9.0, Lightspeed 8.8) še vedno vodijo. VLM pohvali našo"
-            - strong [ref=e3651]: lokalno relevantnost
+            - strong [ref=e3717]: lokalno relevantnost
             - text: (FURS, slovenski jezik),
-            - strong [ref=e3652]: AI-generirane slike
+            - strong [ref=e3718]: AI-generirane slike
             - text: in
-            - strong [ref=e3653]: floating cards
+            - strong [ref=e3719]: floating cards
             - text: v hero. Konkurenca še vedno prednjači v globalnem brand trust-u in ekosistemu integracij.
-          - generic [ref=e3654]:
-            - generic [ref=e3655]: ✓ Presega v lokalni relevantnosti
-            - generic [ref=e3656]: ⚠ Zaostaja v brand authority
-            - generic [ref=e3657]: ✓ Match-a v vizualnem storytelling
-        - generic [ref=e3658]:
-          - generic [ref=e3659]: "Luknja do #1"
-          - generic [ref=e3660]: "1.7"
-          - generic [ref=e3661]: točk do Square
-    - generic [ref=e3663]:
-      - generic [ref=e3664]:
-        - generic [ref=e3665]:
+          - generic [ref=e3720]:
+            - generic [ref=e3721]: ✓ Presega v lokalni relevantnosti
+            - generic [ref=e3722]: ⚠ Zaostaja v brand authority
+            - generic [ref=e3723]: ✓ Match-a v vizualnem storytelling
+        - generic [ref=e3724]:
+          - generic [ref=e3725]: "Luknja do #1"
+          - generic [ref=e3726]: "1.7"
+          - generic [ref=e3727]: točk do Square
+    - generic [ref=e3729]:
+      - generic [ref=e3730]:
+        - generic [ref=e3731]:
           - img
           - text: Transparentne cene
-        - heading "Cenik, ki ustreza vsaki restavraciji" [level=2] [ref=e3666]
-        - paragraph [ref=e3667]: Brez skritih stroškov. Brez vezave. Brezplačni preizkus 30 dni.
-      - generic [ref=e3668]:
-        - generic [ref=e3670]:
-          - generic [ref=e3671]:
-            - heading "Starter" [level=3] [ref=e3672]
-            - paragraph [ref=e3673]: Za majhne bife in kioske
-          - generic [ref=e3674]:
-            - generic [ref=e3675]: 0€
-            - generic [ref=e3676]: /mes
-          - button "Brezplačni začetek" [ref=e3677]:
+        - heading "Cenik, ki ustreza vsaki restavraciji" [level=2] [ref=e3732]
+        - paragraph [ref=e3733]: Brez skritih stroškov. Brez vezave. Brezplačni preizkus 30 dni.
+      - generic [ref=e3734]:
+        - generic [ref=e3736]:
+          - generic [ref=e3737]:
+            - heading "Starter" [level=3] [ref=e3738]
+            - paragraph [ref=e3739]: Za majhne bife in kioske
+          - generic [ref=e3740]:
+            - generic [ref=e3741]: 0€
+            - generic [ref=e3742]: /mes
+          - button "Brezplačni začetek" [ref=e3743]:
             - text: Brezplačni začetek
             - img
-          - list [ref=e3678]:
-            - listitem [ref=e3679]:
-              - img [ref=e3680]
-              - generic [ref=e3683]: 1 lokacija, 1 blagajna
-            - listitem [ref=e3684]:
-              - img [ref=e3685]
-              - generic [ref=e3688]: Do 50 jedi na meniju
-            - listitem [ref=e3689]:
-              - img [ref=e3690]
-              - generic [ref=e3693]: FURS ZOI & EOR
-            - listitem [ref=e3694]:
-              - img [ref=e3695]
-              - generic [ref=e3698]: Osnovna poročila
-            - listitem [ref=e3699]:
-              - img [ref=e3700]
-              - generic [ref=e3703]: Email podpora
-        - generic [ref=e3705]:
-          - generic [ref=e3707]:
-            - img
-            - text: Najbolj priljubljen
-          - generic [ref=e3708]:
-            - heading "Professional" [level=3] [ref=e3709]
-            - paragraph [ref=e3710]: Za restavracije in lokale
-          - generic [ref=e3711]:
-            - generic [ref=e3712]: 49€
-            - generic [ref=e3713]: /mes
-          - button "30-dnevni preizkus" [ref=e3714]:
-            - text: 30-dnevni preizkus
-            - img
-          - list [ref=e3715]:
-            - listitem [ref=e3716]:
-              - img [ref=e3717]
-              - generic [ref=e3720]: Do 3 lokacije, 5 blagajn
-            - listitem [ref=e3721]:
-              - img [ref=e3722]
-              - generic [ref=e3725]: Neomejen meni & modifikatorji
-            - listitem [ref=e3726]:
-              - img [ref=e3727]
-              - generic [ref=e3730]: Kuhinjski KDS v realnem času
-            - listitem [ref=e3731]:
-              - img [ref=e3732]
-              - generic [ref=e3735]: Zaloge & dobavitelji
-            - listitem [ref=e3736]:
-              - img [ref=e3737]
-              - generic [ref=e3740]: Vernostni program & rezervacije
-            - listitem [ref=e3741]:
-              - img [ref=e3742]
-              - generic [ref=e3745]: AI predikcija prometa
-            - listitem [ref=e3746]:
-              - img [ref=e3747]
-              - generic [ref=e3750]: Prioritetna 24/7 podpora
-        - generic [ref=e3752]:
-          - generic [ref=e3753]:
-            - heading "Enterprise" [level=3] [ref=e3754]
-            - paragraph [ref=e3755]: Za verige in franšize
-          - generic [ref=e3757]: Po meri
-          - button "Kontaktiraj prodajo" [ref=e3758]:
-            - text: Kontaktiraj prodajo
-            - img
-          - list [ref=e3759]:
+          - list [ref=e3744]:
+            - listitem [ref=e3745]:
+              - img [ref=e3746]
+              - generic [ref=e3749]: 1 lokacija, 1 blagajna
+            - listitem [ref=e3750]:
+              - img [ref=e3751]
+              - generic [ref=e3754]: Do 50 jedi na meniju
+            - listitem [ref=e3755]:
+              - img [ref=e3756]
+              - generic [ref=e3759]: FURS ZOI & EOR
             - listitem [ref=e3760]:
               - img [ref=e3761]
-              - generic [ref=e3764]: Neomejene lokacije & blagajne
+              - generic [ref=e3764]: Osnovna poročila
             - listitem [ref=e3765]:
               - img [ref=e3766]
-              - generic [ref=e3769]: Multi-valutni & multi-jezik
-            - listitem [ref=e3770]:
-              - img [ref=e3771]
-              - generic [ref=e3774]: API integracije (Stripe, SAP…)
-            - listitem [ref=e3775]:
-              - img [ref=e3776]
-              - generic [ref=e3779]: Namenski account manager
-            - listitem [ref=e3780]:
-              - img [ref=e3781]
-              - generic [ref=e3784]: On-site implementacija
-            - listitem [ref=e3785]:
-              - img [ref=e3786]
-              - generic [ref=e3789]: SLA 99.9% garancija
-      - paragraph [ref=e3790]: Vsi paketi vključujejo FURS skladnost, GDPR zaščito in 99.9% SLA. DDV ni vključen v ceno.
-    - generic [ref=e3792]:
-      - generic [ref=e3793]:
-        - generic [ref=e3794]:
+              - generic [ref=e3769]: Email podpora
+        - generic [ref=e3771]:
+          - generic [ref=e3773]:
+            - img
+            - text: Najbolj priljubljen
+          - generic [ref=e3774]:
+            - heading "Professional" [level=3] [ref=e3775]
+            - paragraph [ref=e3776]: Za restavracije in lokale
+          - generic [ref=e3777]:
+            - generic [ref=e3778]: 49€
+            - generic [ref=e3779]: /mes
+          - button "30-dnevni preizkus" [ref=e3780]:
+            - text: 30-dnevni preizkus
+            - img
+          - list [ref=e3781]:
+            - listitem [ref=e3782]:
+              - img [ref=e3783]
+              - generic [ref=e3786]: Do 3 lokacije, 5 blagajn
+            - listitem [ref=e3787]:
+              - img [ref=e3788]
+              - generic [ref=e3791]: Neomejen meni & modifikatorji
+            - listitem [ref=e3792]:
+              - img [ref=e3793]
+              - generic [ref=e3796]: Kuhinjski KDS v realnem času
+            - listitem [ref=e3797]:
+              - img [ref=e3798]
+              - generic [ref=e3801]: Zaloge & dobavitelji
+            - listitem [ref=e3802]:
+              - img [ref=e3803]
+              - generic [ref=e3806]: Vernostni program & rezervacije
+            - listitem [ref=e3807]:
+              - img [ref=e3808]
+              - generic [ref=e3811]: AI predikcija prometa
+            - listitem [ref=e3812]:
+              - img [ref=e3813]
+              - generic [ref=e3816]: Prioritetna 24/7 podpora
+        - generic [ref=e3818]:
+          - generic [ref=e3819]:
+            - heading "Enterprise" [level=3] [ref=e3820]
+            - paragraph [ref=e3821]: Za verige in franšize
+          - generic [ref=e3823]: Po meri
+          - button "Kontaktiraj prodajo" [ref=e3824]:
+            - text: Kontaktiraj prodajo
+            - img
+          - list [ref=e3825]:
+            - listitem [ref=e3826]:
+              - img [ref=e3827]
+              - generic [ref=e3830]: Neomejene lokacije & blagajne
+            - listitem [ref=e3831]:
+              - img [ref=e3832]
+              - generic [ref=e3835]: Multi-valutni & multi-jezik
+            - listitem [ref=e3836]:
+              - img [ref=e3837]
+              - generic [ref=e3840]: API integracije (Stripe, SAP…)
+            - listitem [ref=e3841]:
+              - img [ref=e3842]
+              - generic [ref=e3845]: Namenski account manager
+            - listitem [ref=e3846]:
+              - img [ref=e3847]
+              - generic [ref=e3850]: On-site implementacija
+            - listitem [ref=e3851]:
+              - img [ref=e3852]
+              - generic [ref=e3855]: SLA 99.9% garancija
+      - paragraph [ref=e3856]: Vsi paketi vključujejo FURS skladnost, GDPR zaščito in 99.9% SLA. DDV ni vključen v ceno.
+    - generic [ref=e3858]:
+      - generic [ref=e3859]:
+        - generic [ref=e3860]:
           - img
           - text: Pogosta vprašanja
-        - heading "Vse kar si želel vprašati" [level=2] [ref=e3795]
-      - generic [ref=e3796]:
-        - heading "Kako hitro lahko začnem uporabljati Noro Lep POS?" [level=3] [ref=e3798]:
-          - button "Kako hitro lahko začnem uporabljati Noro Lep POS?" [ref=e3799]:
+        - heading "Vse kar si želel vprašati" [level=2] [ref=e3861]
+      - generic [ref=e3862]:
+        - heading "Kako hitro lahko začnem uporabljati Noro Lep POS?" [level=3] [ref=e3864]:
+          - button "Kako hitro lahko začnem uporabljati Noro Lep POS?" [ref=e3865]:
             - text: Kako hitro lahko začnem uporabljati Noro Lep POS?
             - img
-        - heading "Ali sistem deluje brez internetne povezave?" [level=3] [ref=e3801]:
-          - button "Ali sistem deluje brez internetne povezave?" [ref=e3802]:
+        - heading "Ali sistem deluje brez internetne povezave?" [level=3] [ref=e3867]:
+          - button "Ali sistem deluje brez internetne povezave?" [ref=e3868]:
             - text: Ali sistem deluje brez internetne povezave?
             - img
-        - heading "Katero strojno opremo potrebujem?" [level=3] [ref=e3804]:
-          - button "Katero strojno opremo potrebujem?" [ref=e3805]:
+        - heading "Katero strojno opremo potrebujem?" [level=3] [ref=e3870]:
+          - button "Katero strojno opremo potrebujem?" [ref=e3871]:
             - text: Katero strojno opremo potrebujem?
             - img
-        - heading "Kakšna je FURS skladnost?" [level=3] [ref=e3807]:
-          - button "Kakšna je FURS skladnost?" [ref=e3808]:
+        - heading "Kakšna je FURS skladnost?" [level=3] [ref=e3873]:
+          - button "Kakšna je FURS skladnost?" [ref=e3874]:
             - text: Kakšna je FURS skladnost?
             - img
-        - heading "Ali lahko uporabljam sistem v več lokacijah?" [level=3] [ref=e3810]:
-          - button "Ali lahko uporabljam sistem v več lokacijah?" [ref=e3811]:
+        - heading "Ali lahko uporabljam sistem v več lokacijah?" [level=3] [ref=e3876]:
+          - button "Ali lahko uporabljam sistem v več lokacijah?" [ref=e3877]:
             - text: Ali lahko uporabljam sistem v več lokacijah?
             - img
-        - heading "Kaj če potrebujem pomoč?" [level=3] [ref=e3813]:
-          - button "Kaj če potrebujem pomoč?" [ref=e3814]:
+        - heading "Kaj če potrebujem pomoč?" [level=3] [ref=e3879]:
+          - button "Kaj če potrebujem pomoč?" [ref=e3880]:
             - text: Kaj če potrebujem pomoč?
             - img
-    - generic [ref=e3822]:
-      - img [ref=e3823]
-      - heading "Pripravljen narediti naslednji korak?" [level=2] [ref=e3825]
-      - paragraph [ref=e3826]: Pridruži se 542 slovenskim restavracijam, ki že prihranjajo čas in zaslužijo več z Noro Lep POS.
-      - generic [ref=e3827]:
-        - button "Brezplačni 30-dnevni preizkus" [ref=e3828]:
+    - generic [ref=e3888]:
+      - img [ref=e3889]
+      - heading "Pripravljen narediti naslednji korak?" [level=2] [ref=e3891]
+      - paragraph [ref=e3892]: Pridruži se 542 slovenskim restavracijam, ki že prihranjajo čas in zaslužijo več z Noro Lep POS.
+      - generic [ref=e3893]:
+        - button "Brezplačni 30-dnevni preizkus" [ref=e3894]:
           - img
           - text: Brezplačni 30-dnevni preizkus
-        - button "Razgovor z ekipo" [ref=e3829]:
+        - button "Razgovor z ekipo" [ref=e3895]:
           - img
           - text: Razgovor z ekipo
-      - paragraph [ref=e3830]: Brez kreditne kartice · Brez vezave · Namestitev v 15 minutah
-    - contentinfo [ref=e3831]:
-      - generic [ref=e3832]:
-        - generic [ref=e3833]:
-          - generic [ref=e3834]:
-            - generic [ref=e3835]:
-              - img [ref=e3837]
-              - generic [ref=e3840]:
-                - generic [ref=e3841]: Noro Lep
-                - generic [ref=e3842]: POS · 2026
-            - paragraph [ref=e3843]: Najlepša slovenska POS blagajna z avtomatskim FURS, AI predikcijo prometa in kuhinjskim zaslonom. Zgrajena z ljubeznijo za gostince.
-            - generic [ref=e3844]:
-              - generic [ref=e3845]:
+      - paragraph [ref=e3896]: Brez kreditne kartice · Brez vezave · Namestitev v 15 minutah
+    - contentinfo [ref=e3897]:
+      - generic [ref=e3898]:
+        - generic [ref=e3899]:
+          - generic [ref=e3900]:
+            - generic [ref=e3901]:
+              - img [ref=e3903]
+              - generic [ref=e3906]:
+                - generic [ref=e3907]: Noro Lep
+                - generic [ref=e3908]: POS · 2026
+            - paragraph [ref=e3909]: Najlepša slovenska POS blagajna z avtomatskim FURS, AI predikcijo prometa in kuhinjskim zaslonom. Zgrajena z ljubeznijo za gostince.
+            - generic [ref=e3910]:
+              - generic [ref=e3911]:
                 - img
                 - text: FURS
-              - generic [ref=e3846]:
+              - generic [ref=e3912]:
                 - img
                 - text: GDPR
-              - generic [ref=e3847]:
+              - generic [ref=e3913]:
                 - img
                 - text: EU
-          - generic [ref=e3848]:
-            - heading "Produkt" [level=4] [ref=e3849]
-            - list [ref=e3850]:
-              - listitem [ref=e3851]:
-                - link "Funkcije" [ref=e3852] [cursor=pointer]:
+          - generic [ref=e3914]:
+            - heading "Produkt" [level=4] [ref=e3915]
+            - list [ref=e3916]:
+              - listitem [ref=e3917]:
+                - link "Funkcije" [ref=e3918] [cursor=pointer]:
                   - /url: "#funkcije"
-              - listitem [ref=e3853]:
-                - link "Cene" [ref=e3854] [cursor=pointer]:
+              - listitem [ref=e3919]:
+                - link "Cene" [ref=e3920] [cursor=pointer]:
                   - /url: "#cene"
-              - listitem [ref=e3855]:
-                - link "Kako deluje" [ref=e3856] [cursor=pointer]:
+              - listitem [ref=e3921]:
+                - link "Kako deluje" [ref=e3922] [cursor=pointer]:
                   - /url: "#kako"
-              - listitem [ref=e3857]:
-                - link "Mnenja" [ref=e3858] [cursor=pointer]:
+              - listitem [ref=e3923]:
+                - link "Mnenja" [ref=e3924] [cursor=pointer]:
                   - /url: "#mnenja"
-              - listitem [ref=e3859]:
-                - link "FAQ" [ref=e3860] [cursor=pointer]:
+              - listitem [ref=e3925]:
+                - link "FAQ" [ref=e3926] [cursor=pointer]:
                   - /url: "#faq"
-          - generic [ref=e3861]:
-            - heading "Družba" [level=4] [ref=e3862]
-            - list [ref=e3863]:
-              - listitem [ref=e3864]:
-                - link "O nas" [ref=e3865] [cursor=pointer]:
+          - generic [ref=e3927]:
+            - heading "Družba" [level=4] [ref=e3928]
+            - list [ref=e3929]:
+              - listitem [ref=e3930]:
+                - link "O nas" [ref=e3931] [cursor=pointer]:
                   - /url: "#"
-              - listitem [ref=e3866]:
-                - link "Blog" [ref=e3867] [cursor=pointer]:
+              - listitem [ref=e3932]:
+                - link "Blog" [ref=e3933] [cursor=pointer]:
                   - /url: "#"
-              - listitem [ref=e3868]:
-                - link "Kariera" [ref=e3869] [cursor=pointer]:
+              - listitem [ref=e3934]:
+                - link "Kariera" [ref=e3935] [cursor=pointer]:
                   - /url: "#"
-              - listitem [ref=e3870]:
-                - link "Kontakt" [ref=e3871] [cursor=pointer]:
+              - listitem [ref=e3936]:
+                - link "Kontakt" [ref=e3937] [cursor=pointer]:
                   - /url: "#"
-          - generic [ref=e3872]:
-            - heading "Pravno" [level=4] [ref=e3873]
-            - list [ref=e3874]:
-              - listitem [ref=e3875]:
-                - link "Pogoji uporabe" [ref=e3876] [cursor=pointer]:
+          - generic [ref=e3938]:
+            - heading "Pravno" [level=4] [ref=e3939]
+            - list [ref=e3940]:
+              - listitem [ref=e3941]:
+                - link "Pogoji uporabe" [ref=e3942] [cursor=pointer]:
                   - /url: "#"
-              - listitem [ref=e3877]:
-                - link "Politika zasebnosti" [ref=e3878] [cursor=pointer]:
+              - listitem [ref=e3943]:
+                - link "Politika zasebnosti" [ref=e3944] [cursor=pointer]:
                   - /url: "#"
-              - listitem [ref=e3879]:
-                - link "Piškotki" [ref=e3880] [cursor=pointer]:
+              - listitem [ref=e3945]:
+                - link "Piškotki" [ref=e3946] [cursor=pointer]:
                   - /url: "#"
-              - listitem [ref=e3881]:
-                - link "SLA" [ref=e3882] [cursor=pointer]:
+              - listitem [ref=e3947]:
+                - link "SLA" [ref=e3948] [cursor=pointer]:
                   - /url: "#"
-        - generic [ref=e3883]:
-          - paragraph [ref=e3884]: © 2026 Noro Lep POS. Vse pravice pridržane. Zgrajeno v Sloveniji 🇸🇮
-          - generic [ref=e3885]:
-            - generic [ref=e3886]:
-              - img [ref=e3887]
+        - generic [ref=e3949]:
+          - paragraph [ref=e3950]: © 2026 Noro Lep POS. Vse pravice pridržane. Zgrajeno v Sloveniji 🇸🇮
+          - generic [ref=e3951]:
+            - generic [ref=e3952]:
+              - img [ref=e3953]
               - text: Vsi sistemi operativni
-            - generic [ref=e3891]:
-              - img [ref=e3892]
+            - generic [ref=e3957]:
+              - img [ref=e3958]
               - text: Slovenščina
   - region "Notifications (F8)":
     - list
-  - button "Open Next.js Dev Tools" [ref=e3900] [cursor=pointer]:
-    - img [ref=e3901]
-  - alert [ref=e3904]
+  - button "Open Next.js Dev Tools" [ref=e3966] [cursor=pointer]:
+    - img [ref=e3967]
+  - alert [ref=e3970]
 ```
 
 # Test source
@@ -3544,86 +3610,77 @@ Call log:
 ```ts
   1  | import { test, expect } from '@playwright/test'
   2  | 
-  3  | /**
-  4  |  * AI Prediction E2E Tests
-  5  |  * - Stats
-  6  |  * - Predictions grid
-  7  |  * - Reorder list toggle
-  8  |  * - Urgency badges
-  9  |  * - API
-  10 |  */
-  11 | 
-  12 | test.describe('AI Prediction', () => {
-  13 |   test.beforeEach(async ({ page }) => {
-  14 |     await page.goto('/')
-  15 |     await page.locator('#ai-prediction').scrollIntoViewIfNeeded()
-  16 |     await page.waitForTimeout(2000)
-  17 |   })
-  18 | 
-  19 |   test('prikaže AI stats', async ({ page }) => {
-  20 |     await expect(page.locator('text=Analizirano artiklov')).toBeVisible()
-  21 |     await expect(page.locator('text=Kritičnih')).toBeVisible()
-  22 |     await expect(page.locator('text=Povprečno zaupanje')).toBeVisible()
-  23 |     await expect(page.locator('text=Vrednost dobavnice')).toBeVisible()
-  24 |   })
-  25 | 
-  26 |   test('prikaže predikcije grid', async ({ page }) => {
-  27 |     // Vsaj ena predikcija
-> 28 |     await expect(page.locator('text=Predikcija/teden')).toBeVisible()
-     |                                                         ^ Error: expect(locator).toBeVisible() failed
-  29 |     await expect(page.locator('text=Zmanjka v')).toBeVisible()
-  30 |     await expect(page.locator('text=Zaupanje')).toBeVisible()
-  31 |   })
-  32 | 
-  33 |   test('urgency badges so prisotne', async ({ page }) => {
-  34 |     // KRITIČNO badge mora biti prisoten (vsi artikli imajo nizko zalogo v demo)
-  35 |     await expect(page.locator('text=KRITIČNO').first()).toBeVisible()
-  36 |   })
-  37 | 
-  38 |   test('trend indicator je prikazan', async ({ page }) => {
-  39 |     // Vsaj en trend (Rast, Padec, Sezonsko, Stabilno)
-  40 |     const trends = page.locator('text=/Rast|Padec|Sezonsko|Stabilno/')
-  41 |     await expect(trends.first()).toBeVisible()
-  42 |   })
-  43 | 
-  44 |   test('toggle med Predikcije in Dobavnica', async ({ page }) => {
-  45 |     // Klikni na Dobavnica tab
-  46 |     await page.locator('button:has-text("Dobavnica")').click()
-  47 |     await page.waitForTimeout(500)
-  48 |     await expect(page.locator('text=AI samodejna dobavnica')).toBeVisible()
-  49 |     await expect(page.locator('button:has-text("Ustvari dobavnico")')).toBeVisible()
-  50 | 
-  51 |     // Nazaj na predikcije
-  52 |     await page.locator('button:has-text("Predikcije")').click()
-  53 |     await page.waitForTimeout(500)
-  54 |     await expect(page.locator('text=Predikcija/teden')).toBeVisible()
-  55 |   })
-  56 | 
-  57 |   test('reorder list vsebuje artikle', async ({ page }) => {
-  58 |     await page.locator('button:has-text("Dobavnica")').click()
-  59 |     await page.waitForTimeout(500)
-  60 |     // Artikli v reorder list
-  61 |     const items = page.locator('text=/\\+\\d+/')
-  62 |     await expect(items.first()).toBeVisible()
-  63 |   })
-  64 | 
-  65 |   test('API vrača predikcije in statistiko', async ({ request }) => {
-  66 |     const response = await request.get('/api/ai/predict')
-  67 |     expect(response.status()).toBe(200)
-  68 |     const data = await response.json()
-  69 |     expect(data.predictions).toBeDefined()
-  70 |     expect(data.predictions.length).toBeGreaterThan(0)
-  71 |     expect(data.stats).toBeDefined()
-  72 |     expect(data.stats.totalItems).toBeGreaterThan(0)
-  73 |     expect(data.stats.avgConfidence).toBeGreaterThan(50)
-  74 |     expect(data.reorderList).toBeDefined()
-  75 |   })
-  76 | 
-  77 |   test('AI reasoning je prikazan', async ({ page }) => {
-  78 |     // Vsaj en reasoning tekst
-  79 |     const reasoning = page.locator('text=/Zaloga|predvideno|naroči|trend|sezonski/')
-  80 |     await expect(reasoning.first()).toBeVisible()
-  81 |   })
-  82 | })
-  83 | 
+  3  | test.describe('AI Prediction', () => {
+  4  |   test.beforeEach(async ({ page }) => {
+  5  |     await page.goto('/')
+  6  |     await page.locator('#ai-prediction').scrollIntoViewIfNeeded()
+  7  |     await page.waitForTimeout(3000)
+  8  |   })
+  9  | 
+  10 |   test('prikaže AI stats', async ({ page }) => {
+  11 |     const sec = page.locator('#ai-prediction')
+  12 |     await expect(sec.getByText('Analizirano artiklov')).toBeVisible()
+  13 |     await expect(sec.getByText('Kritičnih')).toBeVisible()
+  14 |     await expect(sec.getByText('Povprečno zaupanje')).toBeVisible()
+  15 |     await expect(sec.getByText('Vrednost dobavnice')).toBeVisible()
+  16 |   })
+  17 | 
+  18 |   test('prikaže predikcije grid', async ({ page }) => {
+  19 |     const sec = page.locator('#ai-prediction')
+> 20 |     await expect(sec.getByText('Predikcija/teden')).toBeVisible()
+     |                                                     ^ Error: expect(locator).toBeVisible() failed
+  21 |     await expect(sec.getByText('Zmanjka v')).toBeVisible()
+  22 |     await expect(sec.getByText('Zaupanje')).toBeVisible()
+  23 |   })
+  24 | 
+  25 |   test('urgency badges so prisotne', async ({ page }) => {
+  26 |     const sec = page.locator('#ai-prediction')
+  27 |     await expect(sec.getByText('KRITIČNO').first()).toBeVisible()
+  28 |   })
+  29 | 
+  30 |   test('trend indicator je prikazan', async ({ page }) => {
+  31 |     const sec = page.locator('#ai-prediction')
+  32 |     const trends = sec.getByText(/Rast|Padec|Sezonsko|Stabilno/)
+  33 |     await expect(trends.first()).toBeVisible()
+  34 |   })
+  35 | 
+  36 |   test('toggle med Predikcije in Dobavnica', async ({ page }) => {
+  37 |     const sec = page.locator('#ai-prediction')
+  38 |     await sec.getByRole('button', { name: /Dobavnica/i }).click()
+  39 |     await page.waitForTimeout(500)
+  40 |     await expect(sec.getByText('AI samodejna dobavnica')).toBeVisible()
+  41 |     await expect(sec.getByRole('button', { name: /Ustvari dobavnico/i })).toBeVisible()
+  42 | 
+  43 |     await sec.getByRole('button', { name: /Predikcije/i }).click()
+  44 |     await page.waitForTimeout(500)
+  45 |     await expect(sec.getByText('Predikcija/teden')).toBeVisible()
+  46 |   })
+  47 | 
+  48 |   test('reorder list vsebuje artikle', async ({ page }) => {
+  49 |     const sec = page.locator('#ai-prediction')
+  50 |     await sec.getByRole('button', { name: /Dobavnica/i }).click()
+  51 |     await page.waitForTimeout(500)
+  52 |     const items = sec.getByText(/\+\d+/)
+  53 |     await expect(items.first()).toBeVisible()
+  54 |   })
+  55 | 
+  56 |   test('API vrača predikcije in statistiko', async ({ request }) => {
+  57 |     const response = await request.get('/api/ai/predict')
+  58 |     expect(response.status()).toBe(200)
+  59 |     const data = await response.json()
+  60 |     expect(data.predictions).toBeDefined()
+  61 |     expect(data.predictions.length).toBeGreaterThan(0)
+  62 |     expect(data.stats).toBeDefined()
+  63 |     expect(data.stats.totalItems).toBeGreaterThan(0)
+  64 |     expect(data.stats.avgConfidence).toBeGreaterThan(50)
+  65 |     expect(data.reorderList).toBeDefined()
+  66 |   })
+  67 | 
+  68 |   test('AI reasoning je prikazan', async ({ page }) => {
+  69 |     const sec = page.locator('#ai-prediction')
+  70 |     const reasoning = sec.getByText(/Zaloga|predvideno|naroči|trend|sezonski/)
+  71 |     await expect(reasoning.first()).toBeVisible()
+  72 |   })
+  73 | })
+  74 | 
 ```

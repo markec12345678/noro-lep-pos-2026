@@ -1,64 +1,55 @@
 import { test, expect } from '@playwright/test'
 
-/**
- * AI Prediction E2E Tests
- * - Stats
- * - Predictions grid
- * - Reorder list toggle
- * - Urgency badges
- * - API
- */
-
 test.describe('AI Prediction', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await page.locator('#ai-prediction').scrollIntoViewIfNeeded()
-    await page.waitForTimeout(2000)
+    await page.waitForTimeout(3000)
   })
 
   test('prikaže AI stats', async ({ page }) => {
-    await expect(page.locator('text=Analizirano artiklov')).toBeVisible()
-    await expect(page.locator('text=Kritičnih')).toBeVisible()
-    await expect(page.locator('text=Povprečno zaupanje')).toBeVisible()
-    await expect(page.locator('text=Vrednost dobavnice')).toBeVisible()
+    const sec = page.locator('#ai-prediction')
+    await expect(sec.getByText('Analizirano artiklov')).toBeVisible()
+    await expect(sec.getByText('Kritičnih')).toBeVisible()
+    await expect(sec.getByText('Povprečno zaupanje')).toBeVisible()
+    await expect(sec.getByText('Vrednost dobavnice')).toBeVisible()
   })
 
   test('prikaže predikcije grid', async ({ page }) => {
-    // Vsaj ena predikcija
-    await expect(page.locator('text=Predikcija/teden')).toBeVisible()
-    await expect(page.locator('text=Zmanjka v')).toBeVisible()
-    await expect(page.locator('text=Zaupanje')).toBeVisible()
+    const sec = page.locator('#ai-prediction')
+    await expect(sec.getByText('Predikcija/teden')).toBeVisible()
+    await expect(sec.getByText('Zmanjka v')).toBeVisible()
+    await expect(sec.getByText('Zaupanje')).toBeVisible()
   })
 
   test('urgency badges so prisotne', async ({ page }) => {
-    // KRITIČNO badge mora biti prisoten (vsi artikli imajo nizko zalogo v demo)
-    await expect(page.locator('text=KRITIČNO').first()).toBeVisible()
+    const sec = page.locator('#ai-prediction')
+    await expect(sec.getByText('KRITIČNO').first()).toBeVisible()
   })
 
   test('trend indicator je prikazan', async ({ page }) => {
-    // Vsaj en trend (Rast, Padec, Sezonsko, Stabilno)
-    const trends = page.locator('text=/Rast|Padec|Sezonsko|Stabilno/')
+    const sec = page.locator('#ai-prediction')
+    const trends = sec.getByText(/Rast|Padec|Sezonsko|Stabilno/)
     await expect(trends.first()).toBeVisible()
   })
 
   test('toggle med Predikcije in Dobavnica', async ({ page }) => {
-    // Klikni na Dobavnica tab
-    await page.locator('button:has-text("Dobavnica")').click()
+    const sec = page.locator('#ai-prediction')
+    await sec.getByRole('button', { name: /Dobavnica/i }).click()
     await page.waitForTimeout(500)
-    await expect(page.locator('text=AI samodejna dobavnica')).toBeVisible()
-    await expect(page.locator('button:has-text("Ustvari dobavnico")')).toBeVisible()
+    await expect(sec.getByText('AI samodejna dobavnica')).toBeVisible()
+    await expect(sec.getByRole('button', { name: /Ustvari dobavnico/i })).toBeVisible()
 
-    // Nazaj na predikcije
-    await page.locator('button:has-text("Predikcije")').click()
+    await sec.getByRole('button', { name: /Predikcije/i }).click()
     await page.waitForTimeout(500)
-    await expect(page.locator('text=Predikcija/teden')).toBeVisible()
+    await expect(sec.getByText('Predikcija/teden')).toBeVisible()
   })
 
   test('reorder list vsebuje artikle', async ({ page }) => {
-    await page.locator('button:has-text("Dobavnica")').click()
+    const sec = page.locator('#ai-prediction')
+    await sec.getByRole('button', { name: /Dobavnica/i }).click()
     await page.waitForTimeout(500)
-    // Artikli v reorder list
-    const items = page.locator('text=/\\+\\d+/')
+    const items = sec.getByText(/\+\d+/)
     await expect(items.first()).toBeVisible()
   })
 
@@ -75,8 +66,8 @@ test.describe('AI Prediction', () => {
   })
 
   test('AI reasoning je prikazan', async ({ page }) => {
-    // Vsaj en reasoning tekst
-    const reasoning = page.locator('text=/Zaloga|predvideno|naroči|trend|sezonski/')
+    const sec = page.locator('#ai-prediction')
+    const reasoning = sec.getByText(/Zaloga|predvideno|naroči|trend|sezonski/)
     await expect(reasoning.first()).toBeVisible()
   })
 })

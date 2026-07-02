@@ -1,56 +1,54 @@
 import { test, expect } from '@playwright/test'
 
-/**
- * Command Center E2E Tests
- * - 7 sistemov prikazanih
- * - System health bar
- * - Live clock
- * - Auto-refresh
- */
-
 test.describe('Command Center', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
     await page.locator('#command-center').scrollIntoViewIfNeeded()
-    await page.waitForTimeout(2000)
+    await page.waitForTimeout(3000)
   })
 
   test('prikaže vseh 7 sistemov', async ({ page }) => {
-    await expect(page.locator('text=POS Blagajna')).toBeVisible()
-    await expect(page.locator('text=Kuhinja (KDS)')).toBeVisible()
-    await expect(page.locator('text=Mize')).toBeVisible()
-    await expect(page.locator('text=Dostava')).toBeVisible()
-    await expect(page.locator('text=AI predikcija')).toBeVisible()
-    await expect(page.locator('text=Plačila')).toBeVisible()
-    await expect(page.locator('text=Zaloge')).toBeVisible()
+    const cc = page.locator('#command-center')
+    await expect(cc.getByText('POS Blagajna', { exact: true })).toBeVisible()
+    await expect(cc.getByText('Kuhinja (KDS)', { exact: true })).toBeVisible()
+    await expect(cc.getByText('Mize', { exact: true })).toBeVisible()
+    await expect(cc.getByText('Dostava', { exact: true })).toBeVisible()
+    await expect(cc.getByText('AI predikcija', { exact: true })).toBeVisible()
+    await expect(cc.getByText('Plačila', { exact: true })).toBeVisible()
+    await expect(cc.getByText('Zaloge', { exact: true })).toBeVisible()
   })
 
   test('system health bar je prikazan', async ({ page }) => {
-    await expect(page.locator('text=System Health')).toBeVisible()
-    await expect(page.locator('text=Uptime')).toBeVisible()
-    await expect(page.locator('text=99.9%')).toBeVisible()
+    const cc = page.locator('#command-center')
+    await expect(cc.getByText('System Health')).toBeVisible()
+    await expect(cc.getByText('Uptime')).toBeVisible()
+    await expect(cc.getByText('99.9%')).toBeVisible()
   })
 
   test('POS kartica prikazuje promet', async ({ page }) => {
-    await expect(page.locator('text=POS Blagajna').locator('..').locator('text=/€[\\d,]+/')).toBeVisible()
-    await expect(page.locator('text=naročil')).toBeVisible()
+    const cc = page.locator('#command-center')
+    await expect(cc.getByText(/€[\d,]+/)).toBeVisible()
+    await expect(cc.getByText('naročil')).toBeVisible()
   })
 
-  test('KDS kartica prikuja statuse', async ({ page }) => {
-    await expect(page.locator('text=NOVA')).toBeVisible()
-    await expect(page.locator('text=PRIPRAVA')).toBeVisible()
-    await expect(page.locator('text=PRIPRAVL')).toBeVisible()
+  test('KDS kartica prikazuje statuse', async ({ page }) => {
+    const cc = page.locator('#command-center')
+    await expect(cc.getByText('NOVA')).toBeVisible()
+    await expect(cc.getByText('PRIPRAVA')).toBeVisible()
+    await expect(cc.getByText('PRIPRAVL')).toBeVisible()
   })
 
   test('real-time sync indicator je prisoten', async ({ page }) => {
-    await expect(page.locator('text=Real-time Sync')).toBeVisible()
-    await expect(page.locator('text=7 modulov sinhroniziranih')).toBeVisible()
+    const cc = page.locator('#command-center')
+    await expect(cc.getByText('Real-time Sync')).toBeVisible()
+    await expect(cc.getByText('7 modulov sinhroniziranih')).toBeVisible()
   })
 
   test('live clock se posodablja', async ({ page }) => {
-    const time1 = await page.locator('text=/\\d{2}:\\d{2}:\\d{2}/').first().textContent()
+    const cc = page.locator('#command-center')
+    const time1 = await cc.getByText(/\d{2}:\d{2}:\d{2}/).first().textContent()
     await page.waitForTimeout(2000)
-    const time2 = await page.locator('text=/\\d{2}:\\d{2}:\\d{2}/').first().textContent()
+    const time2 = await cc.getByText(/\d{2}:\d{2}:\d{2}/).first().textContent()
     expect(time1).not.toBeNull()
     expect(time2).not.toBeNull()
   })
