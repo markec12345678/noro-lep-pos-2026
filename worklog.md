@@ -993,3 +993,26 @@ Work Log:
 - 1 card-tilt instance (feature cards)
 - 0 console errors, lint 0
 - Push na GitHub: commit 68271fd na nextjs-landing
+
+---
+Task ID: 46
+Agent: main (Z.ai Code)
+Task: Dark mode toggle + card-tilt + animated gradient text + stagger
+
+Work Log:
+- Dark mode toggle implementiran:
+  * ThemeProvider v layout.tsx (next-themes, attribute=class, defaultTheme=light)
+  * DarkModeToggle komponenta z sun/moon SVG icons
+  * Toggle v header med LanguageSwitcher in Prijava
+  * Dark CSS variables ze obstajajo v globals.css (.dark class)
+  * Hydration-safe (mounted check)
+  * Agent-browser test: click → "dark mode ON" → screenshot captured ✅
+- Prejšnje vizualne izboljšave ohranjene:
+  * 12 animate-gradient-text instanc
+  * card-tilt na feature karticah
+  * Smoother stagger (0.08s)
+  * Animated gradient mesh v hero (3 pulsing orbs)
+  * Glassmorphism header
+- 23 komponent (DarkModeToggle dodana)
+- 0 console errors, lint 0 (1 warning, acceptable)
+- Push na GitHub: commit 368cc08 na nextjs-landing
