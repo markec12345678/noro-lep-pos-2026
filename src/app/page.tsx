@@ -2081,6 +2081,177 @@ function MobileMenu() {
 }
 
 /* ============================================================
+   Z-REPORT — Dnevno zaključevanje blagajne (FURS)
+   ============================================================ */
+function ZReportSection() {
+  const [closed, setClosed] = useState(false)
+  const [printing, setPrinting] = useState(false)
+
+  const report = {
+    date: new Date().toLocaleDateString('sl-SI', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+    cashier: 'Maja K.',
+    location: 'Gostilna Pri Lovru, Ljubljana',
+    totals: { revenue: 10681, orders: 633, avgCheck: 16.86, returns: 2, returnsValue: 32.00 },
+    vat: [
+      { rate: 22, base: 6215.57, vat: 1367.43, total: 7583.00 },
+      { rate: 9.5, base: 2819.18, vat: 267.82, total: 3087.00 },
+      { rate: 5, base: 1.90, vat: 0.10, total: 2.00 },
+    ],
+    payments: [
+      { method: 'Kartica', count: 285, amount: 4827.50 },
+      { method: 'Apple Pay', count: 127, amount: 2136.20 },
+      { method: 'Google Pay', count: 95, amount: 1602.15 },
+      { method: 'Gotovina', count: 76, amount: 1281.72 },
+      { method: 'NFC', count: 50, amount: 833.43 },
+    ],
+    furs: { zoi: 'a3f8b2c1d4e5f6a7b8c9d0e1f2a3b4c5', eor: 'EOR-2026-07-01-12345', messages: 633, errors: 0 },
+  }
+
+  const totalVat = report.vat.reduce((s, v) => s + v.vat, 0)
+  const totalBase = report.vat.reduce((s, v) => s + v.base, 0)
+
+  const handleClose = () => {
+    setPrinting(true)
+    setTimeout(() => { setPrinting(false); setClosed(true) }, 2500)
+  }
+
+  return (
+    <section id="z-report" className="py-20 lg:py-28 bg-slate-50/40 border-y border-slate-100">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <Badge className="mb-4 bg-slate-200 text-slate-700 hover:bg-slate-200">
+            <Receipt className="h-3.5 w-3.5 mr-1.5" />
+            Z-Report · FURS dnevni zaključek
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+            Dnevni zaključek{' '}
+            <span className="bg-gradient-to-r from-slate-600 to-emerald-600 bg-clip-text text-transparent">
+              v enem kliku
+            </span>
+          </h2>
+          <p className="mt-4 text-lg text-slate-600">
+            Z-Report z DDV razčlenitvijo, FURS ZOI/EOR potrditvijo in povzetkom plačil.
+            Avtomatsko tiskanje na 80mm termalni tiskalnik. FURS zaključek v 2 sekundah.
+          </p>
+        </div>
+
+        {/* Z-Report paper */}
+        <Card className="overflow-hidden border-slate-300 shadow-xl max-w-2xl mx-auto">
+          {/* Header */}
+          <div className="bg-slate-900 text-white p-4 text-center">
+            <div className="text-base font-bold">DNEVNI ZAKLJUČEK — Z-REPORT</div>
+            <div className="text-xs opacity-70 mt-1">{report.date}</div>
+            <div className="text-[10px] opacity-50 mt-0.5">{report.location} · Blagajnik: {report.cashier}</div>
+          </div>
+
+          {!closed ? (
+            <div className="p-6 font-mono text-sm">
+              {/* Totals */}
+              <div className="border-b border-dashed border-slate-200 pb-3 mb-3">
+                <div className="flex justify-between text-xs text-slate-500 mb-1"><span>Št. računov</span><span className="font-bold tabular-nums">{report.totals.orders}</span></div>
+                <div className="flex justify-between text-xs text-slate-500 mb-1"><span>Vračila</span><span className="tabular-nums">{report.totals.returns} ({report.totals.returnsValue.toFixed(2)} €)</span></div>
+                <div className="flex justify-between text-base font-bold text-slate-900 mt-2 pt-2 border-t border-slate-100"><span>SKUPNI PROMET</span><span className="tabular-nums">{report.totals.revenue.toLocaleString('sl-SI')} €</span></div>
+                <div className="flex justify-between text-xs text-slate-500"><span>Povprečni račun</span><span className="tabular-nums">{report.totals.avgCheck} €</span></div>
+              </div>
+
+              {/* DDV breakdown */}
+              <div className="border-b border-dashed border-slate-200 pb-3 mb-3">
+                <div className="text-xs font-bold text-slate-700 mb-2">DDV RAZČLENITEV</div>
+                <div className="grid grid-cols-4 gap-1 text-[10px] text-slate-400 font-bold mb-1">
+                  <span>Stopnja</span><span className="text-right">Osnova</span><span className="text-right">DDV</span><span className="text-right">Skupaj</span>
+                </div>
+                {report.vat.map((v, i) => (
+                  <div key={i} className="grid grid-cols-4 gap-1 text-xs text-slate-600 py-0.5">
+                    <span className="font-bold">{v.rate}%</span>
+                    <span className="text-right tabular-nums">{v.base.toFixed(2)} €</span>
+                    <span className="text-right tabular-nums">{v.vat.toFixed(2)} €</span>
+                    <span className="text-right tabular-nums font-semibold">{v.total.toFixed(2)} €</span>
+                  </div>
+                ))}
+                <div className="grid grid-cols-4 gap-1 text-xs font-bold text-slate-900 mt-1 pt-1 border-t border-slate-100">
+                  <span>SKUPAJ</span>
+                  <span className="text-right tabular-nums">{totalBase.toFixed(2)} €</span>
+                  <span className="text-right tabular-nums">{totalVat.toFixed(2)} €</span>
+                  <span className="text-right tabular-nums">{(totalBase + totalVat).toFixed(2)} €</span>
+                </div>
+              </div>
+
+              {/* Payment methods */}
+              <div className="border-b border-dashed border-slate-200 pb-3 mb-3">
+                <div className="text-xs font-bold text-slate-700 mb-2">PLAČILA PO METODAH</div>
+                {report.payments.map((p, i) => (
+                  <div key={i} className="flex justify-between text-xs text-slate-600 py-0.5">
+                    <span>{p.method} ({p.count}×)</span>
+                    <span className="tabular-nums font-semibold">{p.amount.toFixed(2)} €</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* FURS */}
+              <div className="pb-3">
+                <div className="text-xs font-bold text-slate-700 mb-2">FURS</div>
+                <div className="flex justify-between text-[10px] text-slate-500 py-0.5"><span>ZOI</span><span className="font-mono">{report.furs.zoi.substring(0, 16)}...</span></div>
+                <div className="flex justify-between text-[10px] text-slate-500 py-0.5"><span>EOR</span><span className="font-mono">{report.furs.eor}</span></div>
+                <div className="flex justify-between text-[10px] text-slate-500 py-0.5"><span>Sporočila</span><span className="tabular-nums">{report.furs.messages}</span></div>
+                <div className="flex justify-between text-[10px] py-0.5"><span>Napake</span><span className="tabular-nums font-bold text-emerald-600">{report.furs.errors} ✅</span></div>
+              </div>
+
+              {/* Action */}
+              <Button
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white h-12 mt-2"
+                onClick={handleClose}
+                disabled={printing}
+              >
+                {printing ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Tiskanje in FURS zaključek...</>
+                ) : (
+                  <><Receipt className="h-4 w-4 mr-2" />Zaključi dan · Natisni Z-Report</>
+                )}
+              </Button>
+            </div>
+          ) : (
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="p-8 text-center">
+              <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+              </div>
+              <div className="text-lg font-bold text-slate-900 mb-1">Dan zaključen! ✅</div>
+              <div className="text-sm text-slate-500 mb-4">Z-Report natisnjen · FURS zaključen · EOR potrjen</div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-50 text-xs text-emerald-700 font-semibold">
+                <ShieldCheck className="h-4 w-4" />
+                FURS dnevni zaključek uspešen · 0 napak
+              </div>
+              <div className="mt-4">
+                <Button variant="outline" size="sm" onClick={() => setClosed(false)}>
+                  Ponovi zaključek
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </Card>
+
+        {/* Features */}
+        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-3 max-w-2xl mx-auto">
+          {[
+            { icon: Zap, title: '1-klik zaključek', desc: 'FURS + tiskanje v 2s' },
+            { icon: Receipt, title: '80mm termalni', desc: 'ESC/POS tiskanje' },
+            { icon: ShieldCheck, title: 'FURS ZOI/EOR', desc: 'Avtomatska potrditev' },
+            { icon: BarChart3, title: 'DDV razčlenitev', desc: '22%, 9.5%, 5% stopnje' },
+          ].map((f, i) => (
+            <Card key={i} className="p-4 border-slate-200/70 text-center">
+              <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center mx-auto mb-2">
+                <f.icon className="h-4 w-4 text-slate-600" />
+              </div>
+              <div className="text-xs font-bold text-slate-900">{f.title}</div>
+              <div className="text-[10px] text-slate-500 mt-0.5">{f.desc}</div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    MAIN PAGE
    ============================================================ */
 export default function Home() {
@@ -2493,6 +2664,9 @@ export default function Home() {
           <RoiCalculator />
         </div>
       </section>
+
+      {/* ===== Z-REPORT (dnevno zaključevanje blagajne) ===== */}
+      <ZReportSection />
 
       {/* ===== PRICING ===== */}
       <section id="cene" className="py-20 lg:py-28">
