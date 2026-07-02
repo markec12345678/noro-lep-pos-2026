@@ -2502,15 +2502,39 @@ interface DashboardData {
   systemHealth: { score: number; activeModules: number; uptime: string; alerts: number }
 }
 
+const ACTIVITY_TEMPLATES = [
+  { make: () => `Miza ${1 + Math.floor(Math.random() * 15)} — novo naročilo`, val: () => `€${(8 + Math.random() * 40).toFixed(2).replace('.', ',')}`, tone: 'cyan' },
+  { make: () => `Kuhinja — jed pripravljena (Miza ${1 + Math.floor(Math.random() * 15)})`, val: () => '✓', tone: 'amber' },
+  { make: () => `Miza ${1 + Math.floor(Math.random() * 15)} — plačilo`, val: () => `€${(15 + Math.random() * 80).toFixed(2).replace('.', ',')}`, tone: 'emerald' },
+  { make: () => `${['Wolt', 'Glovo', 'Uber Eats'][Math.floor(Math.random() * 3)]} — dostava prevzeta`, val: () => '→', tone: 'cyan' },
+  { make: () => `Miza ${1 + Math.floor(Math.random() * 15)} — rezervacija`, val: () => `${19 + Math.floor(Math.random() * 2)}:${['00', '15', '30', '45'][Math.floor(Math.random() * 4)]}`, tone: 'purple' },
+] as const
+
 function CommandCenter() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [now, setNow] = useState(new Date())
+  const [liveRevenue, setLiveRevenue] = useState(0)
+  const [liveOrders, setLiveOrders] = useState(0)
+  const [liveKds, setLiveKds] = useState({ newOrders: 0, preparing: 0, ready: 0 })
+  const [tableStates, setTableStates] = useState<number[]>([])
+  const [activity, setActivity] = useState<{ id: number; text: string; val: string; tone: string; time: string }[]>([])
+  const [flash, setFlash] = useState(false)
+  const idRef = useRef(0)
 
   useEffect(() => {
     const fetchData = () => {
       fetch('/api/dashboard/overview')
         .then(r => r.json())
-        .then(d => setData(d))
+        .then(d => {
+          setData(d)
+          setLiveRevenue(prev => prev === 0 ? d.pos.revenueToday : prev)
+          setLiveOrders(prev => prev === 0 ? d.pos.ordersToday : prev)
+          setLiveKds({ newOrders: d.kds.newOrders, preparing: d.kds.preparing, ready: d.kds.ready })
+          setTableStates(prev => prev.length === 0
+            ? Array.from({ length: d.tables.total }, (_, i) =>
+                i < d.tables.occupied ? 1 : i < d.tables.occupied + d.tables.reserved ? 2 : i < d.tables.occupied + d.tables.reserved + d.tables.payment ? 3 : 0)
+            : prev)
+        })
         .catch(() => {})
     }
     fetchData()
@@ -2523,7 +2547,52 @@ function CommandCenter() {
     return () => clearInterval(timer)
   }, [])
 
+  // LIVE SIMULATION — revenue, orders, KDS flow, table states, activity feed
+  useEffect(() => {
+    const sim = setInterval(() => {
+      const inc = +(3 + Math.random() * 25).toFixed(2)
+      setLiveRevenue(r => r + inc)
+      setLiveOrders(o => o + (Math.random() < 0.3 ? 1 : 0))
+      setLiveKds(k => {
+        let { newOrders, preparing, ready } = k
+        if (ready > 0 && Math.random() < 0.5) ready--
+        if (preparing > 0 && Math.random() < 0.6) { preparing--; ready++ }
+        if (newOrders > 0 && Math.random() < 0.7) { newOrders--; preparing++ }
+        if (Math.random() < 0.4) newOrders++
+        return { newOrders: Math.min(newOrders, 9), preparing: Math.min(preparing, 9), ready: Math.min(ready, 9) }
+      })
+      setTableStates(prev => {
+        if (prev.length === 0) return prev
+        const next = [...prev]
+        const i = Math.floor(Math.random() * next.length)
+        const cur = next[i]
+        if (cur === 0) next[i] = Math.random() < 0.5 ? 1 : 2
+        else if (cur === 1) next[i] = 3
+        else if (cur === 3) next[i] = 0
+        else next[i] = 1
+        return next
+      })
+      const tpl = ACTIVITY_TEMPLATES[Math.floor(Math.random() * ACTIVITY_TEMPLATES.length)]
+      const evt = {
+        id: idRef.current++,
+        text: tpl.make(),
+        val: tpl.val(),
+        tone: tpl.tone,
+        time: new Date().toLocaleTimeString('sl-SI', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      }
+      setActivity(a => [evt, ...a].slice(0, 6))
+      setFlash(true)
+      setTimeout(() => setFlash(false), 600)
+    }, 2800)
+    return () => clearInterval(sim)
+  }, [])
+
   if (!data) return null
+
+  const occupied = tableStates.filter(s => s === 1).length
+  const reserved = tableStates.filter(s => s === 2).length
+  const occRate = tableStates.length ? Math.round((occupied / tableStates.length) * 100) : data.tables.occupancyRate
+  const toneColor: Record<string, string> = { emerald: 'text-emerald-400', amber: 'text-amber-400', cyan: 'text-cyan-400', purple: 'text-purple-400' }
 
   return (
     <section id="command-center" className="py-16 lg:py-20 bg-slate-950 text-white relative overflow-hidden">
@@ -2570,8 +2639,8 @@ function CommandCenter() {
               <span className="text-[10px] font-bold text-slate-300">POS</span>
               <span className="ml-auto text-[8px] text-emerald-400 font-bold">{data.pos.revenueChange}</span>
             </div>
-            <div className="text-xl font-bold text-white tabular-nums">€{data.pos.revenueToday.toLocaleString('sl-SI')}</div>
-            <div className="text-[9px] text-slate-400">{data.pos.ordersToday} naročil</div>
+            <div className={`text-xl font-bold text-white tabular-nums transition-colors duration-500 ${flash ? 'text-emerald-300' : ''}`}>€{liveRevenue.toLocaleString('sl-SI', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+            <div className="text-[9px] text-slate-400">{liveOrders} naročil</div>
             <div className="flex items-end gap-0.5 mt-2 h-6">
               {data.pos.hourlyTrend.map((v, i) => (
                 <div key={i} className="flex-1 bg-emerald-500/40 rounded-sm" style={{ height: `${(v / Math.max(...data.pos.hourlyTrend)) * 100}%` }} />
@@ -2585,9 +2654,9 @@ function CommandCenter() {
               <span className="text-[10px] font-bold text-slate-300">KDS</span>
             </div>
             <div className="grid grid-cols-3 gap-1.5">
-              <div className="text-center p-1 rounded bg-cyan-500/10"><div className="text-base font-bold text-cyan-400 tabular-nums">{data.kds.newOrders}</div><div className="text-[7px] text-slate-400">NOVA</div></div>
-              <div className="text-center p-1 rounded bg-amber-500/10"><div className="text-base font-bold text-amber-400 tabular-nums">{data.kds.preparing}</div><div className="text-[7px] text-slate-400">PRIPR.</div></div>
-              <div className="text-center p-1 rounded bg-emerald-500/10"><div className="text-base font-bold text-emerald-400 tabular-nums">{data.kds.ready}</div><div className="text-[7px] text-slate-400">GOTOV</div></div>
+              <div className="text-center p-1 rounded bg-cyan-500/10"><div className="text-base font-bold text-cyan-400 tabular-nums">{liveKds.newOrders}</div><div className="text-[7px] text-slate-400">NOVA</div></div>
+              <div className="text-center p-1 rounded bg-amber-500/10"><div className="text-base font-bold text-amber-400 tabular-nums">{liveKds.preparing}</div><div className="text-[7px] text-slate-400">PRIPR.</div></div>
+              <div className="text-center p-1 rounded bg-emerald-500/10"><div className="text-base font-bold text-emerald-400 tabular-nums">{liveKds.ready}</div><div className="text-[7px] text-slate-400">GOTOV</div></div>
             </div>
             <div className="text-[9px] text-slate-400 mt-2">Povp: {data.kds.avgPrepTime}min</div>
           </Card>
@@ -2597,11 +2666,11 @@ function CommandCenter() {
               <div className="w-7 h-7 rounded-lg bg-sky-500/20 flex items-center justify-center"><LayoutGrid className="h-3.5 w-3.5 text-sky-400" /></div>
               <span className="text-[10px] font-bold text-slate-300">Mize</span>
             </div>
-            <div className="text-xl font-bold text-white tabular-nums">{data.tables.occupancyRate}%</div>
-            <div className="text-[9px] text-slate-400">{data.tables.avgTableTime}min povp.</div>
+            <div className="text-xl font-bold text-white tabular-nums">{occRate}%</div>
+            <div className="text-[9px] text-slate-400">{occupied} zasedene · {reserved} rezervirane</div>
             <div className="flex flex-wrap gap-1 mt-2">
-              {Array.from({ length: data.tables.total }).map((_, i) => (
-                <div key={i} className={`w-2.5 h-2.5 rounded ${i < data.tables.occupied ? 'bg-emerald-500' : i < data.tables.occupied + data.tables.reserved ? 'bg-amber-500' : 'bg-slate-600'}`} />
+              {tableStates.map((s, i) => (
+                <div key={i} className={`w-2.5 h-2.5 rounded transition-colors duration-500 ${s === 1 ? 'bg-emerald-500' : s === 2 ? 'bg-amber-500' : s === 3 ? 'bg-cyan-500' : 'bg-slate-600'}`} />
               ))}
             </div>
           </Card>
@@ -2617,13 +2686,45 @@ function CommandCenter() {
           </Card>
         </div>
 
+        {/* LIVE ACTIVITY FEED — realnočasni tok dogodkov */}
+        <div className="mt-4 rounded-xl bg-slate-900/60 border border-slate-800 overflow-hidden">
+          <div className="px-3 py-2 border-b border-slate-800 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+              </span>
+              <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Tok dogodkov</span>
+            </div>
+            <span className="text-[9px] text-slate-500">realnočasno · vsakih 2,8s</span>
+          </div>
+          <div className="max-h-44 overflow-y-auto">
+            <AnimatePresence initial={false}>
+              {activity.map((evt) => (
+                <motion.div
+                  key={evt.id}
+                  initial={{ opacity: 0, x: -16, height: 0 }}
+                  animate={{ opacity: 1, x: 0, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                  className="px-3 py-1.5 flex items-center gap-2.5 border-b border-slate-800/50 text-xs"
+                >
+                  <span className="text-[9px] text-slate-500 tabular-nums shrink-0">{evt.time}</span>
+                  <span className="text-slate-300 flex-1 truncate">{evt.text}</span>
+                  <span className={`font-bold tabular-nums shrink-0 ${toneColor[evt.tone]}`}>{evt.val}</span>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </div>
+
         {/* Bottom note */}
         <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-slate-500">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
           </span>
-          Live · {now.toLocaleTimeString('sl-SI')} · osvežitev vsakih 15s
+          Live · {now.toLocaleTimeString('sl-SI')} · promet se dviga v realnem času
         </div>
       </div>
     </section>
