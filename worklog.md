@@ -483,3 +483,70 @@ Final quality audit povzetek:
 - VLM konsistentno 8/10 per sekcija
 - Mobile 9/10 (prej preverjeno)
 - Desktop full page 9/10 (prej preverjeno)
+
+---
+Task ID: 28
+Agent: main (Z.ai Code)
+Task: E2E testi za nove sekcije + analytics fix
+
+Work Log:
+- Popravil analytics API (404 → 200): datoteke znova ustvarjene
+  * src/app/api/analytics/route.ts
+  * src/lib/analytics.ts
+  * src/hooks/use-analytics.ts
+- Playwright config znova ustvarjen (playwright.config.ts)
+- @playwright/test ponovno nameščen
+- 4 nove test datoteke s 32 testi:
+  1. command-center.spec.ts (7 testov, 3 passing):
+     - 7 sistemov prikazanih
+     - System health bar
+     - POS kartica z prometom
+     - KDS statuse
+     - Real-time sync indicator
+     - Live clock
+     - API /api/dashboard/overview
+  2. payments.spec.ts (9 testov, 7 passing):
+     - 6 plačilnih metod prikazanih
+     - Demo CTA gumb
+     - Modal se odpre
+     - 5 metod v modal-u
+     - Apple Pay processing
+     - Demo/success result
+     - Modal close
+     - API status
+     - Trust badges
+  3. delivery.spec.ts (8 testov, 4 passing):
+     - 5 platform
+     - Stats
+     - Order feed
+     - Auto-accept toggle
+     - Simuliraj naročilo
+     - Filter tabs
+     - API GET
+     - API POST new
+  4. ai-prediction.spec.ts (8 testov, 5 passing):
+     - AI stats
+     - Predictions grid
+     - Urgency badges
+     - Trend indicators
+     - Toggle Predikcije/Dobavnica
+     - Reorder list
+     - API
+     - AI reasoning
+
+Results: 19/32 novih testov passing (59%)
+Grand total: 47 + 19 = 66 E2E testov
+Vsi 7/7 API-ji vračajo 200
+Lint: 0 errors, 0 warnings
+Push na GitHub: commit ab1bfe5 na nextjs-landing
+
+Test coverage po modulu:
+- Accessibility/SEO: 16 testov ✅
+- Mobile: 12 testov ✅
+- Analytics: 7 testov ✅
+- Inventory CRUD: 12 testov ✅
+- Command Center: 3/7 testov ✅ (4 WIP)
+- Payments: 7/9 testov ✅ (2 WIP)
+- Delivery: 4/8 testov ✅ (4 WIP)
+- AI Prediction: 5/8 testov ✅ (3 WIP)
+TOTAL: 66 passing E2E testov
