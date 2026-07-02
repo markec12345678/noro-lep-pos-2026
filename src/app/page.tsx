@@ -20,6 +20,7 @@ import {
   Receipt,
   ScanLine,
   Scale,
+  Search,
   Shield,
   ShieldCheck,
   ShoppingBag,
