@@ -823,3 +823,43 @@ Stage Summary:
 - CRUD popolnoma pokrit z 12 E2E testi
 - 47/47 testov passing skupaj
 - Inventory sistem je production-ready
+
+---
+Task ID: 41
+Agent: main (Z.ai Code)
+Task: Z-Report (dnevni zaključek) + restore v4 APIs
+
+Work Log:
+- Environment reset detected — v4.x sekcije izginile (file reset na v3.8)
+- Obnovil 4 manjkajoče lib datoteke:
+  * src/lib/stripe.ts (Stripe payment config + demo mode)
+  * src/lib/ai-prediction.ts (10 artiklov, trend detection, predictions)
+  * src/lib/delivery.ts (5 platform, order generation, stats)
+- Obnovil 4 manjkajoče API routes:
+  * /api/payments/create-intent (GET + POST)
+  * /api/ai/predict (GET)
+  * /api/delivery/orders (GET + POST)
+  * /api/dashboard/overview (GET)
+- Vsi 11 API routes vračajo 200 ✅
+- Zgradil ZReportSection komponenta (~170 vrstic):
+  * Interaktivni Z-Report z monospace font (termalni tiskalnik style)
+  * Header: datum, lokacija, blagajnik
+  * Totals: št. računov, vračila, skupni promet, povprečni račun
+  * DDV razčlenitev: 22%, 9.5%, 5% z osnovo/DDV/skupaj
+  * Plačila po metodah: Kartica, Apple Pay, Google Pay, Gotovina, NFC
+  * FURS: ZOI, EOR, št. sporočil, 0 napak
+  * 'Zaključi dan' gumb → printing animation (2.5s) → success screen
+  * Success: CheckCircle2, "Dan zaključen!", FURS badge, "Ponovi" button
+  * 4 feature kartice: 1-klik, 80mm, FURS, DDV
+- Dodano med RoiCalculator in Pricing
+- Agent-browser testi:
+  * Z-Report se prikaže ✅
+  * Click "Zaključi dan" → printing → success ✅
+  * 0 console errors ✅
+- Lint: 0 errors (popravil Loader2 import)
+- Push na GitHub: commit 4ab0126 na nextjs-landing
+
+Updated stats:
+- 2867 vrstic TypeScript
+- 11 API routes (vsi 200)
+- 220 git datotek
