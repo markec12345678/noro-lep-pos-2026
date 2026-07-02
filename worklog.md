@@ -1675,3 +1675,49 @@ Stage Summary:
 - VLM: 8/10 polish
 - 0 napak (1 obstoječa hydration), 0 lint errors
 - Commit/push next
+
+---
+Task ID: 61
+Agent: main (Z.ai Code)
+Task: v6.4 — Menu Engineering sekcija (AI analiza dobičkonosnosti menija)
+
+Work Log:
+- Implementiral naslednjo prioriteto iz raziskave (Task 60): Menu Engineering
+- Razširitev AI predikcije na novo dimenzijo: popularnost × dobiček
+
+v6.4 IMPLEMENTACIJA:
+- NOVA MenuEngineeringSection komponenta (~210 vrstic)
+- 4 kvadranti (klasični menu engineering model):
+  * ⭐ Zvezde (visoka pop + visok profit) — "Poudari, ne spremeni cene"
+  * 🐴 Delavski konji (visoka pop + nizek profit) — "Zvišaj ceno 0,50-1,00€"
+  * 🧩 Uganke (nizka pop + visok profit) — "Boljši položaj v meniju"
+  * 🐕 Psi (nizka pop + nizek profit) — "Kandidat za umik"
+- 12 meni artiklov s podatki:
+  * 4 Zvezde: Čevapi (€9,80×312), Margherita (€7,20×287), Burger NL (€11,50×264), Beef Burger (€12,30×198)
+  * 3 Delavski konji: Trški pršut, Brusketa, Štruklji
+  * 3 Uganke: Rižota, Kozice, Zrezek (visok profit, nizka prodaja)
+  * 2 Psi: Šampinjoni, Mešana solata (umik)
+- Interaktivni filter (klik kvadranta filtrira listo)
+- Vsak artikel: emoji, ime, POP bar (emerald), € bar (purple), prodanih, dobiček
+- AI priporočilo card (spreminja se glede na aktivni kvadrant)
+- 4 statistike: € skupni dobiček/mesec, št. zvezd, št. psov, +12% profit ob akciji
+- Layout: med AIPredictionSection in Demo
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 19 sekcij (+1), HTTP 200
+  * MenuEngineeringSection: OK
+  * Badge/Star/Workhorse/Puzzle: vsi OK
+- VLM audit:
+  * "4 quadrant filter cards with emojis and counts (4,3,3,2)"
+  * "menu items with POP bars, € bars, dobiček amounts"
+  * "AI recommendation card + 4 stat cards"
+  * 8/10 visual polish, 9/10 data clarity
+  * "actionable data, intuitive quadrant labels"
+
+Stage Summary:
+- 19 sekcij (menu-engineering dodana)
+- 32 komponent (MenuEngineeringSection)
+- AI razširjena na 3 dimenzije: predikcija zalog + menu engineering + weather
+- VLM: 8/10 polish, 9/10 clarity
+- 0 napak (1 obstoječa hydration), 0 lint errors
+- Commit/push next

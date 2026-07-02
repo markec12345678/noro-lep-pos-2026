@@ -3104,6 +3104,221 @@ function AIPredictionSection() {
 }
 
 /* ============================================================
+   MENU ENGINEERING — AI analiza dobičkonosnosti menija (4 kvadranti)
+   ============================================================ */
+interface MenuEngItem {
+  name: string
+  popularity: number  // 0-100
+  profit: number      // € margin per unit
+  sold: number        // units this month
+  category: 'star' | 'workhorse' | 'puzzle' | 'dog'
+}
+
+const MENU_ENG_ITEMS: MenuEngItem[] = [
+  { name: 'Čevapi s kajmakom', popularity: 92, profit: 9.80, sold: 312, category: 'star' },
+  { name: 'Pizza Margherita', popularity: 88, profit: 7.20, sold: 287, category: 'star' },
+  { name: 'Burger Noro Lep', popularity: 85, profit: 11.50, sold: 264, category: 'star' },
+  { name: 'Beef Burger Deluxe', popularity: 79, profit: 12.30, sold: 198, category: 'star' },
+  { name: 'Trški pršut', popularity: 71, profit: 4.20, sold: 156, category: 'workhorse' },
+  { name: 'Brusketa s paradižnikom', popularity: 68, profit: 2.80, sold: 142, category: 'workhorse' },
+  { name: 'Štruklji', popularity: 64, profit: 3.10, sold: 128, category: 'workhorse' },
+  { name: 'Rižota s morskimi sadeži', popularity: 42, profit: 13.80, sold: 67, category: 'puzzle' },
+  { name: 'Kozice na žaru', popularity: 38, profit: 14.50, sold: 54, category: 'puzzle' },
+  { name: 'Zrezek na žaru', popularity: 31, profit: 15.20, sold: 41, category: 'puzzle' },
+  { name: 'Šampinjoni na žaru', popularity: 22, profit: 2.10, sold: 28, category: 'dog' },
+  { name: 'Mešana solata', popularity: 18, profit: 1.90, sold: 19, category: 'dog' },
+]
+
+const MENU_ENG_QUADRANTS = {
+  star: {
+    label: 'Zvezde',
+    emoji: '⭐',
+    desc: 'Visoka popularnost + visok dobiček',
+    color: 'bg-emerald-50 border-emerald-200',
+    headerColor: 'text-emerald-700',
+    action: 'Poudari na vrhu menija. Nikoli ne spremeni cene.',
+  },
+  workhorse: {
+    label: 'Delavski konji',
+    emoji: '🐴',
+    desc: 'Visoka popularnost + nizek dobiček',
+    color: 'bg-amber-50 border-amber-200',
+    headerColor: 'text-amber-700',
+    action: 'Razmisli o zvišanju cene za 0,50–1,00 €.',
+  },
+  puzzle: {
+    label: 'Uganke',
+    emoji: '🧩',
+    desc: 'Nizka popularnost + visok dobiček',
+    color: 'bg-purple-50 border-purple-200',
+    headerColor: 'text-purple-700',
+    action: 'Prenesi na boljši položaj v meniju. Promo paket.',
+  },
+  dog: {
+    label: 'Psi',
+    emoji: '🐕',
+    desc: 'Nizka popularnost + nizek dobiček',
+    color: 'bg-rose-50 border-rose-200',
+    headerColor: 'text-rose-700',
+    action: 'Kandidat za umik iz menija. Sprosti kuhinjo.',
+  },
+} as const
+
+function MenuEngineeringSection() {
+  const [activeQ, setActiveQ] = useState<'star' | 'workhorse' | 'puzzle' | 'dog' | 'all'>('all')
+
+  const filtered = activeQ === 'all' ? MENU_ENG_ITEMS : MENU_ENG_ITEMS.filter(i => i.category === activeQ)
+  const counts = {
+    star: MENU_ENG_ITEMS.filter(i => i.category === 'star').length,
+    workhorse: MENU_ENG_ITEMS.filter(i => i.category === 'workhorse').length,
+    puzzle: MENU_ENG_ITEMS.filter(i => i.category === 'puzzle').length,
+    dog: MENU_ENG_ITEMS.filter(i => i.category === 'dog').length,
+  }
+  const totalRevenue = MENU_ENG_ITEMS.reduce((s, i) => s + i.profit * i.sold, 0)
+
+  return (
+    <section id="menu-engineering" className="py-16 lg:py-20 bg-white border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <Badge className="mb-3 bg-purple-100 text-purple-800 hover:bg-purple-100">
+            <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+            Menu Engineering
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            AI ve katere jedi ti <span className="bg-gradient-to-r from-purple-600 to-emerald-600 bg-clip-text text-transparent animate-gradient-text">prinašajo denar</span>
+          </h2>
+          <p className="mt-2 text-base text-slate-600">Vsak artikel v matriko: popularnost × dobiček. Štirje kvadranti, jasna priporočila.</p>
+        </div>
+
+        {/* 4 kvadranti — filter */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+          {(Object.keys(MENU_ENG_QUADRANTS) as Array<keyof typeof MENU_ENG_QUADRANTS>).map((q) => {
+            const info = MENU_ENG_QUADRANTS[q]
+            const isActive = activeQ === q
+            return (
+              <button
+                key={q}
+                onClick={() => setActiveQ(isActive ? 'all' : q)}
+                className={`p-3 rounded-xl border-2 text-left transition-all ${isActive ? info.color + ' ring-2 ring-offset-1 ring-purple-300' : 'border-slate-200 bg-white hover:border-slate-300'}`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-2xl">{info.emoji}</span>
+                  <span className={`text-xs font-bold ${info.headerColor}`}>{counts[q]}</span>
+                </div>
+                <div className={`text-sm font-bold ${info.headerColor}`}>{info.label}</div>
+                <div className="text-[10px] text-slate-500 leading-tight mt-0.5">{info.desc}</div>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Items grid + AI insight */}
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Items (2/3) */}
+          <div className="lg:col-span-2">
+            <Card className="overflow-hidden border-slate-200/70 shadow-sm">
+              <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">
+                  {activeQ === 'all' ? 'Vsi artikli' : MENU_ENG_QUADRANTS[activeQ].label}
+                </span>
+                <span className="text-[10px] text-slate-400">{filtered.length} od {MENU_ENG_ITEMS.length}</span>
+              </div>
+              <div className="divide-y divide-slate-50 max-h-80 overflow-y-auto">
+                {filtered.map((item, i) => {
+                  const info = MENU_ENG_QUADRANTS[item.category]
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -8 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.25, delay: i * 0.03 }}
+                      className="px-4 py-2.5 flex items-center gap-3 hover:bg-slate-50/60 transition-colors"
+                    >
+                      <span className="text-lg shrink-0">{info.emoji}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold text-slate-900 truncate">{item.name}</div>
+                        <div className="flex items-center gap-3 mt-0.5">
+                          {/* Popularity bar */}
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[9px] text-slate-400 w-8">POP</span>
+                            <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                              <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${item.popularity}%` }} />
+                            </div>
+                          </div>
+                          {/* Profit bar */}
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[9px] text-slate-400 w-8">€</span>
+                            <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                              <div className="h-full bg-purple-500 rounded-full" style={{ width: `${Math.min(100, (item.profit / 16) * 100)}%` }} />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-xs font-bold text-slate-900 tabular-nums">{item.sold}</div>
+                        <div className="text-[9px] text-slate-400">prodanih</div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-xs font-bold text-emerald-600 tabular-nums">€{(item.profit * item.sold).toFixed(0)}</div>
+                        <div className="text-[9px] text-slate-400">dobiček</div>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </div>
+            </Card>
+          </div>
+
+          {/* AI insight (1/3) */}
+          <div className="space-y-4">
+            {/* AI priporočilo za aktivni kvadrant */}
+            <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.3 }} className={`p-4 rounded-xl border-2 ${activeQ === 'all' ? 'bg-purple-50 border-purple-200' : MENU_ENG_QUADRANTS[activeQ].color}`}>
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-4 w-4 text-purple-600" />
+                <span className="text-xs font-bold text-slate-900 uppercase tracking-wide">AI priporočilo</span>
+              </div>
+              {activeQ === 'all' ? (
+                <p className="text-sm text-slate-700 leading-relaxed">
+                  Izberi kvadrant za specifična priporočila. Skupni dobiček iz menija: <span className="font-bold text-purple-700">€{totalRevenue.toLocaleString('sl-SI')}</span>.
+                </p>
+              ) : (
+                <>
+                  <div className="text-sm font-bold text-slate-900 mb-1">
+                    {MENU_ENG_QUADRANTS[activeQ].emoji} {MENU_ENG_QUADRANTS[activeQ].label}
+                  </div>
+                  <p className="text-sm text-slate-700 leading-relaxed">{MENU_ENG_QUADRANTS[activeQ].action}</p>
+                </>
+              )}
+            </motion.div>
+
+            {/* Statistike */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-center">
+                <div className="text-xl font-bold text-purple-600 tabular-nums">€{totalRevenue.toLocaleString('sl-SI')}</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">dobiček/mesec</div>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-center">
+                <div className="text-xl font-bold text-emerald-600 tabular-nums">{counts.star}</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">zvezd v meniju</div>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-center">
+                <div className="text-xl font-bold text-rose-600 tabular-nums">{counts.dog}</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">psa (umik)</div>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-center">
+                <div className="text-xl font-bold text-amber-600 tabular-nums">+12%</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">profit ob akciji</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    COMMAND CENTER — Unified dashboard vseh sistemov
    ============================================================ */
 interface DashboardData {
@@ -3874,6 +4089,9 @@ export default function Home() {
 
       {/* ===== AI PREDICTION ===== */}
       <AIPredictionSection />
+
+      {/* ===== MENU ENGINEERING ===== */}
+      <MenuEngineeringSection />
 
       {/* ===== INTERACTIVE PRODUCT TOUR ===== */}
       <section id="demo" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/40 to-white border-y border-slate-100">
