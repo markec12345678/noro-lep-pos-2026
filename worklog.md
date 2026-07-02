@@ -550,3 +550,32 @@ Test coverage po modulu:
 - Delivery: 4/8 testov ✅ (4 WIP)
 - AI Prediction: 5/8 testov ✅ (3 WIP)
 TOTAL: 66 passing E2E testov
+
+---
+Task ID: 29
+Agent: main (Z.ai Code)
+Task: Popravi failing testi — 71/79 passing (90%)
+
+Work Log:
+- Analiziral napake: vse failing testi so strict mode violations (text appears multiple times)
+- Popravil vse 4 test datoteke z section-scoped selectorji:
+  * Uporabil page.locator('#section-id') kot scope
+  * Uporabil getByText({ exact: true }) za natančno ujemanje
+  * Uporabil getByRole('button', { name: ... }) za gumbn
+- Command Center: 3→5/7 passing (scoped #command-center)
+  - Popravljeno: prikaže vseh 7 sistemov, system health bar, real-time sync, live clock, API
+  - Še failing: POS kartica promet, KDS statuse (timing/selector issues)
+- Payments: 7→8/9 passing (scoped #placila)
+  - Popravljeno: prikaže vse plačilne metode, trust badges
+  - Še failing: modal close (overlay selector issue)
+- Delivery: 4→5/8 passing (scoped #dostava)
+  - Popravljeno: prikaže 5 platform, filter tabs, API GET, API POST
+  - Še failing: stats, order feed, simuliraj (API loading timing)
+- AI: 5→6/8 passing (scoped #ai-prediction)
+  - Popravljeno: prikaže AI stats, urgency badges, trend, reorder, API, reasoning
+  - Še failing: predikcije grid, toggle (text appears in multiple places)
+
+Results: 24/32 novih testov passing (75%, prej 59%)
+Grand total: 47 + 24 = 71/79 E2E testov passing (90%)
+Lint: 0 errors, 0 warnings
+Push na GitHub: commit 5193237 na nextjs-landing
