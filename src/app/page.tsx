@@ -17,6 +17,8 @@ import {
   Minus,
   Package,
   Plus,
+  QrCode,
+  Monitor,
   Receipt,
   ScanLine,
   Scale,
@@ -2432,6 +2434,195 @@ function DeliverySection() {
 }
 
 /* ============================================================
+   QR ORDERING & SELF-SERVICE KIOSK — gostje sami naročajo
+   ============================================================ */
+const QR_MENU_ITEMS = [
+  { name: 'Beef Burger Deluxe', price: '14,90', img: '🍔', cat: 'Burgerji' },
+  { name: 'Cezar solata', price: '9,50', img: '🥗', cat: 'Solate' },
+  { name: 'Margherita pizza', price: '11,00', img: '🍕', cat: 'Pizza' },
+  { name: 'Tiramisu', price: '5,50', img: '🍰', cat: 'Sladice' },
+  { name: 'Aperol Spritz', price: '6,50', img: '🍹', cat: 'Pijače' },
+  { name: 'Limonada', price: '3,20', img: '🥤', cat: 'Pijače' },
+] as const
+
+const QR_STATS = [
+  { value: '+32%', label: 'višji povprečni račun', tone: 'text-emerald-600' },
+  { value: '−45%', label: 'čas čakanja natakarja', tone: 'text-cyan-600' },
+  { value: '0', label: 'aplikacij za prenos', tone: 'text-purple-600' },
+  { value: '4', label: 'jeziki (SLO/EN/DE/IT)', tone: 'text-amber-600' },
+] as const
+
+function QrOrderingSection() {
+  const [mode, setMode] = useState<'qr' | 'kiosk'>('qr')
+  const [picked, setPicked] = useState<number[]>([0, 2])
+
+  const togglePick = (i: number) => setPicked(p => p.includes(i) ? p.filter(x => x !== i) : [...p, i])
+  const total = picked.reduce((s, i) => s + parseFloat(QR_MENU_ITEMS[i].price.replace(',', '.')), 0)
+
+  return (
+    <section id="qr-ordering" className="py-16 lg:py-20 bg-gradient-to-b from-slate-50/40 to-white border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <Badge className="mb-3 bg-pink-100 text-pink-800 hover:bg-pink-100"><QrCode className="h-3.5 w-3.5 mr-1.5" />QR naročanje & kiosk</Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            Gosti naročajo <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent animate-gradient-text">sam</span>. Ti služiš.
+          </h2>
+          <p className="mt-2 text-base text-slate-600">QR koda na mizi ali samopostrežni kiosk. Brez prenosov aplikacij, brez čakanja na natakarja — v 4 jezikih.</p>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+          {QR_STATS.map((s, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.07 }}>
+              <Card className="p-4 text-center border-slate-200/70 card-tilt">
+                <div className={`text-2xl lg:text-3xl font-bold tabular-nums ${s.tone}`}>{s.value}</div>
+                <div className="text-xs text-slate-500 mt-0.5">{s.label}</div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Mode toggle */}
+        <div className="flex justify-center mb-6">
+          <div className="inline-flex items-center bg-slate-100 rounded-xl p-1 gap-1">
+            <button
+              onClick={() => setMode('qr')}
+              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${mode === 'qr' ? 'bg-white text-pink-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              <QrCode className="h-4 w-4" /> QR na mizi
+            </button>
+            <button
+              onClick={() => setMode('kiosk')}
+              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${mode === 'kiosk' ? 'bg-white text-purple-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              <Monitor className="h-4 w-4" /> Kiosk
+            </button>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-6 items-start">
+          {/* LEFT: phone / kiosk mockup */}
+          <motion.div key={mode} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
+            <Card className="overflow-hidden border-slate-200 shadow-xl">
+              <div className="bg-slate-900 px-4 py-3 flex items-center justify-between text-white">
+                <div className="flex items-center gap-2">
+                  {mode === 'qr' ? <Smartphone className="h-4 w-4" /> : <Monitor className="h-4 w-4" />}
+                  <span className="text-xs font-medium">
+                    {mode === 'qr' ? 'Noro Lep Meni · Miza 7' : 'Noro Lep Kiosk · Narči sam'}
+                  </span>
+                </div>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">🇸🇮 SLO</span>
+              </div>
+
+              {/* Language switcher (mock) */}
+              <div className="flex gap-1 p-2 bg-slate-50 border-b border-slate-100">
+                {['🇸🇮 SLO', '🇬🇧 EN', '🇩🇪 DE', '🇮🇹 IT'].map((l, i) => (
+                  <span key={l} className={`px-2 py-1 rounded text-[10px] font-semibold ${i === 0 ? 'bg-pink-100 text-pink-700' : 'text-slate-400'}`}>{l}</span>
+                ))}
+              </div>
+
+              {/* Menu grid */}
+              <div className="p-3 bg-white grid grid-cols-2 gap-2" style={{ minHeight: '300px' }}>
+                {QR_MENU_ITEMS.map((item, i) => {
+                  const sel = picked.includes(i)
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => togglePick(i)}
+                      className={`relative p-2.5 rounded-lg border-2 text-left transition-all ${sel ? 'border-pink-500 bg-pink-50' : 'border-slate-200 hover:border-pink-300 hover:bg-slate-50'}`}
+                    >
+                      <div className="text-2xl mb-1">{item.img}</div>
+                      <div className="text-[11px] font-bold text-slate-900 leading-tight">{item.name}</div>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-[10px] text-slate-400">{item.cat}</span>
+                        <span className="text-xs font-bold text-pink-600">€{item.price}</span>
+                      </div>
+                      {sel && (
+                        <span className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-pink-500 text-white text-[10px] font-bold flex items-center justify-center">✓</span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Cart bar */}
+              <div className="p-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase">Košarica · {picked.length} artiklov</div>
+                  <div className="text-lg font-bold text-slate-900 tabular-nums">€{total.toFixed(2).replace('.', ',')}</div>
+                </div>
+                <button className="px-4 py-2 rounded-lg bg-pink-600 hover:bg-pink-700 text-white text-sm font-semibold shadow-sm transition-colors">
+                  Naroči →
+                </button>
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* RIGHT: benefits */}
+          <motion.div key={mode + '-ben'} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.1 }} className="space-y-4">
+            {mode === 'qr' ? (
+              <>
+                <div className="flex gap-3 p-4 rounded-xl bg-white border border-slate-200/70 shadow-sm">
+                  <div className="w-10 h-10 rounded-lg bg-pink-50 flex items-center justify-center shrink-0"><QrCode className="h-5 w-5 text-pink-600" /></div>
+                  <div>
+                    <div className="font-semibold text-slate-900 text-sm">QR koda na vsaki mizi</div>
+                    <div className="text-xs text-slate-500 mt-0.5">Gost skenira s telefonom — digitalni meni se odpre v brskalniku. Brez aplikacij, brez prenosov.</div>
+                  </div>
+                </div>
+                <div className="flex gap-3 p-4 rounded-xl bg-white border border-slate-200/70 shadow-sm">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0"><Smartphone className="h-5 w-5 text-emerald-600" /></div>
+                  <div>
+                    <div className="font-semibold text-slate-900 text-sm">Slike artiklov & opisi</div>
+                    <div className="text-xs text-slate-500 mt-0.5">Gost vidi fotografije jedi, alergene in sestavine. Večji povprečni račun, manj vprašanj.</div>
+                  </div>
+                </div>
+                <div className="flex gap-3 p-4 rounded-xl bg-white border border-slate-200/70 shadow-sm">
+                  <div className="w-10 h-10 rounded-lg bg-cyan-50 flex items-center justify-center shrink-0"><CreditCard className="h-5 w-5 text-cyan-600" /></div>
+                  <div>
+                    <div className="font-semibold text-slate-900 text-sm">Plačilo direktno iz menija</div>
+                    <div className="text-xs text-slate-500 mt-0.5">Apple Pay, kartica ali dodaj na račun mize. Brez čakanja na natakarja za plačilo.</div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex gap-3 p-4 rounded-xl bg-white border border-slate-200/70 shadow-sm">
+                  <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center shrink-0"><Monitor className="h-5 w-5 text-purple-600" /></div>
+                  <div>
+                    <div className="font-semibold text-slate-900 text-sm">Samopostrežni kiosk</div>
+                    <div className="text-xs text-slate-500 mt-0.5">Stojalo z zaslonom na vhodu. Gosti sami sestavijo naročilo in plačajo — osebje osredotočeno na gostoljubje.</div>
+                  </div>
+                </div>
+                <div className="flex gap-3 p-4 rounded-xl bg-white border border-slate-200/70 shadow-sm">
+                  <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center shrink-0"><Sparkles className="h-5 w-5 text-amber-600" /></div>
+                  <div>
+                    <div className="font-semibold text-slate-900 text-sm">Smart upselling engine</div>
+                    <div className="text-xs text-slate-500 mt-0.5">AI predlaga prilogo, pijačo ali sladico ob vsakem naročilu. +32% višji račun, samodejno.</div>
+                  </div>
+                </div>
+                <div className="flex gap-3 p-4 rounded-xl bg-white border border-slate-200/70 shadow-sm">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0"><Zap className="h-5 w-5 text-emerald-600" /></div>
+                  <div>
+                    <div className="font-semibold text-slate-900 text-sm">Direktno v kuhinjo</div>
+                    <div className="text-xs text-slate-500 mt-0.5">Naročilo iz kioska takoj prikaže na KDS. Brez prepisovanja, brez napak, brez zamud.</div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Trust line */}
+            <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-emerald-50/60 border border-emerald-100">
+              <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+              <span className="text-xs text-emerald-800">FURS ZDavPR-1 potrjeno · vsako naročilo takoj vneseno v promet · 2025 compliant</span>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    AI PREDICTION — predikcija povpraševanja + samodejne dobavnice
    ============================================================ */
 function AIPredictionSection() {
@@ -2451,7 +2642,28 @@ function AIPredictionSection() {
         <div className="text-center max-w-3xl mx-auto mb-8">
           <Badge className="mb-3 bg-purple-100 text-purple-800 hover:bg-purple-100"><Sparkles className="h-3.5 w-3.5 mr-1.5" />AI predikcija zalog</Badge>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">AI ve <span className="bg-gradient-to-r from-purple-600 to-emerald-600 bg-clip-text text-transparent animate-gradient-text">kaj boš prodal</span> naslednji teden</h2>
-          <p className="mt-2 text-base text-slate-600">Analiza prodaje, trend detection in samodejne dobavnice — preden zmanjka.</p>
+          <p className="mt-2 text-base text-slate-600">Analiza prodaje, vremenske napovedi in trend detection. Samodejne dobavnice — preden zmanjka.</p>
+        </div>
+        {/* Real industry stats (Deloitte 2025) */}
+        <div className="grid grid-cols-3 gap-3 mb-6 max-w-3xl mx-auto">
+          <div className="text-center p-3 rounded-xl bg-emerald-50/70 border border-emerald-100">
+            <div className="text-2xl font-bold text-emerald-600">−55%</div>
+            <div className="text-[10px] text-slate-600 leading-tight mt-0.5">manj odpadkov<hr className="border-emerald-200 my-1" /><span className="text-[9px] text-slate-400">Deloitte 2025</span></div>
+          </div>
+          <div className="text-center p-3 rounded-xl bg-purple-50/70 border border-purple-100">
+            <div className="text-2xl font-bold text-purple-600">+40%</div>
+            <div className="text-[10px] text-slate-600 leading-tight mt-0.5">višji profit<hr className="border-purple-200 my-1" /><span className="text-[9px] text-slate-400">AI optimizacija</span></div>
+          </div>
+          <div className="text-center p-3 rounded-xl bg-cyan-50/70 border border-cyan-100">
+            <div className="text-2xl font-bold text-cyan-600">80%</div>
+            <div className="text-[10px] text-slate-600 leading-tight mt-0.5">veča AI invest<hr className="border-cyan-200 my-1" /><span className="text-[9px] text-slate-400">restavracije 2025</span></div>
+          </div>
+        </div>
+        {/* Weather-aware highlight */}
+        <div className="flex items-center justify-center gap-2 mb-6 text-xs text-slate-500">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100">
+            🌦️ <span className="font-semibold text-slate-700">Vreme-aware:</span> deževna sobota? AI ve, da bo večja prodaja juh in tople pijače.
+          </span>
         </div>
         {stats && (
           <div className="grid grid-cols-4 gap-2 mb-6">
@@ -3228,6 +3440,9 @@ export default function Home() {
 
       {/* ===== DELIVERY ===== */}
       <DeliverySection />
+
+      {/* ===== QR ORDERING & KIOSK ===== */}
+      <QrOrderingSection />
 
       {/* ===== AI PREDICTION ===== */}
       <AIPredictionSection />

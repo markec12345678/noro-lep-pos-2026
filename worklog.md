@@ -1300,3 +1300,47 @@ VRZELI (gaps) na naši strani:
 Stage Summary:
 - Raziskava zaključena, predlogi pripravljeni
 - Top prioritetna: QR ordering sekcija (največja vrzel, velik 2026 trend)
+
+---
+Task ID: 54
+Agent: main (Z.ai Code)
+Task: v5.7 — QR Ordering + Kiosk sekcija + real AI statistike (iz web raziskave)
+
+Work Log:
+- Implementiral TOP prioritetno vrzel iz web raziskave (Task 53)
+- NOVA KOMPONENTA: QrOrderingSection (~190 vrstic)
+  * Interaktivni toggle: QR na mizi ↔ Kiosk (2 načina)
+  * Menu grid 6 artiklov (emoji, ime, cena, kategorija)
+  * Klik artikla → checkmark + live cart total (€)
+  * 4-jezik switcher (SLO/EN/DE/IT, mock)
+  * Device frame header (Smartphone/Monitor ikona)
+  * 3 benefit kartice (QR/kiosk specifične)
+  * FURS ZDavPR-1 compliance badge
+  * 4 statistike: +32% račun, −45% čakanja, 0 aplikacij, 4 jeziki
+- QrCode, Monitor ikone dodani v import
+- AI PREDICTION dopolnjena z real statistikami (Deloitte 2025):
+  * −55% manj odpadkov (emerald)
+  * +40% višji profit (purple)
+  * 80% veča AI investicije (cyan)
+  * Weather-aware highlight: "deževna sobota? AI ve, da bo večja prodaja juh"
+  * Heading dopolnjen: "vremenske napovedi"
+- Layout: QrOrderingSection med Delivery in AI Prediction
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 16 sekcij (+1), 0 napak
+  * Toggle deluje: "Miza 7" → "Kiosk · Narči sam" po kliku
+  * Menu items clickable, cart total live
+  * AI stats: Deloitte/waste/weather/profit vsi prisotni v DOM
+- VLM audit QR section:
+  * "menu grid with emojis, prices, pink checkmarks"
+  * "QR/Kiosk toggle with Kiosk active"
+  * "benefit cards: kiosk, upselling, kitchen, compliance"
+  * 8/10 polish, 7/10 interactivity
+
+Stage Summary:
+- 16 sekcij (qr-ordering dodana)
+- 28 komponent (QrOrderingSection)
+- Real industry stats iz raziskave vdelane (Deloitte 2025)
+- Vrhel iz raziskave (QR/kiosk) zaprta
+- 0 napak, 0 lint errors
+- Commit/push next
