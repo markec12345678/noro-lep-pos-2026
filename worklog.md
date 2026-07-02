@@ -1078,3 +1078,37 @@ FINAL v5.3 STATS:
 - 0 console errors
 - 56 commitov
 - VLM hero: 9/10 premium, 9/10 modern, 8/10 wow
+
+---
+Task ID: 49
+Agent: main (Z.ai Code)
+Task: Magnetic buttons + shimmer + glow-pulse CSS effects
+
+Work Log:
+- MagneticButton komponenta (~50 vrstic):
+  * useMotionValue + useSpring (stiffness: 200, damping: 15)
+  * 0.3x offset od centra gumba
+  * Spring physics za smooth sledenje miški
+  * Applied na hero CTA "Brezplačni 30-dnevni preizkus"
+- CSS efekti v globals.css:
+  * .magnetic-btn: transition + will-change: transform
+  * .shimmer: hover sweep effect (linear-gradient, 0.5s ease, left -100% → 100%)
+  * .glow-pulse: 2s infinite emerald glow (box-shadow 20px → 30px)
+- Applied shimmer + glow-pulse na final CTA card
+- 26 komponent (MagneticButton dodana)
+- 11 vizualnih efektov skupaj
+- 0 lint errors, 0 console errors
+- Push na GitHub: commit fd01a14 na nextjs-landing
+
+11 vizualnih efektov:
+1. Animated gradient mesh (3 pulsing orbs)
+2. Glassmorphism header
+3. Card-tilt 3D hover
+4. Animated gradient text (12 spans)
+5. Smoother stagger (0.08s)
+6. Dark mode toggle
+7. Parallax hero image
+8. Cursor glow
+9. Magnetic buttons (spring physics)
+10. Shimmer hover effect
+11. Glow-pulse animation
