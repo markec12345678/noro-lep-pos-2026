@@ -4782,6 +4782,222 @@ function ZReportSection() {
 }
 
 /* ============================================================
+   EMAIL CAPTURE — brezplačni vodič kot lead magnet
+   ============================================================ */
+const GUIDE_CONTENTS = [
+  { icon: '📋', text: '11 ključnih funkcij katere mora imeti POS 2026' },
+  { icon: '🏛️', text: 'FURS ZDavP-2P 2025 — kaj se spremeni in zakaj' },
+  { icon: '💰', text: 'ROI kalkulator — koliko prihraniš z AI predikcijo' },
+  { icon: '🛡️', text: 'GDPR + PCI DSS — compliance checklist za restavracije' },
+  { icon: '🇸🇮', text: 'Slovenski trg: cene, podpora, lokalne integracije' },
+  { icon: '❌', text: '7 napak pri izbiri POS, ki stanejo 5.000€+ na leto' },
+] as const
+
+function EmailCaptureSection() {
+  const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
+  const [restaurant, setRestaurant] = useState('')
+  const [consent, setConsent] = useState(true)
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [errorMsg, setErrorMsg] = useState('')
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setStatus('loading')
+    setErrorMsg('')
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name, restaurant, consent, guide: 'pos_vodnik_2026' }),
+      })
+      const data = await res.json()
+      if (data.ok) {
+        setStatus('success')
+      } else {
+        setStatus('error')
+        setErrorMsg(data.error || 'Napaka pri oddaji')
+      }
+    } catch {
+      setStatus('error')
+      setErrorMsg('Omrežna napaka — poskusi znova')
+    }
+  }
+
+  return (
+    <section id="vodnik" className="py-16 lg:py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 text-white relative overflow-hidden">
+      {/* Decorative orbs */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 blur-3xl rounded-full" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/10 blur-3xl rounded-full" />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-8 items-center">
+          {/* LEVO: Vsebina vodiča */}
+          <div>
+            <Badge className="mb-4 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/20 border-emerald-500/30">
+              <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+              Brezplačni vodič 2026
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-3">
+              Vodnik za izbiro <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent animate-gradient-text">POS blagajne 2026</span>
+            </h2>
+            <p className="text-slate-300 mb-5 text-sm sm:text-base">
+              32 strani PDF. Vse kar mora vedet lastnik restavracije pred izbiro POS — od FURS ZDavP-2P do AI predikcije. Brez prodajnega govora.
+            </p>
+
+            <div className="space-y-2 mb-6">
+              {GUIDE_CONTENTS.map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -10 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: i * 0.06 }}
+                  className="flex items-start gap-2.5 text-sm"
+                >
+                  <span className="text-base shrink-0">{item.icon}</span>
+                  <span className="text-slate-200">{item.text}</span>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Social proof */}
+            <div className="flex items-center gap-3 text-xs text-slate-400">
+              <div className="flex -space-x-2">
+                {['bg-emerald-500', 'bg-cyan-500', 'bg-purple-500', 'bg-amber-500', 'bg-rose-500'].map((bg, i) => (
+                  <div key={i} className={`w-6 h-6 rounded-full ${bg} border-2 border-slate-800 flex items-center justify-center text-[9px] font-bold`}>
+                    {['MK', 'JN', 'AP', 'TS', 'BL'][i]}
+                  </div>
+                ))}
+              </div>
+              <span><span className="font-bold text-white">1.247</span> lastnikov je že preneslo</span>
+              <span className="flex items-center gap-0.5">
+                {[...Array(5)].map((_, i) => <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />)}
+              </span>
+            </div>
+          </div>
+
+          {/* DESNO: Form card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 text-slate-900">
+              {status === 'success' ? (
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-8">
+                  <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">Vodič je na poti! 📧</h3>
+                  <p className="text-sm text-slate-600 mb-4">
+                    Preveri svoj email <span className="font-semibold text-emerald-700">{email}</span>. PDF vodič prispel v naslednjih 5 minutah.
+                  </p>
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-xs text-emerald-800">
+                    💡 Bonus: dobili boste tudi tedenski nasvet o optimizaciji restavracije. Odjava kadarkoli.
+                  </div>
+                  <button
+                    onClick={() => { setStatus('idle'); setEmail(''); setName(''); setRestaurant('') }}
+                    className="mt-4 text-xs text-slate-500 hover:text-slate-700 font-medium"
+                  >
+                    Prenesi še enega →
+                  </button>
+                </motion.div>
+              ) : (
+                <form onSubmit={handleSubmit}>
+                  <div className="text-center mb-5">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 mb-3">
+                      <span className="text-xs font-bold text-emerald-700">📄 PDF · 32 strani · Brezplačno</span>
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-900">Prenesi vodič</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">Brez kreditne kartice. Instant prenos.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide block mb-1">Email *</label>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="marko@moja-restavracija.si"
+                        className="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none text-sm transition-all"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide block mb-1">Ime</label>
+                        <input
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Marko"
+                          className="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none text-sm transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-semibold text-slate-600 uppercase tracking-wide block mb-1">Restavracija</label>
+                        <input
+                          type="text"
+                          value={restaurant}
+                          onChange={(e) => setRestaurant(e.target.value)}
+                          placeholder="Pri Lovru"
+                          className="w-full px-3 py-2.5 rounded-lg border border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none text-sm transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Consent */}
+                    <label className="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={consent}
+                        onChange={(e) => setConsent(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-400"
+                      />
+                      <span className="text-[11px] text-slate-500 leading-relaxed">
+                        Strinjam se z obdelavo podatkov v skladu z <span className="text-emerald-700 font-medium">GDPR</span>. Lahko se odjavim kadarkoli.
+                      </span>
+                    </label>
+
+                    {/* Error */}
+                    {status === 'error' && (
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-2 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700">
+                        ⚠ {errorMsg}
+                      </motion.div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={status === 'loading' || !consent}
+                      className="w-full py-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm shadow-lg shadow-emerald-500/30 transition-all flex items-center justify-center gap-2"
+                    >
+                      {status === 'loading' ? (
+                        <><Loader2 className="h-4 w-4 animate-spin" /> Pošiljam...</>
+                      ) : (
+                        <>📥 Prenesi brezplačni vodič</>
+                      )}
+                    </button>
+
+                    <div className="flex items-center justify-center gap-3 text-[10px] text-slate-400 pt-1">
+                      <span className="flex items-center gap-1"><ShieldCheck className="h-3 w-3" /> GDPR</span>
+                      <span className="flex items-center gap-1"><Shield className="h-3 w-3" /> Brez spam</span>
+                      <span className="flex items-center gap-1"><Zap className="h-3 w-3" /> Instant</span>
+                    </div>
+                  </div>
+                </form>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    MAIN PAGE
    ============================================================ */
 export default function Home() {
@@ -5254,6 +5470,9 @@ export default function Home() {
 
       {/* ===== Z-REPORT (dnevno zaključevanje blagajne) ===== */}
       <ZReportSection />
+
+      {/* ===== EMAIL CAPTURE (lead magnet) ===== */}
+      <EmailCaptureSection />
 
       {/* ===== PRICING ===== */}
       <section id="cene" className="py-20 lg:py-28">

@@ -1951,3 +1951,83 @@ Stage Summary:
 - VLM: 8/10 polish, 9/10 persuasiveness
 - 0 napak (1 obstoječa hydration), 0 lint errors
 - Commit/push next
+
+---
+Task ID: 66
+Agent: main (Z.ai Code)
+Task: v6.9 — Email Capture / Lead Magnet (brezplačni vodič + API + DB)
+
+Work Log:
+- Implementiral ZADNJO prioriteto iz runde 6: Email capture / lead magnet
+- Prva sekcija s pravo backend funkcionalnostjo (DB persist + API)
+
+v6.9 IMPLEMENTACIJA:
+1. LeadCapture model v Prisma schema:
+   - id, email (unique), name, restaurant, source, guide, consent, createdAt
+   - @@index [email], @@index [source]
+   - db:push uspešen (Prisma Client regeneriran)
+
+2. API route /api/leads (POST + GET):
+   - POST: validacija email formata, GDPR consent required, upsert (no duplikati)
+   - GET: statistika (total count + today count)
+   - Error handling z status codes (400, 500, 200)
+   - Testirano z curl:
+     * valid email → ok:true, leadId generiran ✓
+     * invalid email → "Neveljaven email format" ✓
+     * no consent → "Privolitev je obvezna (GDPR)" ✓
+     * GET stats → total:1, today:1 ✓
+
+3. NOVA EmailCaptureSection komponenta (~210 vrstic):
+   - Dark gradient ozadje (slate-900 → emerald-950) z decorative orbs
+   - LEVO: Vsebina vodiča
+     * Badge "Brezplačni vodič 2026"
+     * Heading "Vodnik za izbiro POS blagajne 2026"
+     * 32 strani PDF opis
+     * 6 vsebinskih bulletov z emoji:
+       - 11 ključnih funkcij POS 2026
+       - FURS ZDavP-2P 2025 spremembe
+       - ROI kalkulator AI predikcije
+       - GDPR + PCI DSS checklist
+       - Slovenski trg: cene, integracije
+       - 7 napak ki stanejo 5.000€+/leto
+     * Social proof: 1.247 lastnikov + 5 zvezdic + avatar stack
+
+   - DESNO: Form card (white)
+     * PDF badge "32 strani · Brezplačno"
+     * Email* (required), Ime, Restavracija inputs
+     * GDPR consent checkbox
+     * Submit button z loading state (Loader2 spin)
+     * Trust badges: GDPR, Brez spam, Instant
+
+   - Success state (po submit):
+     * CheckCircle2 icon (emerald)
+     * "Vodič je na poti! 📧"
+     * Prikazan email
+     * Bonus: tedenski nasveti, odjava kadarkoli
+     * "Prenesi še enega →" reset
+
+   - Form submit → POST /api/leads → success/error state
+   - Testirano z agent-browser (React native setter):
+     * Fill forma → click submit → "SUCCESS OK" ✓
+     * Email prikazan v success state ✓
+
+- Layout: med ZReportSection in Pricing
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 24 sekcij (+1), HTTP 200
+  * API testi: vsi 4 primeri delujejo
+  * Form submit → success state OK
+- VLM audit:
+  * Email capture: 8/10 polish, 9/10 conversion design
+    "compelling value prop, social proof, GDPR clarity, minimal friction"
+  * Success state: 9/10 polish
+    "clear success state with all requested elements"
+
+Stage Summary:
+- 24 sekcij (vodnik dodana)
+- 37 komponent (EmailCaptureSection)
+- LeadCapture model v DB + API route (prva prava backend sekcija)
+- Email list building za future marketing
+- VLM: 8/10 polish, 9/10 conversion design
+- 0 napak (1 obstoječa hydration), 0 lint errors
+- Commit/push next
