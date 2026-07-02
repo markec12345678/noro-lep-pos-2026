@@ -1307,7 +1307,7 @@ function RoiCalculator() {
                   initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: idx * 0.1 }}
+                  transition={{ duration: 0.4, delay: idx * 0.08 }}
                   className="flex items-center gap-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700"
                 >
                   <div className={`w-9 h-9 rounded-lg ${r.bg} flex items-center justify-center shrink-0`}>
@@ -1623,7 +1623,7 @@ function InterfaceComparison() {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.5, delay: idx * 0.1 }}
+            transition={{ duration: 0.5, delay: idx * 0.08 }}
           >
             <Card className={`overflow-hidden ${comp.winner === 'ours' ? 'border-emerald-300 shadow-lg' : 'border-slate-200 shadow-sm'}`}>
               {/* Header */}
@@ -2106,7 +2106,7 @@ function InventoryPreview() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-8">
           <Badge className="mb-3 bg-emerald-100 text-emerald-800 hover:bg-emerald-100"><Package className="h-3.5 w-3.5 mr-1.5" />232 artiklov pripravljenih</Badge>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">Vsi artikli <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">pripravljeni</span></h2>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">Vsi artikli <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent animate-gradient-text">pripravljeni</span></h2>
           <p className="mt-2 text-base text-slate-600">232 slovenskih artiklov v 19 kategorijah — vsi z zalogo 0. Ti vneseš samo dobavnice.</p>
         </div>
         <div className="flex gap-3 mb-4">
@@ -2157,7 +2157,7 @@ function DeliverySection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-8">
           <Badge className="mb-3 bg-cyan-100 text-cyan-800 hover:bg-cyan-100"><Smartphone className="h-3.5 w-3.5 mr-1.5" />Dostavne integracije</Badge>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">Vse dostavne platforme <span className="bg-gradient-to-r from-cyan-600 to-emerald-600 bg-clip-text text-transparent">na enem mestu</span></h2>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">Vse dostavne platforme <span className="bg-gradient-to-r from-cyan-600 to-emerald-600 bg-clip-text text-transparent animate-gradient-text">na enem mestu</span></h2>
           <p className="mt-2 text-base text-slate-600">Wolt, Uber Eats, Glovo, Lastmin in QR — vsa naročila na enem zaslonu z auto-accept.</p>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
@@ -2209,7 +2209,7 @@ function AIPredictionSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-8">
           <Badge className="mb-3 bg-purple-100 text-purple-800 hover:bg-purple-100"><Sparkles className="h-3.5 w-3.5 mr-1.5" />AI predikcija zalog</Badge>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">AI ve <span className="bg-gradient-to-r from-purple-600 to-emerald-600 bg-clip-text text-transparent">kaj boš prodal</span> naslednji teden</h2>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">AI ve <span className="bg-gradient-to-r from-purple-600 to-emerald-600 bg-clip-text text-transparent animate-gradient-text">kaj boš prodal</span> naslednji teden</h2>
           <p className="mt-2 text-base text-slate-600">Analiza prodaje, trend detection in samodejne dobavnice — preden zmanjka.</p>
         </div>
         {stats && (
@@ -2405,7 +2405,7 @@ function PaymentsSection() {
           </Badge>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
             Vsi načini{' '}
-            <span className="bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">plačila</span>
+            <span className="bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent animate-gradient-text">plačila</span>
             {' '}na enem mestu
           </h2>
           <p className="mt-3 text-base text-slate-600">
@@ -2556,7 +2556,7 @@ function ZReportSection() {
           </Badge>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
             Dnevni zaključek{' '}
-            <span className="bg-gradient-to-r from-slate-600 to-emerald-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-slate-600 to-emerald-600 bg-clip-text text-transparent animate-gradient-text">
               v enem kliku
             </span>
           </h2>
@@ -2778,7 +2778,7 @@ export default function Home() {
               <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-slate-900 leading-[1.02]">
                 Tvoja restavracija{' '}
                 <span className="relative inline-block">
-                  <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent">zasluži več</span>
+                  <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 bg-clip-text text-transparent animate-gradient-text">zasluži več</span>
                   <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" fill="none" preserveAspectRatio="none">
                     <path d="M2 9C50 4 150 2 298 6" stroke="#10B981" strokeWidth="3" strokeLinecap="round" />
                   </svg>
@@ -2893,7 +2893,7 @@ export default function Home() {
             </Badge>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
               Celoten sistem{' '}
-              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">v akciji</span>
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent animate-gradient-text">v akciji</span>
             </h2>
             <p className="mt-4 text-lg text-slate-600">
               Preklopi med <strong>POS blagajno</strong> (Natakar + Gost), <strong>kuhinjskim zaslonom</strong>,
@@ -2954,7 +2954,7 @@ export default function Home() {
             </Badge>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
               9 modulov za popolno{' '}
-              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">restavracijo</span>
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent animate-gradient-text">restavracijo</span>
             </h2>
             <p className="mt-4 text-lg text-slate-600">
               Od prvega naročila do končnega računa — vse kar potrebuješ za vodenje restavracije.
@@ -2962,8 +2962,8 @@ export default function Home() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {FEATURES.map((feature, idx) => (
-              <motion.div key={idx} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }} transition={{ duration: 0.5, delay: (idx % 3) * 0.1 }}>
-                <Card className="group relative p-6 h-full border-slate-200/70 hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden">
+              <motion.div key={idx} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }} transition={{ duration: 0.5, delay: (idx % 3) * 0.08 }}>
+                <Card className="card-tilt group relative p-6 h-full border-slate-200/70 hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-500/10 cursor-pointer overflow-hidden">
                   <div className={`absolute -top-12 -right-12 w-32 h-32 ${feature.iconBg} rounded-full blur-2xl opacity-0 group-hover:opacity-60 transition-opacity duration-500`} />
                   <div className="relative">
                     <div className={`w-12 h-12 rounded-xl ${feature.iconBg} flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all`}>
@@ -3046,7 +3046,7 @@ export default function Home() {
             </Badge>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
               4 vmesniki vs{' '}
-              <span className="bg-gradient-to-r from-purple-600 to-emerald-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-purple-600 to-emerald-600 bg-clip-text text-transparent animate-gradient-text">
                 svetovni liderji
               </span>
             </h2>
@@ -3075,7 +3075,7 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {TESTIMONIALS.map((t, idx) => (
-              <motion.div key={idx} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }} transition={{ duration: 0.5, delay: idx * 0.1 }}>
+              <motion.div key={idx} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }} transition={{ duration: 0.5, delay: idx * 0.08 }}>
                 <Card className="p-6 h-full border-slate-200/70 shadow-sm hover:shadow-lg transition-shadow flex flex-col">
                   <div className="flex items-center gap-1 mb-4">
                     {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />)}
@@ -3106,7 +3106,7 @@ export default function Home() {
             </Badge>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
               Koliko boš{' '}
-              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent animate-gradient-text">
                 prihranil
               </span>{' '}
               z Noro Lep?
@@ -3134,7 +3134,7 @@ export default function Home() {
             </Badge>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
               Cenik, ki{' '}
-              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">ustreza vsaki restavraciji</span>
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent animate-gradient-text">ustreza vsaki restavraciji</span>
             </h2>
             <p className="mt-4 text-lg text-slate-600">Brez skritih stroškov. Brez vezave. Brezplačni preizkus 30 dni.</p>
           </div>
@@ -3144,7 +3144,7 @@ export default function Home() {
               { name: 'Professional', price: '49', period: '/mes', desc: 'Za restavracije in lokale', features: ['Do 3 lokacije, 5 blagajn', 'Neomezen meni & modifikatorji', 'Kuhinjski KDS v realnem času', 'Zaloge & dobavitelji', 'Vernostni program & rezervacije', 'AI predikcija prometa', 'Prioritetna 24/7 podpora'], cta: '30-dnevni preizkus', popular: true },
               { name: 'Enterprise', price: 'Po meri', period: '', desc: 'Za verige in franšize', features: ['Neomejene lokacije & blagajne', 'Multi-valutni & multi-jezik', 'API integracije (Stripe, SAP…)', 'Namenski account manager', 'On-site implementacija', 'SLA 99.9% garancija'], cta: 'Kontaktiraj prodajo', popular: false },
             ].map((plan, idx) => (
-              <motion.div key={idx} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }} transition={{ duration: 0.5, delay: idx * 0.1 }} className={plan.popular ? 'md:-mt-4 md:mb-4' : ''}>
+              <motion.div key={idx} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }} transition={{ duration: 0.5, delay: idx * 0.08 }} className={plan.popular ? 'md:-mt-4 md:mb-4' : ''}>
                 <Card className={`p-7 h-full flex flex-col relative ${plan.popular ? 'border-emerald-400 shadow-2xl shadow-emerald-500/15 ring-2 ring-emerald-400/30 bg-white' : 'border-slate-200/70 shadow-sm hover:shadow-md transition-shadow bg-white'}`}>
                   {plan.popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -3198,7 +3198,7 @@ export default function Home() {
             </Badge>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
               Vse kar si želel{' '}
-              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">vprašati</span>
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent animate-gradient-text">vprašati</span>
             </h2>
           </div>
           <Accordion type="single" collapsible className="space-y-3">
