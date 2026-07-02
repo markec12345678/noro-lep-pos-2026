@@ -2195,3 +2195,52 @@ Stage Summary:
 - 0 lint errors
 - Kvaliteta strani močno izboljšana (pravi bug fix, ne novo feature)
 - Commit/push next
+
+---
+Task ID: 70
+Agent: main (Z.ai Code)
+Task: Web raziskava runda 8 (multi-location + mobile) + v7.3 Multi-Location section
+
+Work Log:
+- 3 web iskanja (z-ai web_search):
+  1. Restaurant POS multi-location chain management franchise 2026
+  2. Restaurant POS mobile app iOS Android owner manager 2026
+  3. Restaurant franchise chain POS centralized reporting menu sync 2026
+
+Ključna odkritja:
+- Multi-location: samo 1 omenitev v kodi (velika vrzel!)
+- Mobile app: 0 omenitev
+- Centralized menu sync (2s) je ključna chain funkcija
+- Mobile owner app: live promet, push alerti, osebje upravljanje
+
+v7.3 IMPLEMENTACIJA:
+- NOVA MultiLocationSection komponenta (~190 vrstic)
+- 4 stat kartice: 3 lokacij, €10.250 promet, 633 naročil, 18 zaposlenih
+- 3 lokacije v verigi (interaktivno):
+  * Gostilna Pri Lovru (Ljubljana, €4.280, +18%, ODPRTO)
+  * Pizzeria Bellavista (Bled, €3.140, +12%, ODPRTO)
+  * Restavracija Stara ulica (Maribor, €2.830, +24%, PROMET pulse)
+- Centraliziran meni sync callout:
+  * "Spremeni ceno → sinhronizirano v 2 sekundah"
+  * En meni več lokacij, 2s sync, Rollback
+- Mobile owner app card:
+  * Phone mockup z live promet prikazom
+  * 4 mobile features: Live promet, Push alerti, Osebje, Računi
+  * App Store + Google Play buttons
+- Layout: med SecuritySection in CommandCenter
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 27 sekcij (+1), 0 napak (hydration fix drži!)
+  * Verige/Centraliziran meni/Nadzor v žepu/App Store: vsi OK
+- VLM audit:
+  * "4 stat cards, 3 locations with status/revenue/trends"
+  * "centralized menu sync, mobile phone mockup, App Store + Google Play"
+  * "4 mobile features"
+  * 8/10 visual polish
+
+Stage Summary:
+- 27 sekcij (verige dodana)
+- 39 komponent (MultiLocationSection)
+- Chain management + mobile app pokrita
+- 0 napak (hydration fix iz v7.2 drži), 0 lint errors
+- Commit/push next

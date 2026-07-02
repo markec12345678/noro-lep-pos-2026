@@ -2338,6 +2338,196 @@ function SecuritySection() {
 }
 
 /* ============================================================
+   MULTI-LOCATION & MOBILE — chain management + owner app
+   ============================================================ */
+const CHAIN_LOCATIONS = [
+  { name: 'Gostilna Pri Lovru', city: 'Ljubljana', revenue: 4280, orders: 247, status: 'open', staff: 6, color: 'bg-emerald-500', trend: '+18%' },
+  { name: 'Pizzeria Bellavista', city: 'Bled', revenue: 3140, orders: 189, status: 'open', staff: 5, color: 'bg-cyan-500', trend: '+12%' },
+  { name: 'Restavracija Stara ulica', city: 'Maribor', revenue: 2830, orders: 197, status: 'busy', staff: 7, color: 'bg-purple-500', trend: '+24%' },
+] as const
+
+const MOBILE_FEATURES = [
+  { icon: TrendingUp, title: 'Live promet', desc: 'Spremljaj promet vseh lokacij v realnem času' },
+  { icon: Bell, title: 'Push alerti', desc: 'Kritični dogodki na telefon — npr. zmanjkalo zalog' },
+  { icon: Users, title: 'Osebje upravljanje', desc: 'Odobri izmene, spremljaj prisotnost' },
+  { icon: Receipt, title: 'Računi vpogled', desc: 'Vsi računi vseh lokacij na dlani' },
+] as const
+
+function MultiLocationSection() {
+  const [activeLoc, setActiveLoc] = useState(0)
+  const totalRevenue = CHAIN_LOCATIONS.reduce((s, l) => s + l.revenue, 0)
+  const totalOrders = CHAIN_LOCATIONS.reduce((s, l) => s + l.orders, 0)
+  const totalStaff = CHAIN_LOCATIONS.reduce((s, l) => s + l.staff, 0)
+
+  return (
+    <section id="verige" className="py-16 lg:py-20 bg-white border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <Badge className="mb-3 bg-purple-100 text-purple-800 hover:bg-purple-100">
+            <LayoutGrid className="h-3.5 w-3.5 mr-1.5" />
+            Verige & mobile
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            Ena blagajna za <span className="bg-gradient-to-r from-purple-600 to-cyan-600 bg-clip-text text-transparent animate-gradient-text">vse lokacije</span>. Nadzor v žepu.
+          </h2>
+          <p className="mt-2 text-base text-slate-600">Centraliziran meni, poenotene cene, skupna poročila. Lastnik spremlja vse lokacije z mobilne aplikacije.</p>
+        </div>
+
+        {/* Chain overview stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+          <div className="p-4 rounded-xl bg-purple-50 border border-purple-100 text-center">
+            <div className="text-2xl font-bold text-purple-600 tabular-nums">{CHAIN_LOCATIONS.length}</div>
+            <div className="text-[10px] text-slate-600 mt-0.5">lokacij</div>
+          </div>
+          <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-100 text-center">
+            <div className="text-2xl font-bold text-emerald-600 tabular-nums">€{totalRevenue.toLocaleString('sl-SI')}</div>
+            <div className="text-[10px] text-slate-600 mt-0.5">skupni dnevni promet</div>
+          </div>
+          <div className="p-4 rounded-xl bg-cyan-50 border border-cyan-100 text-center">
+            <div className="text-2xl font-bold text-cyan-600 tabular-nums">{totalOrders}</div>
+            <div className="text-[10px] text-slate-600 mt-0.5">skupna naročila</div>
+          </div>
+          <div className="p-4 rounded-xl bg-amber-50 border border-amber-100 text-center">
+            <div className="text-2xl font-bold text-amber-600 tabular-nums">{totalStaff}</div>
+            <div className="text-[10px] text-slate-600 mt-0.5">zaposlenih danes</div>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-5 gap-6">
+          {/* LEVO: Lokacije list (3/5) */}
+          <div className="lg:col-span-3">
+            <Card className="overflow-hidden border-slate-200/70 shadow-sm">
+              <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Lokacije v verigi</span>
+                <span className="text-[10px] text-slate-400">{CHAIN_LOCATIONS.length} aktivnih</span>
+              </div>
+              <div className="divide-y divide-slate-50">
+                {CHAIN_LOCATIONS.map((loc, i) => {
+                  const isActive = i === activeLoc
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => setActiveLoc(i)}
+                      className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-colors ${isActive ? 'bg-purple-50/60' : 'hover:bg-slate-50/60'}`}
+                    >
+                      <div className={`w-2.5 h-2.5 rounded-full ${loc.color} ${loc.status === 'busy' ? 'animate-pulse' : ''} shrink-0`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-slate-900 truncate">{loc.name}</span>
+                          <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${loc.status === 'busy' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                            {loc.status === 'busy' ? 'PROMET' : 'ODPRTO'}
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-slate-500">{loc.city} · {loc.staff} delavcev</div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-sm font-bold text-slate-900 tabular-nums">€{loc.revenue.toLocaleString('sl-SI')}</div>
+                        <div className="text-[10px] text-emerald-600 font-semibold tabular-nums">{loc.trend}</div>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+              <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-[11px] text-slate-500">Skupaj: <span className="font-bold text-slate-700">€{totalRevenue.toLocaleString('sl-SI')}</span></span>
+                <button className="text-[11px] text-purple-600 font-semibold hover:text-purple-800">+ Dodaj lokacijo</button>
+              </div>
+            </Card>
+
+            {/* Centralized menu sync */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+              className="mt-4 p-4 rounded-xl bg-gradient-to-br from-purple-50 to-cyan-50 border border-purple-100"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-4 w-4 text-purple-600" />
+                <span className="text-xs font-bold text-slate-900 uppercase tracking-wide">Centraliziran meni sync</span>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed mb-3">
+                Spremeni ceno za &ldquo;Čevapi s kajmakom&rdquo; na eni lokaciji → <span className="font-semibold text-purple-700">sinhronizirano v vseh 3 lokacijah v 2 sekundah</span>. Poenostavi modifierje, combo pakete, sezonske menije.
+              </p>
+              <div className="flex items-center gap-2 text-[10px] text-slate-500">
+                <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-emerald-600" /> En meni, več lokacij</span>
+                <span>·</span>
+                <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-emerald-600" /> 2s sync</span>
+                <span>·</span>
+                <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-emerald-600" /> Rollback</span>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* DESNO: Mobile owner app (2/5) */}
+          <div className="lg:col-span-2">
+            <Card className="p-5 border-slate-200/70 shadow-sm h-full">
+              <div className="text-center mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 mb-2">
+                  <Smartphone className="h-3.5 w-3.5 text-slate-600" />
+                  <span className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Lastnik app</span>
+                </div>
+                <h3 className="text-base font-bold text-slate-900">Nadzor v žepu</h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">iOS + Android · brezplačno</p>
+              </div>
+
+              {/* Phone mockup */}
+              <div className="mx-auto max-w-[180px] mb-4">
+                <div className="rounded-2xl bg-slate-900 p-2 shadow-xl">
+                  <div className="rounded-xl bg-white overflow-hidden">
+                    <div className="bg-gradient-to-br from-purple-600 to-cyan-600 p-3 text-white">
+                      <div className="text-[9px] opacity-80 uppercase">Skupni promet</div>
+                      <div className="text-xl font-bold tabular-nums">€{totalRevenue.toLocaleString('sl-SI')}</div>
+                      <div className="text-[9px] opacity-90 mt-0.5">3 lokacije · live</div>
+                    </div>
+                    <div className="p-2 space-y-1.5">
+                      {CHAIN_LOCATIONS.map((loc, i) => (
+                        <div key={i} className="flex items-center justify-between text-[9px]">
+                          <span className="text-slate-600 truncate flex-1">{loc.name.split(' ')[0]}</span>
+                          <span className="font-bold text-slate-900 tabular-nums">€{loc.revenue.toLocaleString('sl-SI')}</span>
+                          <span className="text-emerald-600 ml-1">{loc.trend}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mobile features */}
+              <div className="space-y-2">
+                {MOBILE_FEATURES.map((f, i) => (
+                  <div key={i} className="flex items-start gap-2.5 text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center shrink-0">
+                      <f.icon className="h-3.5 w-3.5 text-purple-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-slate-900">{f.title}</div>
+                      <div className="text-[10px] text-slate-500 leading-tight">{f.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* App store buttons */}
+              <div className="mt-4 pt-3 border-t border-slate-100 flex gap-2">
+                <div className="flex-1 px-3 py-2 rounded-lg bg-slate-900 text-white text-center">
+                  <div className="text-[8px] opacity-70">Prenesi na</div>
+                  <div className="text-xs font-bold">App Store</div>
+                </div>
+                <div className="flex-1 px-3 py-2 rounded-lg bg-slate-900 text-white text-center">
+                  <div className="text-[8px] opacity-70">Prenesi na</div>
+                  <div className="text-xs font-bold">Google Play</div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    LIVE SOCIAL PROOF — sticky toast: "X gostiln se je pridružilo"
    ============================================================ */
 const SOCIAL_PROOF_EVENTS = [
@@ -5365,6 +5555,9 @@ export default function Home() {
 
       {/* ===== SECURITY & COMPLIANCE ===== */}
       <SecuritySection />
+
+      {/* ===== MULTI-LOCATION & MOBILE ===== */}
+      <MultiLocationSection />
 
       {/* ===== COMMAND CENTER ===== */}
       <CommandCenter />
