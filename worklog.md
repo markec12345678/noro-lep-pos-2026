@@ -2244,3 +2244,59 @@ Stage Summary:
 - Chain management + mobile app pokrita
 - 0 napak (hydration fix iz v7.2 drži), 0 lint errors
 - Commit/push next
+
+---
+Task ID: 71
+Agent: main (Z.ai Code)
+Task: Web raziskava runda 9 (sustainability/eko + accounting) + v7.4 Eko section
+
+Work Log:
+- 3 web iskanja (z-ai web_search):
+  1. Restaurant sustainability eco POS food waste carbon 2026
+  2. Restaurant POS accounting automation bookkeeping VAT DDV 2026
+  3. Restaurant food waste tracking POS inventory AI statistics 2026
+
+Ključna odkritja:
+- Sustainability: 4 omenitve (odpadki v case studies), brez lastne sekcije
+- Accounting: 11 omenitve (Wolt/Glovo v delivery), brez accounting automation sekcije
+- Energy consumption -30% stroškov (Lightspeed)
+- Food waste: 5 področij (energy, water, packaging, ingredients, food waste)
+- AI food waste reduction: -55% (že v case studies)
+- Accounting automation: AI forecasting, cloud integration, invoice automation
+
+v7.4 IMPLEMENTACIJA:
+- NOVA SustainabilitySection komponenta (~215 vrstic)
+- 4 ključne metrike (gradient bg, card-tilt):
+  * 🌱 −55% manj odpadkov hrane (−420 kg/mesec)
+  * ⚡ −18% nižji stroški energije (€180/mesec prihranka)
+  * 📊 100% avtomatski DDV export (8h prihranka/mesec)
+  * 💰 +24% višji neto profit (real-time P&L)
+- Accounting automation (6 features):
+  * P&L izjava, Food cost %, Labor cost %, DDV obračun (22%/9.5%/5%),
+  * Payroll export, Cash flow (predictive analytics)
+- Food waste/CO2 tracker card (emerald gradient):
+  * −420 kg hrana rešena/mesec, −1.050 kg CO2/mesec
+  * Progress bar (−55% cilj dosežen ✓)
+  * Letno: 5.040 kg hrane + 12.600 kg CO2
+- Energy cost tracking (amber gradient):
+  * €1.000 → €820/mesec (−18%)
+  * Letni prihranek: €2.160
+- Bottom impact summary (dark slate-900):
+  * 🌍 12.600 kg manj CO2
+  * 💰 €8.920 prihranek
+  * ⏱️ 96 ur manj admin
+- Layout: med MultiLocationSection in CommandCenter
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 28 sekcij (+1), 0 napak
+  * Eko/Waste/DDV/CO2/P&L: vsi OK
+- VLM audit:
+  * "4 metric cards, accounting automation list, food waste/CO2 tracker, energy cost, dark bottom summary"
+  * 7-8/10 visual polish
+
+Stage Summary:
+- 28 sekcij (eko dodana)
+- 40 komponent (SustainabilitySection)
+- Eko + accounting automation pokrita
+- 0 napak, 0 lint errors
+- Commit/push next
