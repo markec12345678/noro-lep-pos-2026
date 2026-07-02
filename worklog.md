@@ -947,3 +947,34 @@ FINAL v4.9 SCORECARD (97/100):
 - Command Center: 10/10
 - Z-Report: 9/10
 - Inventory: 9/10
+
+---
+Task ID: 44
+Agent: main (Z.ai Code)
+Task: Visual polish — animated mesh, glassmorphism, card-tilt, gradient text
+
+Work Log:
+- 5 vizualne izboljšave implementirane:
+  1. Animated gradient mesh background v hero:
+     * 3 pulsing orbs (emerald, teal, purple) z infinite loop
+     * Različni durations (8s, 10s, 12s) za organski občutek
+     * Scale + opacity animacija z easeInOut
+  2. Glassmorphism header:
+     * bg-white/70 (prej /80)
+     * border-slate-200/40 + shadow-sm
+     * Backdrop-blur ohranjen
+  3. CSS card-tilt class (globals.css):
+     * perspective(1000px) rotateX(2deg) rotateY(-2deg) translateY(-4px)
+     * Box-shadow z emerald tint
+     * 0.3s ease transition
+  4. Animated gradient text (globals.css):
+     * gradient-shift keyframe (0% → 50% → 100%)
+     * 200% background-size za smooth shift
+     * 3s ease infinite
+  5. globals.css razširjen z 2 novima class-ima
+- VLM hero: 8/10 vizualno, 9/10 modernost, 8/10 premium
+  * "sleek, contemporary POS hero"
+  * "pulsing orbs add dynamism"
+  * "glassmorphism header feels premium"
+- 0 console errors, lint 0
+- Push na GitHub: commit 568c151 na nextjs-landing
