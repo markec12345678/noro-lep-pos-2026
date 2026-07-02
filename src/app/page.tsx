@@ -2082,6 +2082,171 @@ function MobileMenu() {
 }
 
 /* ============================================================
+   INVENTORY PREVIEW — 232 artiklov pripravljenih
+   ============================================================ */
+function InventoryPreview() {
+  const [items, setItems] = useState<{id:string;name:string;category:string;unit:string;stock:number;purchasePrice:number;salePrice:number|null}[]>([])
+  const [search, setSearch] = useState('')
+  const [activeCat, setActiveCat] = useState<string|null>(null)
+
+  useEffect(() => {
+    fetch('/api/inventory/list').then(r => r.json()).then(d => setItems(d.items || [])).catch(() => {})
+  }, [])
+
+  const categories = Array.from(new Set(items.map(i => i.category))).sort()
+  const filtered = items.filter(item => {
+    if (activeCat && item.category !== activeCat) return false
+    if (search && !item.name.toLowerCase().includes(search.toLowerCase())) return false
+    return true
+  })
+
+  return (
+    <section id="inventar" className="py-16 lg:py-20 bg-white border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <Badge className="mb-3 bg-emerald-100 text-emerald-800 hover:bg-emerald-100"><Package className="h-3.5 w-3.5 mr-1.5" />232 artiklov pripravljenih</Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">Vsi artikli <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">pripravljeni</span></h2>
+          <p className="mt-2 text-base text-slate-600">232 slovenskih artiklov v 19 kategorijah — vsi z zalogo 0. Ti vneseš samo dobavnice.</p>
+        </div>
+        <div className="flex gap-3 mb-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input type="text" placeholder="Iskanje artiklov..." value={search} onChange={e => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+          </div>
+        </div>
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+          <button onClick={() => setActiveCat(null)} className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${!activeCat ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>Vse ({items.length})</button>
+          {categories.slice(0, 10).map(cat => <button key={cat} onClick={() => setActiveCat(cat)} className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${activeCat === cat ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-200 text-slate-600'}`}>{cat}</button>)}
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-h-80 overflow-y-auto p-1">
+          {filtered.slice(0, 40).map(item => (
+            <div key={item.id} className={`p-3 rounded-lg border-2 ${item.stock <= 0 ? 'border-amber-200 bg-amber-50/30' : 'border-slate-200 bg-white'}`}>
+              <div className="flex items-start justify-between mb-1">
+                <span className="text-[10px] font-semibold text-slate-400 uppercase">{item.category}</span>
+                {item.stock <= 0 && <span className="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[9px] font-bold">ZALOGA 0</span>}
+              </div>
+              <div className="text-xs font-bold text-slate-900 leading-tight line-clamp-2">{item.name}</div>
+              <div className="flex items-center justify-between mt-1.5">
+                <span className="text-xs font-bold text-emerald-600 tabular-nums">{item.stock} {item.unit}</span>
+                <span className="text-[10px] text-slate-400 tabular-nums">{(item.salePrice || item.purchasePrice).toFixed(2)} €</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
+   DELIVERY — Wolt, Uber Eats, Glovo, Lastmin, QR
+   ============================================================ */
+function DeliverySection() {
+  const [orders, setOrders] = useState<{id:string;platformLabel:string;platformColor:string;platformIcon:string;customerName:string;deliveryAddress:string;items:{name:string;qty:number}[];total:number;status:string;receivedAt:number}[]>([])
+  const [stats, setStats] = useState<{total:number;newCount:number;netRevenue:number;totalCommission:number} | null>(null)
+
+  useEffect(() => {
+    fetch('/api/delivery/orders').then(r => r.json()).then(d => { setOrders(d.orders || []); setStats(d.stats) }).catch(() => {})
+  }, [])
+
+  const handleNew = async () => { await fetch('/api/delivery/orders', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({action:'new'}) }); const r = await fetch('/api/delivery/orders'); const d = await r.json(); setOrders(d.orders || []); setStats(d.stats) }
+
+  return (
+    <section id="dostava" className="py-16 lg:py-20 bg-slate-50/40 border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <Badge className="mb-3 bg-cyan-100 text-cyan-800 hover:bg-cyan-100"><Smartphone className="h-3.5 w-3.5 mr-1.5" />Dostavne integracije</Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">Vse dostavne platforme <span className="bg-gradient-to-r from-cyan-600 to-emerald-600 bg-clip-text text-transparent">na enem mestu</span></h2>
+          <p className="mt-2 text-base text-slate-600">Wolt, Uber Eats, Glovo, Lastmin in QR — vsa naročila na enem zaslonu z auto-accept.</p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+          {[{icon:'🟦',l:'Wolt',d:'12%'},{icon:'🚗',l:'Uber Eats',d:'15%'},{icon:'🟡',l:'Glovo',d:'10%'},{icon:'⏱️',l:'Lastmin',d:'8%'},{icon:'📱',l:'QR',d:'0%'}].map((p,i) => (
+            <div key={i} className="p-3 rounded-xl bg-white border border-slate-200 text-center"><div className="text-2xl mb-1">{p.icon}</div><div className="text-xs font-bold">{p.l}</div><div className="text-[10px] text-slate-400">{p.d} provizija</div></div>
+          ))}
+        </div>
+        {stats && (
+          <div className="grid grid-cols-4 gap-2 mb-4">
+            <Card className="p-3 text-center"><div className="text-lg font-bold text-slate-900">{stats.total}</div><div className="text-[9px] text-slate-400">naročil</div></Card>
+            <Card className="p-3 text-center"><div className="text-lg font-bold text-cyan-600">{stats.newCount}</div><div className="text-[9px] text-slate-400">novih</div></Card>
+            <Card className="p-3 text-center"><div className="text-lg font-bold text-emerald-600">{stats.netRevenue?.toFixed(0) || 0}€</div><div className="text-[9px] text-slate-400">neto</div></Card>
+            <Card className="p-3 text-center"><div className="text-lg font-bold text-amber-600">{stats.totalCommission?.toFixed(0) || 0}€</div><div className="text-[9px] text-slate-400">provizija</div></Card>
+          </div>
+        )}
+        <div className="flex justify-center mb-4">
+          <Button size="sm" variant="outline" onClick={handleNew} className="border-cyan-300 text-cyan-700 hover:bg-cyan-50"><Plus className="h-3.5 w-3.5 mr-1" />Simuliraj naročilo</Button>
+        </div>
+        <div className="space-y-2 max-h-96 overflow-y-auto">
+          {orders.slice(0, 10).map(o => (
+            <div key={o.id} className="p-3 rounded-lg border border-slate-200 bg-white flex items-center gap-3">
+              <div className={`w-8 h-8 rounded-lg ${o.platformColor} text-white flex items-center justify-center text-sm shrink-0`}>{o.platformIcon}</div>
+              <div className="flex-1 min-w-0"><div className="text-xs font-bold text-slate-900 truncate">{o.customerName}</div><div className="text-[10px] text-slate-500 truncate">{o.deliveryAddress}</div><div className="text-[10px] text-slate-600">{o.items.map(i => `${i.qty}× ${i.name}`).join(', ')}</div></div>
+              <div className="text-right shrink-0"><div className="text-xs font-bold text-slate-900">{o.total.toFixed(2)}€</div><div className="text-[9px] text-slate-400">{o.status}</div></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
+   AI PREDICTION — predikcija povpraševanja + samodejne dobavnice
+   ============================================================ */
+function AIPredictionSection() {
+  const [predictions, setPredictions] = useState<{itemName:string;category:string;predictedDemand:number;confidence:number;trend:string;trendPercent:number;currentStock:number;daysUntilStockout:number;reorderNeeded:boolean;reorderQuantity:number;reorderUrgency:string;estimatedCost:number;reasoning:string}[]>([])
+  const [stats, setStats] = useState<{totalItems:number;criticalCount:number;avgConfidence:number;totalReorderCost:number} | null>(null)
+
+  useEffect(() => {
+    fetch('/api/ai/predict').then(r => r.json()).then(d => { setPredictions(d.predictions || []); setStats(d.stats) }).catch(() => {})
+  }, [])
+
+  const urgencyColors: Record<string, string> = { critical: 'bg-red-500', high: 'bg-orange-500', medium: 'bg-amber-500', low: 'bg-sky-500', none: 'bg-emerald-500' }
+  const trendIcons: Record<string, string> = { rising: '📈', falling: '📉', stable: '➡️', seasonal: '🎯' }
+
+  return (
+    <section id="ai-prediction" className="py-16 lg:py-20 bg-white border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <Badge className="mb-3 bg-purple-100 text-purple-800 hover:bg-purple-100"><Sparkles className="h-3.5 w-3.5 mr-1.5" />AI predikcija zalog</Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">AI ve <span className="bg-gradient-to-r from-purple-600 to-emerald-600 bg-clip-text text-transparent">kaj boš prodal</span> naslednji teden</h2>
+          <p className="mt-2 text-base text-slate-600">Analiza prodaje, trend detection in samodejne dobavnice — preden zmanjka.</p>
+        </div>
+        {stats && (
+          <div className="grid grid-cols-4 gap-2 mb-6">
+            <Card className="p-3 text-center"><div className="text-lg font-bold text-purple-600">{stats.totalItems}</div><div className="text-[9px] text-slate-400">analiziranih</div></Card>
+            <Card className="p-3 text-center"><div className="text-lg font-bold text-red-600">{stats.criticalCount}</div><div className="text-[9px] text-slate-400">kritičnih</div></Card>
+            <Card className="p-3 text-center"><div className="text-lg font-bold text-emerald-600">{stats.avgConfidence}%</div><div className="text-[9px] text-slate-400">zaupanje</div></Card>
+            <Card className="p-3 text-center"><div className="text-lg font-bold text-amber-600">{stats.totalReorderCost?.toFixed(0) || 0}€</div><div className="text-[9px] text-slate-400">dobavnica</div></Card>
+          </div>
+        )}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {predictions.slice(0, 9).map((p, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.3, delay: i * 0.05 }}>
+              <Card className={`p-3 border-2 ${p.reorderUrgency === 'critical' ? 'border-red-200 bg-red-50/30' : 'border-slate-200'}`}>
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1 min-w-0"><div className="text-xs font-bold text-slate-900">{p.itemName}</div><div className="text-[10px] text-slate-500">{p.category}</div></div>
+                  <span className={`px-1.5 py-0.5 rounded-full ${urgencyColors[p.reorderUrgency] || 'bg-slate-400'} text-white text-[8px] font-bold shrink-0 ml-2`}>{p.reorderUrgency.toUpperCase()}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-1 mb-2">
+                  <div><div className="text-[8px] text-slate-400 uppercase">Zaloga</div><div className="text-xs font-bold text-slate-900">{p.currentStock}</div></div>
+                  <div><div className="text-[8px] text-slate-400 uppercase">Predikcija</div><div className="text-xs font-bold text-purple-600">{p.predictedDemand}</div></div>
+                  <div><div className="text-[8px] text-slate-400 uppercase">Zmanjka</div><div className={`text-xs font-bold ${p.daysUntilStockout <= 1 ? 'text-red-600' : 'text-amber-600'}`}>{p.daysUntilStockout}d</div></div>
+                </div>
+                <div className="flex items-center justify-between text-[10px] mb-1">
+                  <span className="text-purple-600 font-semibold">{trendIcons[p.trend]} {p.trend} ({p.trendPercent > 0 ? '+' : ''}{p.trendPercent.toFixed(0)}%)</span>
+                  <span className="text-slate-400">{p.confidence}%</span>
+                </div>
+                {p.reorderNeeded && <div className="text-[10px] text-purple-600 font-bold">→ Naroči {p.reorderQuantity} ({p.estimatedCost.toFixed(2)}€)</div>}
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    COMMAND CENTER — Unified dashboard vseh sistemov
    ============================================================ */
 interface DashboardData {
@@ -2697,6 +2862,15 @@ export default function Home() {
 
       {/* ===== PAYMENTS ===== */}
       <PaymentsSection />
+
+      {/* ===== INVENTORY PREVIEW ===== */}
+      <InventoryPreview />
+
+      {/* ===== DELIVERY ===== */}
+      <DeliverySection />
+
+      {/* ===== AI PREDICTION ===== */}
+      <AIPredictionSection />
 
       {/* ===== INTERACTIVE PRODUCT TOUR ===== */}
       <section id="demo" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/40 to-white border-y border-slate-100">
