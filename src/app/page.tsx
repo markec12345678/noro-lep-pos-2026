@@ -2136,12 +2136,12 @@ function CursorGlow() {
    DARK MODE TOGGLE
    ============================================================ */
 function DarkModeToggle() {
-  const [mounted, setMounted] = useState(false)
   const [isDark, setIsDark] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
-    setIsDark(document.documentElement.classList.contains('dark'))
+    // Read initial theme from DOM
+    const dark = document.documentElement.classList.contains('dark')
+    if (dark !== isDark) setIsDark(dark)
   }, [])
 
   const toggle = () => {
@@ -2153,8 +2153,6 @@ function DarkModeToggle() {
       document.documentElement.classList.remove('dark')
     }
   }
-
-  if (!mounted) return null
 
   return (
     <button
