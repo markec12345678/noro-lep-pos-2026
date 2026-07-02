@@ -850,6 +850,9 @@ const CATEGORY_SPLIT = [
 ]
 
 function AnalyticsView({ promet, narocila }: { promet: number; narocila: number }) {
+  const [mounted, setMounted] = useState(false)
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => setMounted(true), [])
   const povrRacun = narocila > 0 ? promet / narocila : 0
   return (
     <div>
@@ -861,7 +864,7 @@ function AnalyticsView({ promet, narocila }: { promet: number; narocila: number 
           </div>
           <div>
             <div className="text-sm font-bold">Analitika · Danes <span className="text-emerald-400 text-[10px] ml-1">· live</span></div>
-            <div className="text-[10px] text-slate-400">{new Date().toLocaleDateString('sl-SI', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+            <div className="text-[10px] text-slate-400">{mounted ? new Date().toLocaleDateString('sl-SI', { weekday: 'long', day: 'numeric', month: 'long' }) : '—'}</div>
           </div>
         </div>
         <div className="text-right">
@@ -4412,7 +4415,7 @@ const ACTIVITY_TEMPLATES = [
 
 function CommandCenter() {
   const [data, setData] = useState<DashboardData | null>(null)
-  const [now, setNow] = useState(new Date())
+  const [now, setNow] = useState<Date | null>(null)
   const [liveRevenue, setLiveRevenue] = useState(0)
   const [liveOrders, setLiveOrders] = useState(0)
   const [liveKds, setLiveKds] = useState({ newOrders: 0, preparing: 0, ready: 0 })
@@ -4452,6 +4455,8 @@ function CommandCenter() {
   }, [])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNow(new Date())
     const timer = setInterval(() => setNow(new Date()), 1000)
     return () => clearInterval(timer)
   }, [])
@@ -4548,7 +4553,7 @@ function CommandCenter() {
               </div>
             )}
             <div className="text-center"><div className="text-slate-400">Opozorila</div><div className="font-bold text-emerald-400">{data.systemHealth.alerts}</div></div>
-            <div className="text-center"><div className="text-slate-400">Čas</div><div className="font-bold text-white tabular-nums">{now.toLocaleTimeString('sl-SI')}</div></div>
+            <div className="text-center"><div className="text-slate-400">Čas</div><div className="font-bold text-white tabular-nums">{now ? now.toLocaleTimeString('sl-SI') : '--:--:--'}</div></div>
           </div>
         </div>
 
@@ -4645,7 +4650,7 @@ function CommandCenter() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
           </span>
-          Live · {now.toLocaleTimeString('sl-SI')} · promet se dviga v realnem času
+          Live · {now ? now.toLocaleTimeString('sl-SI') : '--:--:--'} · promet se dviga v realnem času
         </div>
       </div>
     </section>
@@ -4780,9 +4785,12 @@ function PaymentModal({ amount, onClose }: { amount: number; onClose: () => void
 function ZReportSection() {
   const [closed, setClosed] = useState(false)
   const [printing, setPrinting] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => setMounted(true), [])
 
   const report = {
-    date: new Date().toLocaleDateString('sl-SI', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+    date: mounted ? new Date().toLocaleDateString('sl-SI', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '—',
     cashier: 'Maja K.',
     location: 'Gostilna Pri Lovru, Ljubljana',
     totals: { revenue: 10681, orders: 633, avgCheck: 16.86, returns: 2, returnsValue: 32.00 },
