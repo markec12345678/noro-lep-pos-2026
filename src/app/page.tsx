@@ -2092,6 +2092,7 @@ function DarkModeToggle() {
   useEffect(() => {
     setMounted(true)
     setIsDark(document.documentElement.classList.contains('dark'))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const toggle = () => {
