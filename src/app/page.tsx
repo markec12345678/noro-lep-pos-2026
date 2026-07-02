@@ -5562,8 +5562,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ===== FINAL CTA ===== */}
-      <section className="py-16 lg:py-24">
+      {/* ===== DECISION HUB — finalni CTA z 3 potmi, ugodnosti, urgency ===== */}
+      <section id="cta" className="py-16 lg:py-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 shadow-2xl glow-pulse shimmer shadow-emerald-500/30">
@@ -5572,24 +5572,114 @@ export default function Home() {
                 backgroundSize: '24px 24px',
               }} />
               <div className="absolute -top-20 -right-20 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
-              <div className="relative p-8 sm:p-12 lg:p-16 text-center">
-                <Sparkles className="h-12 w-12 mx-auto mb-5 text-emerald-200" />
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-4">
-                  Pripravljen narediti naslednji korak?
-                </h2>
-                <p className="text-emerald-50 text-lg max-w-2xl mx-auto mb-8">
-                  Pridruži se 542 slovenskim restavracijam, ki že prihranjajo čas in zaslužijo več z Noro Lep POS.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button size="lg" className="bg-white text-emerald-700 hover:bg-emerald-50 h-12 px-8 text-base shadow-xl" data-track="cta_click" data-track-label="brezplacni_preizkus_final" data-track-section="final_cta">
-                    <Zap className="h-4 w-4 mr-2" />
-                    Brezplačni 30-dnevni preizkus
-                  </Button>
-                  <Button size="lg" variant="outline" className="h-12 px-8 text-base bg-transparent border-white/40 text-white hover:bg-white/10 hover:text-white">
-                    Razgovor z ekipo
-                  </Button>
+              <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-emerald-300/10 rounded-full blur-3xl" />
+
+              <div className="relative p-8 sm:p-12 lg:p-16">
+                {/* Heading */}
+                <div className="text-center mb-8">
+                  <Sparkles className="h-12 w-12 mx-auto mb-4 text-emerald-200" />
+                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-3">
+                    Pripravljen narediti naslednji korak?
+                  </h2>
+                  <p className="text-emerald-50 text-lg max-w-2xl mx-auto">
+                    Pridruži se 542 slovenskim restavracijam, ki že prihranjajo čas in zaslužijo več z Noro Lep POS.
+                  </p>
                 </div>
-                <p className="mt-6 text-sm text-emerald-100">Brez kreditne kartice · Brez vezave · Namestitev v 15 minutah</p>
+
+                {/* 6 ključnih ugodnosti — grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8 max-w-3xl mx-auto">
+                  {[
+                    { icon: Zap, text: '15 min do prvega računa' },
+                    { icon: ShieldCheck, text: 'FURS ZDavP-2P 2025 compliant' },
+                    { icon: CreditCard, text: 'Brez kreditne kartice' },
+                    { icon: Sparkles, text: 'AI predikcija vključena' },
+                    { icon: Globe, text: '4 jeziki (SLO/EN/DE/IT)' },
+                    { icon: Wifi, text: 'Dela offline' },
+                  ].map((b, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.3, delay: i * 0.05 }}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20"
+                    >
+                      <b.icon className="h-4 w-4 text-emerald-200 shrink-0" />
+                      <span className="text-xs font-semibold text-white">{b.text}</span>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* 3 poti — za različne buyer stages */}
+                <div className="grid sm:grid-cols-3 gap-3 mb-8 max-w-3xl mx-auto">
+                  {/* Demo */}
+                  <a href="#demo" className="group p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all text-center">
+                    <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                      <Smartphone className="h-5 w-5 text-emerald-100" />
+                    </div>
+                    <div className="text-sm font-bold text-white">Poskusi demo</div>
+                    <div className="text-[11px] text-emerald-100/80 mt-0.5">Brez prijave · 2 min</div>
+                  </a>
+                  {/* Vodič */}
+                  <a href="#vodnik" className="group p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all text-center">
+                    <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                      <Receipt className="h-5 w-5 text-emerald-100" />
+                    </div>
+                    <div className="text-sm font-bold text-white">Prenesi vodič</div>
+                    <div className="text-[11px] text-emerald-100/80 mt-0.5">32 strani PDF · brezplačno</div>
+                  </a>
+                  {/* Signup */}
+                  <a href="#cene" className="group p-4 rounded-2xl bg-white text-emerald-700 border border-white hover:bg-emerald-50 transition-all text-center shadow-lg">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                      <Zap className="h-5 w-5 text-emerald-600" />
+                    </div>
+                    <div className="text-sm font-bold text-emerald-700">Začni brezplačno</div>
+                    <div className="text-[11px] text-emerald-600 mt-0.5">30 dni · brez kreditke</div>
+                  </a>
+                </div>
+
+                {/* Comparison recap — instant summary */}
+                <div className="max-w-2xl mx-auto p-4 rounded-2xl bg-slate-900/40 backdrop-blur-sm border border-white/10 mb-6">
+                  <div className="text-[10px] font-bold text-emerald-200 uppercase tracking-wider text-center mb-2">Zakaj Noro Lep?</div>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <div className="text-xs text-emerald-100/70">Konkurenca</div>
+                      <div className="text-sm font-bold text-rose-200 line-through">1-3 dni</div>
+                      <div className="text-[10px] text-emerald-100/60">setup</div>
+                    </div>
+                    <div className="flex items-center justify-center">
+                      <ArrowRight className="h-4 w-4 text-emerald-300" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-emerald-100/70">Noro Lep</div>
+                      <div className="text-sm font-bold text-white">15 min</div>
+                      <div className="text-[10px] text-emerald-100/60">setup</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Trust line + social proof */}
+                <div className="text-center">
+                  <p className="text-sm text-emerald-100 mb-3">Brez kreditne kartice · Brez vezave · 30-dnevni preizkus</p>
+                  <div className="flex items-center justify-center gap-4 text-xs text-emerald-100/80 flex-wrap">
+                    <span className="flex items-center gap-1">
+                      <span className="flex -space-x-1.5">
+                        {['bg-emerald-400', 'bg-cyan-400', 'bg-purple-400', 'bg-amber-400'].map((bg, i) => (
+                          <div key={i} className={`w-5 h-5 rounded-full ${bg} border-2 border-emerald-600`} />
+                        ))}
+                      </span>
+                      <span className="font-semibold text-white">542</span> restavracij
+                    </span>
+                    <span className="flex items-center gap-1">
+                      {[...Array(5)].map((_, i) => <Star key={i} className="h-3 w-3 fill-amber-300 text-amber-300" />)}
+                      <span className="font-semibold text-white ml-1">4.9/5</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      <span>24/7 podpora</span>
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </motion.div>

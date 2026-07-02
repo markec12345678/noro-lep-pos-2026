@@ -2031,3 +2031,69 @@ Stage Summary:
 - VLM: 8/10 polish, 9/10 conversion design
 - 0 napak (1 obstoječa hydration), 0 lint errors
 - Commit/push next
+
+---
+Task ID: 67
+Agent: main (Z.ai Code)
+Task: v7.0 — Decision Hub (nadgradnja Final CTA v močan zaključni hub)
+
+Work Log:
+- Po lastni logiki: imamo 24 sekcij a končni push je bil šibek (heading + 2 gumba)
+- Nadgradil Final CTA v "Decision Hub" — močna zaključna sekcija ki poveže vse
+
+v7.0 IMPLEMENTACIJA (nadgradnja Final CTA):
+- Decision Hub z 5 komponentami:
+
+1. Heading:
+   * Sparkles icon (emerald-200)
+   * "Pripravljen narediti naslednji korak?"
+   * "Pridruži se 542 slovenskim restavracijam..."
+
+2. 6 ključnih ugodnosti (grid 2x3 / 3x2):
+   * ⚡ 15 min do prvega računa
+   * 🛡️ FURS ZDavP-2P 2025 compliant
+   * 💳 Brez kreditne kartice
+   * ✨ AI predikcija vključena
+   * 🌍 4 jeziki (SLO/EN/DE/IT)
+   * 📶 Dela offline
+   * Glassmorphism (bg-white/10 backdrop-blur)
+
+3. 3 poti za različne buyer stages:
+   * Poskusi demo (#demo) — brez prijave, 2 min
+   * Prenesi vodič (#vodnik) — 32 strani PDF, brezplačno
+   * Začni brezplačno (#cene) — 30 dni, brez kreditke (HIGHLIGHTED white)
+   * Hover scale 1.1 na ikonah
+
+4. Comparison recap (instant summary):
+   * "Zakaj Noro Lep?"
+   * Konkurenca: 1-3 dni (line-through rose)
+   * → Noro Lep: 15 min (white bold)
+   * Dark backdrop (bg-slate-900/40)
+
+5. Trust line + social proof:
+   * "Brez kreditne kartice · Brez vezave · 30-dnevni preizkus"
+   * 542 restavracij (avatar stack)
+   * 4.9/5 (5 zvezdic)
+   * 24/7 podpora (Clock icon)
+
+- Ohranjene vizualne podlage: gradient orbs, dot pattern, glow-pulse, shimmer
+- Layout: pred Footerjem (nadomestil prejšnji osnovni Final CTA)
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 25 sekcij (+1: cta), HTTP 200
+  * Vse 3 poti: OK (Demo/Vodič/Signup)
+  * 6 ugodnosti: OK
+  * Comparison recap: OK
+- VLM audit:
+  * "heading with Sparkles, 6 benefit badges grid, 3 action paths with signup highlighted"
+  * "comparison recap 1-3 dni → 15 min, social proof 542/4.9/24-7"
+  * 9/10 visual polish, 9/10 conversion design
+  * "Clear CTAs, social proof, benefit-driven structure"
+
+Stage Summary:
+- 25 sekcij (cta dodana z id)
+- Nadgradnja Final CTA iz osnovnega (heading + 2 gumba) v poln Decision Hub
+- 3 poti za različne buyer stages (top/middle/bottom funnel)
+- VLM: 9/10 polish, 9/10 conversion design
+- 0 napak (1 obstoječa hydration), 0 lint errors
+- Commit/push next
