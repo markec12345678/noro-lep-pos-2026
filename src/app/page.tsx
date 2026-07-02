@@ -33,7 +33,7 @@ import {
   Wifi,
   Zap,
 } from 'lucide-react'
-import { motion, useInView, animate } from 'framer-motion'
+import { motion, useInView, useScroll, useTransform, animate } from 'framer-motion'
 import {
   Area,
   AreaChart,
@@ -2083,6 +2083,56 @@ function MobileMenu() {
 }
 
 /* ============================================================
+   PARALLAX HERO IMAGE — subtle parallax na scroll
+   ============================================================ */
+function ParallaxHeroImage({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+  const y = useTransform(scrollYProgress, [0, 1], [0, -80])
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.08])
+
+  return (
+    <div ref={ref}>
+      <motion.div style={{ y, scale }}>
+        {children}
+      </motion.div>
+    </div>
+  )
+}
+
+/* ============================================================
+   CURSOR GLOW — emerald glow sledi miški
+   ============================================================ */
+function CursorGlow() {
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+  const springX = useSpring(mouseX, { stiffness: 150, damping: 20 })
+  const springY = useSpring(mouseY, { stiffness: 150, damping: 20 })
+
+  useEffect(() => {
+    const handleMove = (e: MouseEvent) => {
+      mouseX.set(e.clientX)
+      mouseY.set(e.clientY)
+    }
+    window.addEventListener('mousemove', handleMove, { passive: true })
+    return () => window.removeEventListener('mousemove', handleMove)
+  }, [mouseX, mouseY])
+
+  return (
+    <motion.div
+      className="pointer-events-none fixed z-[5] w-[400px] h-[400px] rounded-full opacity-30 hidden lg:block"
+      style={{
+        left: springX,
+        top: springY,
+        x: -200,
+        y: -200,
+        background: 'radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%)',
+      }}
+    />
+  )
+}
+
+/* ============================================================
    DARK MODE TOGGLE
    ============================================================ */
 function DarkModeToggle() {
@@ -2744,6 +2794,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-white text-slate-900 antialiased">
       <ScrollProgressBar />
       <BackToTop />
+      <CursorGlow />
 
       {/* Skip to content — accessibility */}
       <a
@@ -2857,10 +2908,12 @@ export default function Home() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-br from-emerald-400/30 via-teal-400/20 to-transparent rounded-3xl blur-2xl" />
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-emerald-900/20 border border-white/60 bg-slate-100">
-                <img src="/pos-brand/hero-restaurant.png" alt="Noro Lep POS v restavraciji" className="w-full h-auto" />
-              </div>
+              <ParallaxHeroImage>
+                <div className="absolute -inset-4 bg-gradient-to-br from-emerald-400/30 via-teal-400/20 to-transparent rounded-3xl blur-2xl" />
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-emerald-900/20 border border-white/60 bg-slate-100">
+                  <img src="/pos-brand/hero-restaurant.png" alt="Noro Lep POS v restavraciji" className="w-full h-auto" />
+                </div>
+              </ParallaxHeroImage>
               <motion.div initial={{ opacity: 0, x: -20, y: 10 }} animate={{ opacity: 1, x: 0, y: 0 }} transition={{ duration: 0.6, delay: 0.9 }} className="absolute -left-3 sm:-left-6 top-8 bg-white rounded-xl shadow-xl border border-slate-100 p-3 flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
                   <CheckCircle2 className="h-5 w-5 text-emerald-600" />
