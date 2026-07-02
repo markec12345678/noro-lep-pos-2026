@@ -514,19 +514,20 @@ export default function Home() {
             </div>
           </a>
 
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-0.5">
             {[
-              { label: 'Funkcije', href: '#funkcije' },
-              { label: 'Zakaj mi', href: '#zakaj' },
-              { label: 'Kako deluje', href: '#kako' },
-              { label: 'Primerjava', href: '#primerjava-svet' },
+              { label: 'Dashboard', href: '#command-center' },
+              { label: 'Zaloge', href: '#inventar' },
+              { label: 'Plačila', href: '#placila' },
+              { label: 'Dostava', href: '#dostava' },
+              { label: 'AI', href: '#ai-prediction' },
               { label: 'Cene', href: '#cene' },
               { label: 'FAQ', href: '#faq' },
             ].map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition"
+                className="px-2.5 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition"
               >
                 {item.label}
               </a>
