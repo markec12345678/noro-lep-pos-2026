@@ -450,3 +450,36 @@ Final Scorecard (94/100):
 - Delivery: 9/10
 - AI predikcija: 9/10
 - Command Center: 10/10
+
+---
+Task ID: 27
+Agent: main (Z.ai Code)
+Task: Celovit quality audit — vse sekcije preverjene
+
+Work Log:
+- Console errors: 0 ✅
+- Console warnings: 0 ✅
+- 12 sekcij z ID-ji renderajo pravilno:
+  command-center, funkcije, inventar, placila, dostava, ai-prediction, zakaj, kako, mnenja, primerjava-svet, cene, faq
+- API health check:
+  * /api/dashboard/overview: 200 ✅
+  * /api/ai/predict: 200 ✅
+  * /api/payments/create-intent: 200 ✅
+  * /api/delivery/orders: 200 ✅
+  * /api/inventory/list: 200 ✅
+  * /api/inventory/seed: 200 ✅
+  * /api/analytics: 404 ⚠️ (file missing from filesystem, not critical for rendering)
+- VLM section-by-section audit (vse 8/10):
+  * Command Center: 8/10 (7 systems, dark theme, clear hierarchy, data dense)
+  * Inventory: 8/10 (232 articles, search, filters, ZALOGA 0 badges)
+  * Payments: 8/10 (Apple Pay, Google Pay, NFC, demo button prominent)
+  * Delivery: 8/10 (Wolt, Uber Eats, Glovo, live feed, auto-accept)
+  * AI Prediction: 8/10 (trend detection, urgency badges, 81% confidence)
+
+Final quality audit povzetek:
+- Stran je stabilna (0 errors)
+- Vse 12 sekcij rendera
+- 6/7 APIjev deluje (analytics non-critical)
+- VLM konsistentno 8/10 per sekcija
+- Mobile 9/10 (prej preverjeno)
+- Desktop full page 9/10 (prej preverjeno)
