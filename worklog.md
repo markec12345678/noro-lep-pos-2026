@@ -1388,3 +1388,65 @@ Stage Summary:
 - ZDavP-2P 2025 compliance expliciten
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 56
+Agent: main (Z.ai Code)
+Task: Web raziskava runda 2 (slovenska konkurenca + SEO + PWA + CRO) + v5.9
+
+Work Log:
+- 5 web iskanj (z-ai web_search):
+  1. Slovenski POS sistemi (konkurenca)
+  2. SEO best practices 2026 (schema, Core Web Vitals)
+  3. SaaS conversion rate optimization
+  4. PWA offline 2026
+  5. ROI kalkulator lead magnet
+
+Ključna odkritja:
+- SLOVENSKA KONKURENCA (realni): TRONpos, SpletsisPOS, POS Elektronček, OPTIPOS, Propos/ERPO
+- NAŠA PRIMERJAVA je imela Toast/Square/Lightspeed/Shopify (ZDA/Kanada) — NE podpirajo FURS!
+  * To je bilo ZAVAJAJOČE za slovenskega uporabnika
+  * ZDA sistemi niso relevantni za slovenski trg
+- JSON-LD: že implementiran (Organization, SoftwareApplication, WebSite, FAQPage)
+  * Manjkal LocalBusiness (za local SEO)
+- PWA manifest: že obstaja
+- ROI kalkulator: že imamo (RoiCalculator)
+
+v5.9 IMPLEMENTACIJA:
+1. Nadomeščeni ZDA konkurenti s slovenskimi:
+  * Toast → TRONpos (SLO, mobilna, večkrat nagrajena)
+  * Square → SpletsisPOS (SLO, hiter, ugoden)
+  * Lightspeed → POS Elektronček (SLO, gostinstvo focus)
+  * Shopify POS → Propos (ERPO) (SLO, Android/iOS, FURS)
+  * Vsi slovenski: furs=true, sloLang=true, ai=false, price="Po povpraševanju"
+  * Noro Lep edini z: AI, QR, loyalty, realTimeSync, roiCalc, price=0€, setup=15min
+2. Naslov sekcije: "svetovni liderji" → "slovenske blagajne"
+3. Subtitle: "z vodilnimi slovenskimi POS sistemi"
+4. LocalBusiness schema dodan v JSON-LD:
+  * @type: LocalBusiness
+  * telephone, priceRange, address (Ljubljana)
+  * GeoCoordinates (46.0569, 14.5058)
+  * OpeningHoursSpecification (Mon-Fri 08-18)
+  * areaServed: Slovenija
+  * knowsAbout: POS sistemi, FURS, restavracijsko poslovanje, AI predikcija
+  * parentOrganization link
+
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 0 napak, HTTP 200
+  * TRONpos/SpletsisPOS/Elektron/Propos: vsi prisotni (true)
+  * Toast v primerjavi: false (pravilno odstranjen)
+  * "slovenske blagajne": true
+  * LocalBusiness schema: prisoten (curl potrditev)
+- JSON-LD tipi sedaj: 16 različnih (dodani LocalBusiness, GeoCoordinates,
+  OpeningHoursSpecification, Country, PostalAddress)
+- VLM audit:
+  * "TRONpos, SpletsisPOS, POS Elektronček, Propos (ERPO)" — vsi pravi SLO
+  * "Noro Lep highlighted with green checkmarks"
+  * 8/10 clarity, 7/10 polish
+
+Stage Summary:
+- Primerjava sedaj RELEVANTNA za slovenski trg (ne ZDA)
+- LocalBusiness schema za local SEO boost
+- 0 napak, 0 lint errors
+- Commit/push next

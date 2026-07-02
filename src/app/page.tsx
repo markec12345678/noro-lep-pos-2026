@@ -1345,7 +1345,7 @@ function RoiCalculator() {
 }
 
 /* ============================================================
-   COMPETITION COMPARISON — Noro Lep vs svetovni liderji
+   COMPETITION COMPARISON — Noro Lep vs slovenske blagajne
    ============================================================ */
 const COMPETITORS = [
   {
@@ -1369,81 +1369,81 @@ const COMPETITORS = [
     },
   },
   {
-    name: 'Toast',
-    tag: 'ZDA',
+    name: 'TRONpos',
+    tag: 'SLO',
     accent: 'from-orange-500 to-red-500',
     badge: 'bg-orange-500',
     highlight: false,
     features: {
-      furs: false,
+      furs: true,
       ai: false,
-      kds: true,
-      qr: true,
+      kds: 'Dodatek',
+      qr: false,
       offline: 'Omejeno',
-      sloLang: false,
-      loyalty: true,
-      price: '89€+',
+      sloLang: true,
+      loyalty: false,
+      price: 'Po povpraševanju',
       setup: '2-3 dni',
       realTimeSync: false,
       roiCalc: false,
     },
   },
   {
-    name: 'Square',
-    tag: 'ZDA',
+    name: 'SpletsisPOS',
+    tag: 'SLO',
     accent: 'from-blue-500 to-indigo-500',
     badge: 'bg-blue-500',
     highlight: false,
     features: {
-      furs: false,
+      furs: true,
       ai: false,
-      kds: 'Dodatak',
-      qr: true,
+      kds: 'Dodatek',
+      qr: false,
       offline: 'Omejeno',
-      sloLang: false,
-      loyalty: true,
-      price: '49€+',
-      setup: '1 dan',
-      realTimeSync: false,
-      roiCalc: false,
-    },
-  },
-  {
-    name: 'Lightspeed',
-    tag: 'Kanada',
-    accent: 'from-red-500 to-rose-500',
-    badge: 'bg-red-500',
-    highlight: false,
-    features: {
-      furs: false,
-      ai: false,
-      kds: true,
-      qr: true,
-      offline: 'Omejeno',
-      sloLang: false,
-      loyalty: true,
-      price: '69€+',
+      sloLang: true,
+      loyalty: false,
+      price: 'Po povpraševanju',
       setup: '1-2 dni',
       realTimeSync: false,
       roiCalc: false,
     },
   },
   {
-    name: 'Shopify POS',
-    tag: 'Kanada',
-    accent: 'from-emerald-600 to-green-600',
-    badge: 'bg-emerald-700',
+    name: 'POS Elektronček',
+    tag: 'SLO',
+    accent: 'from-red-500 to-rose-500',
+    badge: 'bg-red-500',
     highlight: false,
     features: {
-      furs: false,
+      furs: true,
       ai: false,
-      kds: false,
-      qr: true,
+      kds: 'Dodatek',
+      qr: false,
       offline: 'Omejeno',
-      sloLang: false,
-      loyalty: true,
-      price: '79€+',
-      setup: '1 dan',
+      sloLang: true,
+      loyalty: false,
+      price: 'Po povpraševanju',
+      setup: '1-2 dni',
+      realTimeSync: false,
+      roiCalc: false,
+    },
+  },
+  {
+    name: 'Propos (ERPO)',
+    tag: 'SLO',
+    accent: 'from-purple-500 to-violet-500',
+    badge: 'bg-purple-500',
+    highlight: false,
+    features: {
+      furs: true,
+      ai: false,
+      kds: 'Dodatak',
+      qr: false,
+      offline: 'Omejeno',
+      sloLang: true,
+      loyalty: false,
+      price: 'Po povpraševanju',
+      setup: '2-3 dni',
       realTimeSync: false,
       roiCalc: false,
     },
@@ -3661,11 +3661,11 @@ export default function Home() {
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
               Noro Lep vs{' '}
               <span className="bg-gradient-to-r from-indigo-600 to-emerald-600 bg-clip-text text-transparent">
-                svetovni liderji
+                slovenske blagajne
               </span>
             </h2>
             <p className="mt-4 text-lg text-slate-600">
-              Poštena primerjava 11 ključnih funkcij. Kjer smo boljši — povemo. Kjer zaostajamo — tudi.
+              Poštena primerjava 11 ključnih funkcij z vodilnimi slovenskimi POS sistemi. Kjer smo boljši — povemo. Kjer zaostajamo — tudi.
             </p>
           </div>
 

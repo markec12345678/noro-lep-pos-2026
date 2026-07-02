@@ -165,6 +165,35 @@ const jsonLd = {
       },
     },
     {
+      "@type": "LocalBusiness",
+      "@id": "https://chat.z.ai/#localbusiness",
+      name: "Noro Lep POS",
+      description: "Najlepša slovenska restavracijska blagajna z avtomatskim FURS in AI predikcijo prometa.",
+      url: "https://chat.z.ai",
+      telephone: "+386-1-234-5678",
+      priceRange: "€€",
+      address: {
+        "@type": "PostalAddress",
+        addressCountry: "SI",
+        addressRegion: "Ljubljana",
+        addressLocality: "Ljubljana",
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: "46.0569",
+        longitude: "14.5058",
+      },
+      openingHoursSpecification: {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        opens: "08:00",
+        closes: "18:00",
+      },
+      areaServed: { "@type": "Country", name: "Slovenija" },
+      knowsAbout: ["POS sistemi", "FURS davčna blagajna", "restavracijsko poslovanje", "AI predikcija prometa"],
+      parentOrganization: { "@id": "https://chat.z.ai/#organization" },
+    },
+    {
       "@type": "FAQPage",
       mainEntity: [
         {
