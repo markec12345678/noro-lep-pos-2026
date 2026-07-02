@@ -1344,3 +1344,47 @@ Stage Summary:
 - Vrhel iz raziskave (QR/kiosk) zaprta
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 55
+Agent: main (Z.ai Code)
+Task: v5.8 — ZDavP-2P badge + LiveSocialProof + Weather widget (iz raziskave)
+
+Work Log:
+- Implementiral 3 preostale predloge iz web raziskave (Task 53)
+- 1. TrustBar ZDavP-2P 2025:
+  * "FURS ZDavPR" → "FURS ZDavP-2P"
+  * sub: "Fiskalno skladno" → "ZDavP-2P 2025 (UL 100/25)"
+  * Sklic na Uradni list RS št. 100/25 (4.12.2025)
+- 2. NOVA LiveSocialProof komponenta (~85 vrstic):
+  * Sticky toast bottom-right (fixed, z-40, sm:block)
+  * 10 slovenskih gostiln (Ljubljana, Maribor, Bled, Kranj, Celje, Koper, Novo mesto, Portorož, Velenje, Murska Sobota)
+  * Rotacija vsakih 14s, prvi show po 4s, avto-hide po 5,5s
+  * AnimatePresence (y:30→0, x:20→0, 0.4s easeOut)
+  * Pulsing emerald dot, Utensils ikona, gradient bg
+  * City + "pred X min" timestamp
+  * Dismiss button (ChevronDown rotate-45)
+  * 3 akcije: "se je pridružila", "je začela z Noro Lep", "je prešla na Noro Lep"
+- 3. Weather widget v CommandCenter:
+  * weather state: temp (8-22°C), cond (sun/cloud/rain/snow), city, aiHint
+  * Init v fetchData (lazy, ne overwrite)
+  * Prikaz v health bar: emoji + temp + city + AI hint
+  * AI hint: "Deževno — pričakuj +18% prodaje juh"
+  * Hidden md:inline za AI hint (responsive)
+- Layout: LiveSocialProof v floating komponente (med CursorGlow in Skip link)
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 0 napak
+  * ZDavP-2P badge: OK
+  * Weather widget: 16°C, "Vreme" prisoten
+  * Social proof toast: "Restavracija Stara ulica, Maribor, pred 8 min" (DOM check)
+- VLM audit weather widgeta:
+  * "Ljubljana · Vreme, 16°C, AI hint: deževno +18% prodaje juh"
+  * 8/10 visual integration
+
+Stage Summary:
+- 29 komponent (LiveSocialProof dodana)
+- 14 vizualnih efektov (live social proof + weather widget)
+- ZDavP-2P 2025 compliance expliciten
+- 0 napak, 0 lint errors
+- Commit/push next

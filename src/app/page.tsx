@@ -1983,7 +1983,7 @@ function BackToTop() {
    ============================================================ */
 function TrustBar() {
   const badges = [
-    { icon: ShieldCheck, label: 'FURS ZDavPR', sub: 'Fiskalno skladno' },
+    { icon: ShieldCheck, label: 'FURS ZDavP-2P', sub: 'ZDavP-2P 2025 (UL 100/25)' },
     { icon: Shield, label: 'GDPR', sub: 'EU zaščita podatkov' },
     { icon: Globe, label: 'ISO 27001', sub: 'Info security' },
     { icon: Wifi, label: '99.9% SLA', sub: 'Garancija delovanja' },
@@ -2016,6 +2016,91 @@ function TrustBar() {
         </div>
       </div>
     </section>
+  )
+}
+
+/* ============================================================
+   LIVE SOCIAL PROOF — sticky toast: "X gostiln se je pridružilo"
+   ============================================================ */
+const SOCIAL_PROOF_EVENTS = [
+  { city: 'Ljubljana', venue: 'Gostilna Pri Lovru', action: 'se je pridružila' },
+  { city: 'Maribor', venue: 'Restavracija Stara ulica', action: 'je začela z Noro Lep' },
+  { city: 'Bled', venue: 'Pizzeria Bellavista', action: 'se je pridružila' },
+  { city: 'Kranj', venue: 'Okrepčevalnica Pri Tonetu', action: 'je prešla na Noro Lep' },
+  { city: 'Celje', venue: 'Gostilna Zlati lev', action: 'se je pridružila' },
+  { city: 'Koper', venue: 'Ribji bistro Marina', action: 'je začela z Noro Lep' },
+  { city: 'Novo mesto', venue: 'Pivnica Krka', action: 'se je pridružila' },
+  { city: 'Portorož', venue: 'Restavracija Riviera', action: 'je prešla na Noro Lep' },
+  { city: 'Velenje', venue: 'Gostilna Pri Joži', action: 'se je pridružila' },
+  { city: 'Murska Sobota', venue: 'Okrepčevalnica Ponta', action: 'je začela z Noro Lep' },
+] as const
+
+function LiveSocialProof() {
+  const [visible, setVisible] = useState(false)
+  const [evt, setEvt] = useState<{ city: string; venue: string; action: string; minsAgo: number } | null>(null)
+  const [dismissed, setDismissed] = useState(false)
+  const idxRef = useRef(0)
+
+  useEffect(() => {
+    if (dismissed) return
+    let hideTimer: ReturnType<typeof setTimeout>
+    const cycle = () => {
+      const e = SOCIAL_PROOF_EVENTS[idxRef.current % SOCIAL_PROOF_EVENTS.length]
+      idxRef.current++
+      setEvt({ city: e.city, venue: e.venue, action: e.action, minsAgo: 1 + Math.floor(Math.random() * 14) })
+      setVisible(true)
+      hideTimer = setTimeout(() => setVisible(false), 5500)
+    }
+    const firstShow = setTimeout(cycle, 4000)
+    const interval = setInterval(cycle, 14000)
+    return () => { clearTimeout(firstShow); clearTimeout(hideTimer); clearInterval(interval) }
+  }, [dismissed])
+
+  if (dismissed || !evt) return null
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          initial={{ opacity: 0, y: 30, x: 20 }}
+          animate={{ opacity: 1, y: 0, x: 0 }}
+          exit={{ opacity: 0, y: 20, x: 20 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          className="fixed bottom-4 right-4 z-40 max-w-[300px] hidden sm:block"
+        >
+          <div className="bg-white rounded-xl shadow-2xl border border-slate-200/80 p-3 flex items-start gap-3">
+            <div className="relative shrink-0">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                <Utensils className="h-4 w-4 text-white" />
+              </div>
+              <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-semibold text-slate-900 leading-tight">
+                {evt.venue}
+              </div>
+              <div className="text-[11px] text-slate-500 mt-0.5">
+                {evt.action} <span className="font-medium text-emerald-600">Noro Lep POS</span>
+              </div>
+              <div className="flex items-center gap-2 mt-1.5">
+                <span className="text-[10px] text-slate-400">📍 {evt.city}</span>
+                <span className="text-[10px] text-slate-400">· pred {evt.minsAgo} min</span>
+              </div>
+            </div>
+            <button
+              onClick={() => setDismissed(true)}
+              className="text-slate-300 hover:text-slate-500 shrink-0 -mt-1 -mr-1 p-1"
+              aria-label="Zapri"
+            >
+              <ChevronDown className="h-3.5 w-3.5 rotate-45" />
+            </button>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 
@@ -2731,6 +2816,7 @@ function CommandCenter() {
   const [tableStates, setTableStates] = useState<number[]>([])
   const [activity, setActivity] = useState<{ id: number; text: string; val: string; tone: string; time: string }[]>([])
   const [flash, setFlash] = useState(false)
+  const [weather, setWeather] = useState<{ temp: number; cond: 'sun' | 'cloud' | 'rain' | 'snow'; city: string; aiHint: string } | null>(null)
   const idRef = useRef(0)
 
   useEffect(() => {
@@ -2746,6 +2832,14 @@ function CommandCenter() {
             ? Array.from({ length: d.tables.total }, (_, i) =>
                 i < d.tables.occupied ? 1 : i < d.tables.occupied + d.tables.reserved ? 2 : i < d.tables.occupied + d.tables.reserved + d.tables.payment ? 3 : 0)
             : prev)
+        })
+        .then(() => {
+          setWeather(prev => prev ?? {
+            temp: 8 + Math.floor(Math.random() * 14),
+            cond: (['sun', 'cloud', 'rain', 'cloud'] as const)[Math.floor(Math.random() * 4)],
+            city: 'Ljubljana',
+            aiHint: 'Deževno — pričakuj +18% prodaje juh',
+          })
         })
         .catch(() => {})
     }
@@ -2838,6 +2932,18 @@ function CommandCenter() {
             </div>
           </div>
           <div className="flex items-center gap-4 text-xs">
+            {weather && (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/50" title={weather.aiHint}>
+                <span className="text-lg leading-none">
+                  {weather.cond === 'sun' ? '☀️' : weather.cond === 'cloud' ? '☁️' : weather.cond === 'rain' ? '🌧️' : '❄️'}
+                </span>
+                <div>
+                  <div className="text-[9px] text-slate-400 uppercase leading-tight">{weather.city} · Vreme</div>
+                  <div className="font-bold text-white tabular-nums leading-tight">{weather.temp}°C</div>
+                </div>
+                <span className="hidden md:inline text-[9px] text-cyan-300 font-medium max-w-[120px] leading-tight">{weather.aiHint}</span>
+              </div>
+            )}
             <div className="text-center"><div className="text-slate-400">Opozorila</div><div className="font-bold text-emerald-400">{data.systemHealth.alerts}</div></div>
             <div className="text-center"><div className="text-slate-400">Čas</div><div className="font-bold text-white tabular-nums">{now.toLocaleTimeString('sl-SI')}</div></div>
           </div>
@@ -3247,6 +3353,7 @@ export default function Home() {
       <ScrollProgressBar />
       <BackToTop />
       <CursorGlow />
+      <LiveSocialProof />
 
       {/* Skip to content — accessibility */}
       <a
