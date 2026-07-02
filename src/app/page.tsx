@@ -3987,6 +3987,244 @@ function IntegrationsSection() {
 }
 
 /* ============================================================
+   ONBOARDING WIZARD — 5-korak setup, "15 min do prvega računa"
+   ============================================================ */
+const ONBOARDING_STEPS = [
+  {
+    n: 1,
+    title: 'Registracija',
+    duration: '2 min',
+    icon: '📝',
+    desc: 'Ustvari račun, vnesi podatke o restavraciji (naziv, naslov, davčna številka).',
+    deliverable: 'Aktiven račun + FURS povezava',
+    color: 'bg-emerald-500',
+    light: 'bg-emerald-50 border-emerald-200',
+  },
+  {
+    n: 2,
+    title: 'Meni & artikli',
+    duration: '5 min',
+    icon: '🍽️',
+    desc: 'Uvozi meni iz Excela ali dodaj artikle ročno. Cene, kategorije, slike, alergeni.',
+    deliverable: '232 artiklov pripravljenih za prodajo',
+    color: 'bg-cyan-500',
+    light: 'bg-cyan-50 border-cyan-200',
+  },
+  {
+    n: 3,
+    title: 'FURS aktivacija',
+    duration: '3 min',
+    icon: '🏛️',
+    desc: 'Naloži FURS certifikat (.p12), potrdi davčno številko. Sistem samodejno generira ZOI/EOR.',
+    deliverable: 'FURS potrjen — vsak račun fiskaliziran',
+    color: 'bg-amber-500',
+    light: 'bg-amber-50 border-amber-200',
+  },
+  {
+    n: 4,
+    title: 'Osebje & mize',
+    duration: '3 min',
+    icon: '👥',
+    desc: 'Dodaj natakarje, kuharje, določi postaje. Nariši tloris miz z sedeži.',
+    deliverable: '6 delavcev + 12 miz pripravljenih',
+    color: 'bg-rose-500',
+    light: 'bg-rose-50 border-rose-200',
+  },
+  {
+    n: 5,
+    title: 'Prvi račun',
+    duration: '2 min',
+    icon: '🧾',
+    desc: 'Vzami naročilo na mizi, pošlji v kuhinjo, izdaj račun. FURS avtomatsko, Z-Report pripravljen.',
+    deliverable: '✓ Prvi račun izdan — si v poslu!',
+    color: 'bg-purple-500',
+    light: 'bg-purple-50 border-purple-200',
+  },
+] as const
+
+function OnboardingWizardSection() {
+  const [activeStep, setActiveStep] = useState(0)
+  const step = ONBOARDING_STEPS[activeStep]
+  const totalDuration = ONBOARDING_STEPS.reduce((s, st) => s + parseInt(st.duration), 0)
+
+  return (
+    <section id="onboarding" className="py-16 lg:py-20 bg-white border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <Badge className="mb-3 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
+            <Zap className="h-3.5 w-3.5 mr-1.5" />
+            Hitri začetek
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            Od registracije do prvega računa v <span className="bg-gradient-to-r from-emerald-600 to-purple-600 bg-clip-text text-transparent animate-gradient-text">15 minutah</span>
+          </h2>
+          <p className="mt-2 text-base text-slate-600">5 korakov. Brez namestitve, brez usposabljanja, brez IT podpore. Start-up čas namestitve konkurence: 1-3 dni.</p>
+        </div>
+
+        {/* Big time-to-value banner */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+          className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-emerald-50 via-cyan-50 to-purple-50 border-2 border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-4"
+        >
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="w-16 h-16 rounded-full bg-white border-4 border-emerald-500 flex items-center justify-center shadow-lg">
+                <Clock className="h-7 w-7 text-emerald-600" />
+              </div>
+              <motion.div
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white"
+              />
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-slate-900 tabular-nums">15 min</div>
+              <div className="text-sm text-slate-600">do prvega računa · brez IT</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-6 text-center">
+            <div>
+              <div className="text-2xl font-bold text-rose-600 line-through tabular-nums">1-3 dni</div>
+              <div className="text-[11px] text-slate-500">konkurenca (TRONpos, SpletsisPOS)</div>
+            </div>
+            <div className="text-2xl text-slate-300">→</div>
+            <div>
+              <div className="text-2xl font-bold text-emerald-600 tabular-nums">15 min</div>
+              <div className="text-[11px] text-slate-500">Noro Lep POS</div>
+            </div>
+          </div>
+        </motion.div>
+
+        <div className="grid lg:grid-cols-5 gap-6">
+          {/* LEVO: Step navigator */}
+          <div className="lg:col-span-2">
+            <div className="space-y-2">
+              {ONBOARDING_STEPS.map((s, i) => {
+                const isActive = i === activeStep
+                const isDone = i < activeStep
+                return (
+                  <button
+                    key={s.n}
+                    onClick={() => setActiveStep(i)}
+                    className={`w-full text-left p-3 rounded-xl border-2 transition-all flex items-center gap-3 ${isActive ? s.light + ' ring-2 ring-offset-1 ring-emerald-300' : isDone ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+                  >
+                    {/* Step number / check */}
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 font-bold text-sm ${isDone ? 'bg-emerald-500 text-white' : isActive ? s.color + ' text-white' : 'bg-slate-100 text-slate-500'}`}>
+                      {isDone ? '✓' : s.n}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-slate-900">{s.title}</span>
+                        <span className="text-[10px] text-slate-400">{s.icon}</span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 flex items-center gap-2">
+                        <Clock className="h-3 w-3" />
+                        {s.duration}
+                      </div>
+                    </div>
+                    {isActive && (
+                      <motion.div
+                        layoutId="active-pill"
+                        className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full shrink-0"
+                      >
+                        AKTIVNO
+                      </motion.div>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Progress bar */}
+            <div className="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200">
+              <div className="flex items-center justify-between text-[11px] text-slate-600 mb-1.5">
+                <span className="font-semibold">Skupni napredek</span>
+                <span className="tabular-nums">{Math.round(((activeStep + 1) / ONBOARDING_STEPS.length) * 100)}%</span>
+              </div>
+              <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-emerald-500 to-purple-500 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${((activeStep + 1) / ONBOARDING_STEPS.length) * 100}%` }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                />
+              </div>
+              <div className="text-[10px] text-slate-400 mt-1.5">Skupni čas: {totalDuration} min · 1-3 dni pri konkurenci</div>
+            </div>
+          </div>
+
+          {/* DESNO: Aktivni step detail */}
+          <div className="lg:col-span-3">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeStep}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className={`p-6 rounded-2xl border-2 ${step.light} h-full flex flex-col`}
+              >
+                <div className="flex items-start gap-4 mb-4">
+                  <div className={`w-14 h-14 rounded-2xl ${step.color} flex items-center justify-center text-2xl shrink-0 shadow-lg`}>
+                    {step.icon}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Korak {step.n} / {ONBOARDING_STEPS.length}</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/70 text-slate-600 font-bold">{step.duration}</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900">{step.title}</h3>
+                  </div>
+                </div>
+
+                <p className="text-sm text-slate-700 leading-relaxed mb-4">{step.desc}</p>
+
+                {/* Deliverable */}
+                <div className="mt-auto p-3 rounded-xl bg-white/70 border border-white/80 flex items-center gap-2.5">
+                  <div className={`w-7 h-7 rounded-lg ${step.color} flex items-center justify-center shrink-0`}>
+                    <CheckCircle2 className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Rezultat koraka</div>
+                    <div className="text-sm font-semibold text-slate-900">{step.deliverable}</div>
+                  </div>
+                </div>
+
+                {/* Navigation */}
+                <div className="mt-4 flex items-center justify-between">
+                  <button
+                    onClick={() => setActiveStep(s => Math.max(0, s - 1))}
+                    disabled={activeStep === 0}
+                    className="text-xs font-semibold text-slate-500 hover:text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    ← Prejšnji
+                  </button>
+                  {activeStep < ONBOARDING_STEPS.length - 1 ? (
+                    <button
+                      onClick={() => setActiveStep(s => Math.min(ONBOARDING_STEPS.length - 1, s + 1))}
+                      className={`px-4 py-2 rounded-lg ${step.color} text-white text-xs font-semibold shadow-sm hover:opacity-90 transition-opacity`}
+                    >
+                      Naslednji korak →
+                    </button>
+                  ) : (
+                    <button className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition-colors">
+                      🚀 Začni brezplačno
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    COMMAND CENTER — Unified dashboard vseh sistemov
    ============================================================ */
 interface DashboardData {
@@ -4769,6 +5007,9 @@ export default function Home() {
 
       {/* ===== INTEGRATIONS MARKETPLACE ===== */}
       <IntegrationsSection />
+
+      {/* ===== ONBOARDING WIZARD ===== */}
+      <OnboardingWizardSection />
 
       {/* ===== INTERACTIVE PRODUCT TOUR ===== */}
       <section id="demo" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/40 to-white border-y border-slate-100">

@@ -1887,3 +1887,67 @@ Stage Summary:
 - REST API callout pokaže developer-friendly
 - 0 napak (1 obstoječa hydration), 0 lint errors
 - Commit/push next
+
+---
+Task ID: 65
+Agent: main (Z.ai Code)
+Task: v6.8 — Onboarding Wizard sekcija (5-korak, time-to-value)
+
+Work Log:
+- Implementiral Onboarding Wizard iz runde 6 raziskave (po lastni logiki —
+  time-to-value je močan conversion driver, obljubljamo "15 min" a brez vizualnega dokaza)
+
+v6.8 IMPLEMENTACIJA:
+- NOVA OnboardingWizardSection komponenta (~235 vrstic)
+- 5 korakov setup wizard-a:
+  1. Registracija (2 min) — račun + FURS povezava
+  2. Meni & artikli (5 min) — 232 artiklov iz Excela
+  3. FURS aktivacija (3 min) — certifikat .p12, ZOI/EOR
+  4. Osebje & mize (3 min) — 6 delavcev + 12 miz
+  5. Prvi račun (2 min) — FURS auto, Z-Report
+
+- Big time-to-value banner:
+  * "15 min do prvega računa · brez IT"
+  * Primerjava: "1-3 dni konkurenca (TRONpos, SpletsisPOS)" → "15 min Noro Lep"
+  * Animated pulse dot na Clock icon
+
+- Interaktivni step navigator (levo):
+  * Klik koraka → detail card se zamenja (AnimatePresence x:20→0)
+  * Done koraki: ✓ checkmark (emerald)
+  * Active: ring + "AKTIVNO" pill (layoutId)
+  * Vsak: številka, naslov, ikona, duration
+
+- Step detail card (desno):
+  * Velika ikona v colored rounded-2xl
+  * "Korak N/5" + duration badge
+  * Opis koraka
+  * "Rezultat koraka" deliverable (CheckCircle2)
+  * Navigation: Prejšnji / Naslednji korak / "🚀 Začni brezplačno"
+
+- Progress bar (gradient emerald→purple):
+  * % se spreminja glede na aktivni korak
+  * "Skupni čas: 15 min · 1-3 dni pri konkurenci"
+
+- Layout: med IntegrationsSection in Demo
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 23 sekcij (+1), HTTP 200
+  * Vsi 5 koraki: OK
+  * Klik FURS aktivacija → detail "FURS certifikat" prikazan ✓
+  * "1-3 dni" konkurenca primerjava: OK
+- VLM audit:
+  * "15 min banner with competitor comparison"
+  * "5-step navigator with checkmarks and durations"
+  * "step detail card with icon, title, Rezultat koraka, navigation"
+  * "progress bar present"
+  * 8/10 visual polish, 9/10 conversion persuasiveness
+  * "strong time-to-value, clear steps, progress tracking boost confidence"
+
+Stage Summary:
+- 23 sekcij (onboarding dodana)
+- 36 komponent (OnboardingWizardSection)
+- Time-to-value vizualno dokazan (ne samo obljubljen)
+- Konkurenčna primerjava 1-3 dni vs 15 min jasna
+- VLM: 8/10 polish, 9/10 persuasiveness
+- 0 napak (1 obstoječa hydration), 0 lint errors
+- Commit/push next
