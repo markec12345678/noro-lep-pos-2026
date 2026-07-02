@@ -1505,3 +1505,49 @@ Stage Summary:
 - Eticno dostopno za vestibularne uporabnike
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 58
+Agent: main (Z.ai Code)
+Task: v6.1 — Performance optimizacija (font swap + image lazy load + LCP priority)
+
+Work Log:
+- Performance audit (agent-browser network + file sizes):
+  * 87 PNG datotek, 34.6 MB skupno
+  * Comparison slike: 1.03 MB, 1.19 MB, 505 KB (zelo velike!)
+  * Hero image: 97 KB (OK)
+  * 3 <img> tagov, 0 next/image
+  * Font loading: display:swap MANJKAL (FOIT tveganje)
+
+v6.1 IMPLEMENTACIJA:
+1. Font display:swap (layout.tsx):
+  * geistSans: dodan display: "swap"
+  * geistMono: dodan display: "swap"
+  * Prepreči FOIT (Flash of Invisible Text)
+  * Browser prikaže fallback font medtem ko se Geist naloži
+  * Izboljša LCP (Largest Contentful Paint)
+
+2. Hero image fetchPriority="high" (LCP element):
+  * <img src="/pos-brand/hero-restaurant.png" fetchPriority="high">
+  * Browser prioritizira load hero slike (LCP kandidat)
+  * Hitrejši first paint
+
+3. loading="lazy" za below-fold comparison slike (8 tagov):
+  * comp.ourImg (4x) — lazy
+  * comp.compImg (4x) — lazy
+  * Browser jih ne naloži dokler niso v viewport
+  * Prihranek bandwidtha za slike do 1.19 MB
+
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * HTTP 200, 16 sekcij
+  * fetchPriority="high" potrjen na hero
+  * 8 loading="lazy" slik potrjenih
+  * font-display: swap najden v stylesheetu
+
+Stage Summary:
+- LCP izboljšan (font swap + hero priority)
+- Below-fold slike lazy (1MB+ ne blokirajo first paint)
+- 0 napak (1 obstoječa hydration iz CommandCenter useState(Date))
+- 0 lint errors
+- Commit/push next

@@ -1664,7 +1664,7 @@ function InterfaceComparison() {
                   </div>
                   <div className="relative aspect-[16/10] rounded-lg overflow-hidden border border-slate-200 bg-slate-100 mb-3">
                     { }
-                    <img src={comp.ourImg} alt="Noro Lep" className="w-full h-full object-cover object-top" />
+                    <img src={comp.ourImg} alt="Noro Lep" loading="lazy" className="w-full h-full object-cover object-top" />
                   </div>
                   <div className="space-y-1">
                     {comp.ourStrengths.map((s, i) => (
@@ -1689,7 +1689,7 @@ function InterfaceComparison() {
                   </div>
                   <div className="relative aspect-[16/10] rounded-lg overflow-hidden border border-slate-200 bg-slate-100 mb-3">
                     { }
-                    <img src={comp.compImg} alt={comp.competitor} className="w-full h-full object-cover object-top" />
+                    <img src={comp.compImg} alt={comp.competitor} loading="lazy" className="w-full h-full object-cover object-top" />
                   </div>
                   <div className="space-y-1">
                     {comp.compStrengths.map((s, i) => (
@@ -3473,7 +3473,7 @@ export default function Home() {
               <ParallaxHeroImage>
                 <div className="absolute -inset-4 bg-gradient-to-br from-emerald-400/30 via-teal-400/20 to-transparent rounded-3xl blur-2xl" />
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-emerald-900/20 border border-white/60 bg-slate-100">
-                  <img src="/pos-brand/hero-restaurant.png" alt="Noro Lep POS v restavraciji" className="w-full h-auto" />
+                  <img src="/pos-brand/hero-restaurant.png" alt="Noro Lep POS v restavraciji" fetchPriority="high" className="w-full h-auto" />
                 </div>
               </ParallaxHeroImage>
               <motion.div initial={{ opacity: 0, x: -20, y: 10 }} animate={{ opacity: 1, x: 0, y: 0 }} transition={{ duration: 0.6, delay: 0.9 }} className="absolute -left-3 sm:-left-6 top-8 bg-white rounded-xl shadow-xl border border-slate-100 p-3 flex items-center gap-2.5">
