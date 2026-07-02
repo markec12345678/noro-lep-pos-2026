@@ -1769,3 +1769,59 @@ Stage Summary:
 - VLM: 8/10 polish
 - 0 napak (1 obstoječa hydration), 0 lint errors
 - Commit/push next
+
+---
+Task ID: 63
+Agent: main (Z.ai Code)
+Task: v6.6 — Reservations & Waitlist sekcija (table mapping + SMS)
+
+Work Log:
+- Implementiral ZADNJO prioriteto iz raziskave (Task 60): Reservations
+- Vse 3 prioritete iz runde 5 sedaj realizirane (Loyalty + Menu Eng + Staff + Reservations)
+
+v6.6 IMPLEMENTACIJA:
+- NOVA ReservationsSection komponenta (~265 vrstic)
+- 3 tabi (interaktivno prek semantic locators):
+  1. Današnje rezervacije — 5 rezervacij s statusi
+  2. Čakalna vrsta (3) — waitlist z avtomatskim SMS
+  3. Tloris miz — vizualni floor plan 9 miz
+
+- 5 rezervacij s 4 statusi:
+  * Potrjena (Maja Kralj, 4 gostje, 19:00, Miza 5, otroški stol)
+  * Sedi (Janez Novak, 2, 19:30, Miza 9)
+  * Potrjena (Ana Petrič, 6, 20:00, Miza 1, rojstni dan)
+  * Čaka (Tomaž Štirn, 3, 18:30, brez mize)
+  * Zamuja (Blaž Leban, 2, 18:00, Miza 7, 15 min zamude, pulse)
+
+- 3 waitlist gostje z avtomatskim SMS:
+  * #1 Nina Zupan (2, 8min, SMS prost button)
+  * #2 David Pečar (4, 14min)
+  * #3 Sara Rekar (2, 21min, rose color >15min)
+  * AI napove: prosta miza čez ~6min (Miza 8)
+  * Avtomatsko obvesti Nina Z. ko je miza prosta
+
+- Tloris miz (9 miz, floor plan):
+  * 4 statusi: Prosto/Rezervirano/Zasedeno/Zamuja
+  * Vsaka miza: M{ID}, sedeži, barva po statusu
+  * 🚪 VHOD + 🍸 BAR labels
+  * Hover scale 1.05, legend, stat footer
+
+- 5 stat kartic: potrjene, sedijo, čakajo, zamuja, gostov
+- Layout: med StaffSection in Demo
+- Lint: 0 errors
+- Agent-browser verifikacija (semantic locators):
+  * 21 sekcij (+1), HTTP 200
+  * Vsi 3 tabi delujejo (today/waitlist/map)
+  * Waitlist: "SMS prost" button OK
+  * Map: "VHOD" + "BAR" OK
+- VLM audit:
+  * Today: "3 tabs, 5 stat cards, reservation list with avatars/status" 8/10 polish
+  * Waitlist: "numbered #1/#2/#3, avatars, SMS buttons" 8/10 polish
+  * Map: "M1-M3 visible, VHOD/BAR, legend, stats" 7/10 polish
+
+Stage Summary:
+- 21 sekcij (rezervacije dodana)
+- 34 komponent (ReservationsSection)
+- VSE 4 prioritete iz runde 5 realizirane (Loyalty + MenuEng + Staff + Reservations)
+- 0 napak (1 obstoječa hydration), 0 lint errors
+- Commit/push next

@@ -3523,6 +3523,269 @@ function StaffSection() {
 }
 
 /* ============================================================
+   RESERVATIONS & WAITLIST — mize, rezervacije, čakalna vrsta SMS
+   ============================================================ */
+interface Reservation {
+  initials: string
+  name: string
+  guests: number
+  time: string
+  table: string
+  status: 'confirmed' | 'seated' | 'waiting' | 'late'
+  phone: string
+  avatarBg: string
+  notes?: string
+}
+
+const RESERVATIONS: Reservation[] = [
+  { initials: 'MK', name: 'Maja Kralj', guests: 4, time: '19:00', table: 'Miza 5', status: 'confirmed', phone: '+386 41 234 567', avatarBg: 'bg-emerald-500', notes: 'Otroški stol' },
+  { initials: 'JN', name: 'Janez Novak', guests: 2, time: '19:30', table: 'Miza 9', status: 'seated', phone: '+386 41 888 999', avatarBg: 'bg-cyan-500' },
+  { initials: 'AP', name: 'Ana Petrič', guests: 6, time: '20:00', table: 'Miza 1', status: 'confirmed', phone: '+386 31 555 333', avatarBg: 'bg-purple-500', notes: 'Rojstni dan' },
+  { initials: 'TS', name: 'Tomaž Štirn', guests: 3, time: '18:30', table: '—', status: 'waiting', phone: '+386 41 111 222', avatarBg: 'bg-amber-500' },
+  { initials: 'BL', name: 'Blaž Leban', guests: 2, time: '18:00', table: 'Miza 7', status: 'late', phone: '+386 31 777 444', avatarBg: 'bg-rose-500', notes: '15 min zamude' },
+]
+
+const WAITLIST: { initials: string; name: string; guests: number; joined: string; waitMin: number; phone: string; avatarBg: string }[] = [
+  { initials: 'NZ', name: 'Nina Zupan', guests: 2, joined: '19:12', waitMin: 8, phone: '+386 41 222 333', avatarBg: 'bg-indigo-500' },
+  { initials: 'DP', name: 'David Pečar', guests: 4, joined: '19:18', waitMin: 14, phone: '+386 31 444 555', avatarBg: 'bg-teal-500' },
+  { initials: 'SR', name: 'Sara Rekar', guests: 2, joined: '19:25', waitMin: 21, phone: '+386 41 666 777', avatarBg: 'bg-orange-500' },
+]
+
+const TABLE_MAP = [
+  { id: 1, seats: 6, status: 'occupied', x: 15, y: 20 },
+  { id: 2, seats: 2, status: 'free', x: 45, y: 20 },
+  { id: 3, seats: 4, status: 'reserved', x: 75, y: 20 },
+  { id: 4, seats: 4, status: 'free', x: 15, y: 50 },
+  { id: 5, seats: 4, status: 'reserved', x: 45, y: 50 },
+  { id: 6, seats: 2, status: 'occupied', x: 75, y: 50 },
+  { id: 7, seats: 2, status: 'late', x: 15, y: 80 },
+  { id: 8, seats: 6, status: 'free', x: 45, y: 80 },
+  { id: 9, seats: 2, status: 'occupied', x: 75, y: 80 },
+] as const
+
+const TABLE_STATUS_INFO = {
+  free: { label: 'Prosto', color: 'bg-emerald-100 border-emerald-400 text-emerald-700', dot: 'bg-emerald-500' },
+  reserved: { label: 'Rezervirano', color: 'bg-amber-100 border-amber-400 text-amber-700', dot: 'bg-amber-500' },
+  occupied: { label: 'Zasedeno', color: 'bg-rose-100 border-rose-400 text-rose-700', dot: 'bg-rose-500' },
+  late: { label: 'Zamuja', color: 'bg-purple-100 border-purple-400 text-purple-700', dot: 'bg-purple-500' },
+} as const
+
+const RES_STATUS_INFO = {
+  confirmed: { label: 'Potrjena', dot: 'bg-emerald-500', text: 'text-emerald-700', bg: 'bg-emerald-50' },
+  seated: { label: 'Sedi', dot: 'bg-cyan-500', text: 'text-cyan-700', bg: 'bg-cyan-50' },
+  waiting: { label: 'Čaka', dot: 'bg-amber-500', text: 'text-amber-700', bg: 'bg-amber-50' },
+  late: { label: 'Zamuja', dot: 'bg-rose-500', text: 'text-rose-700', bg: 'bg-rose-50' },
+} as const
+
+function ReservationsSection() {
+  const [tab, setTab] = useState<'today' | 'waitlist' | 'map'>('today')
+
+  const confirmed = RESERVATIONS.filter(r => r.status === 'confirmed').length
+  const seated = RESERVATIONS.filter(r => r.status === 'seated').length
+  const waiting = RESERVATIONS.filter(r => r.status === 'waiting').length
+  const late = RESERVATIONS.filter(r => r.status === 'late').length
+  const totalGuests = RESERVATIONS.reduce((s, r) => s + r.guests, 0) + WAITLIST.reduce((s, w) => s + w.guests, 0)
+
+  return (
+    <section id="rezervacije" className="py-16 lg:py-20 bg-white border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <Badge className="mb-3 bg-rose-100 text-rose-800 hover:bg-rose-100">
+            <Bell className="h-3.5 w-3.5 mr-1.5" />
+            Rezervacije & čakalna vrsta
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            Vsaka miza <span className="bg-gradient-to-r from-rose-500 to-purple-600 bg-clip-text text-transparent animate-gradient-text">zasedena</span>. Nikoli ne čaka.
+          </h2>
+          <p className="mt-2 text-base text-slate-600">Rezervacije, table mapping, waitlist z avtomatskim SMS. Gost ve, kdaj je miza prosta.</p>
+        </div>
+
+        {/* Statistike */}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 mb-6">
+          <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-center">
+            <div className="text-xl font-bold text-emerald-600 tabular-nums">{confirmed}</div>
+            <div className="text-[10px] text-slate-600 mt-0.5">potrjene</div>
+          </div>
+          <div className="p-3 rounded-xl bg-cyan-50 border border-cyan-100 text-center">
+            <div className="text-xl font-bold text-cyan-600 tabular-nums">{seated}</div>
+            <div className="text-[10px] text-slate-600 mt-0.5">sedijo</div>
+          </div>
+          <div className="p-3 rounded-xl bg-amber-50 border border-amber-100 text-center">
+            <div className="text-xl font-bold text-amber-600 tabular-nums">{waiting + WAITLIST.length}</div>
+            <div className="text-[10px] text-slate-600 mt-0.5">čakajo</div>
+          </div>
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-100 text-center">
+            <div className="text-xl font-bold text-rose-600 tabular-nums">{late}</div>
+            <div className="text-[10px] text-slate-600 mt-0.5">zamuja</div>
+          </div>
+          <div className="p-3 rounded-xl bg-purple-50 border border-purple-100 text-center">
+            <div className="text-xl font-bold text-purple-600 tabular-nums">{totalGuests}</div>
+            <div className="text-[10px] text-slate-600 mt-0.5">gostov</div>
+          </div>
+        </div>
+
+        {/* Tab selector */}
+        <div className="flex justify-center mb-6">
+          <div className="inline-flex items-center bg-slate-100 rounded-xl p-1 gap-1">
+            <button onClick={() => setTab('today')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${tab === 'today' ? 'bg-white text-rose-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Današnje rezervacije</button>
+            <button onClick={() => setTab('waitlist')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${tab === 'waitlist' ? 'bg-white text-rose-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Čakalna vrsta ({WAITLIST.length})</button>
+            <button onClick={() => setTab('map')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${tab === 'map' ? 'bg-white text-rose-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>Tloris miz</button>
+          </div>
+        </div>
+
+        {/* Content */}
+        {tab === 'today' && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            <Card className="overflow-hidden border-slate-200/70 shadow-sm">
+              <div className="divide-y divide-slate-50">
+                {RESERVATIONS.map((r, i) => {
+                  const st = RES_STATUS_INFO[r.status]
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -8 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.25, delay: i * 0.04 }}
+                      className={`px-4 py-3 flex items-center gap-3 hover:bg-slate-50/60 transition-colors ${r.status === 'late' ? st.bg : ''}`}
+                    >
+                      <div className={`w-9 h-9 rounded-full ${r.avatarBg} flex items-center justify-center text-white font-bold text-xs shrink-0`}>{r.initials}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-slate-900 truncate">{r.name}</span>
+                          <span className="text-[10px] text-slate-400 shrink-0">{r.guests} gostov</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                          <span className="text-[11px] text-slate-500 tabular-nums">🕒 {r.time}</span>
+                          <span className="text-[10px] text-slate-400">·</span>
+                          <span className="text-[11px] text-slate-500">📍 {r.table}</span>
+                          {r.notes && (
+                            <>
+                              <span className="text-[10px] text-slate-400">·</span>
+                              <span className="text-[10px] text-purple-600 font-medium">📝 {r.notes}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className={`w-1.5 h-1.5 rounded-full ${st.dot} ${r.status === 'late' ? 'animate-pulse' : ''}`} />
+                        <span className={`text-[10px] font-bold ${st.text}`}>{st.label}</span>
+                      </div>
+                      <div className="hidden sm:flex items-center gap-1 shrink-0">
+                        <button className="text-[10px] px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium transition-colors">📞</button>
+                        <button className="text-[10px] px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium transition-colors">SMS</button>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </div>
+            </Card>
+          </motion.div>
+        )}
+
+        {tab === 'waitlist' && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            <Card className="overflow-hidden border-slate-200/70 shadow-sm">
+              <div className="px-4 py-2.5 bg-amber-50 border-b border-amber-100 flex items-center justify-between">
+                <span className="text-xs font-bold text-amber-800 uppercase tracking-wide flex items-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+                  </span>
+                  Čakalna vrsta — avtomatski SMS
+                </span>
+                <span className="text-[10px] text-amber-700">{WAITLIST.length} v vrsti</span>
+              </div>
+              <div className="divide-y divide-slate-50">
+                {WAITLIST.map((w, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -8 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.25, delay: i * 0.05 }}
+                    className="px-4 py-3 flex items-center gap-3 hover:bg-slate-50/60 transition-colors"
+                  >
+                    <div className="text-center shrink-0 w-8">
+                      <div className="text-xs font-bold text-slate-400">#{i + 1}</div>
+                    </div>
+                    <div className={`w-9 h-9 rounded-full ${w.avatarBg} flex items-center justify-center text-white font-bold text-xs shrink-0`}>{w.initials}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-slate-900 truncate">{w.name}</div>
+                      <div className="text-[11px] text-slate-500">{w.guests} gostov · pridružil {w.joined}</div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className={`text-sm font-bold tabular-nums ${w.waitMin > 15 ? 'text-rose-600' : 'text-amber-600'}`}>{w.waitMin}min</div>
+                      <div className="text-[9px] text-slate-400">čakanje</div>
+                    </div>
+                    <button className="text-[10px] px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition-colors shrink-0">
+                      📱 SMS prost
+                    </button>
+                  </motion.div>
+                ))}
+              </div>
+              <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-[11px] text-slate-500">AI napove: prosta miza čez ~6 min (Miza 8)</span>
+                <span className="text-[10px] text-emerald-600 font-semibold">Avtomatsko obvesti Nina Z. ko je miza prosta</span>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+
+        {tab === 'map' && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            <Card className="overflow-hidden border-slate-200/70 shadow-sm">
+              <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Tloris restavracije</span>
+                <div className="flex items-center gap-3 flex-wrap">
+                  {(Object.keys(TABLE_STATUS_INFO) as Array<keyof typeof TABLE_STATUS_INFO>).map(k => (
+                    <span key={k} className="flex items-center gap-1 text-[10px] text-slate-600">
+                      <span className={`w-2 h-2 rounded-full ${TABLE_STATUS_INFO[k].dot}`} />
+                      {TABLE_STATUS_INFO[k].label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="relative bg-slate-50/40" style={{ height: '320px' }}>
+                {/* Mize */}
+                {TABLE_MAP.map(t => {
+                  const info = TABLE_STATUS_INFO[t.status as keyof typeof TABLE_STATUS_INFO]
+                  return (
+                    <motion.div
+                      key={t.id}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.3, delay: t.id * 0.05 }}
+                      whileHover={{ scale: 1.05 }}
+                      className={`absolute border-2 rounded-lg flex flex-col items-center justify-center cursor-pointer transition-colors ${info.color}`}
+                      style={{ left: `${t.x}%`, top: `${t.y}%`, width: t.seats > 4 ? '64px' : '52px', height: t.seats > 4 ? '56px' : '48px' }}
+                    >
+                      <span className="text-[10px] font-bold">M{t.id}</span>
+                      <span className="text-[9px] opacity-70">{t.seats}×</span>
+                    </motion.div>
+                  )
+                })}
+                {/* Vhod */}
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-3 py-1 rounded-t-lg bg-slate-700 text-white text-[10px] font-bold">🚪 VHOD</div>
+                {/* Bar */}
+                <div className="absolute top-2 right-2 px-2 py-1 rounded bg-purple-100 border border-purple-300 text-purple-700 text-[10px] font-bold">🍸 BAR</div>
+              </div>
+              <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                <div><div className="text-sm font-bold text-emerald-600">{TABLE_MAP.filter(t => t.status === 'free').length}</div><div className="text-[9px] text-slate-500">prostih</div></div>
+                <div><div className="text-sm font-bold text-amber-600">{TABLE_MAP.filter(t => t.status === 'reserved').length}</div><div className="text-[9px] text-slate-500">rezerviranih</div></div>
+                <div><div className="text-sm font-bold text-rose-600">{TABLE_MAP.filter(t => t.status === 'occupied').length}</div><div className="text-[9px] text-slate-500">zasedenih</div></div>
+                <div><div className="text-sm font-bold text-purple-600">{TABLE_MAP.filter(t => t.status === 'late').length}</div><div className="text-[9px] text-slate-500">zamuja</div></div>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    COMMAND CENTER — Unified dashboard vseh sistemov
    ============================================================ */
 interface DashboardData {
@@ -4299,6 +4562,9 @@ export default function Home() {
 
       {/* ===== STAFF & SHIFT MANAGEMENT ===== */}
       <StaffSection />
+
+      {/* ===== RESERVATIONS & WAITLIST ===== */}
+      <ReservationsSection />
 
       {/* ===== INTERACTIVE PRODUCT TOUR ===== */}
       <section id="demo" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/40 to-white border-y border-slate-100">
