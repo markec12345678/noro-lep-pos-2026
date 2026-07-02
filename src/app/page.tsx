@@ -2702,7 +2702,7 @@ export default function Home() {
       </a>
 
       {/* ===== HEADER ===== */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-slate-200/60">
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 border-b border-slate-200/40 shadow-sm border-b border-slate-200/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <a href="#" className="flex items-center gap-2.5 group" aria-label="Noro Lep POS — domov">
             <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
@@ -2744,13 +2744,23 @@ export default function Home() {
 
       {/* ===== HERO ===== */}
       <section id="main-content" className="relative overflow-hidden" aria-label="Hero — predstavitev">
+        {/* Animated gradient mesh background */}
         <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/60 via-white to-white" />
-        <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: 'linear-gradient(to right, #0f172a 1px, transparent 1px), linear-gradient(to bottom, #0f172a 1px, transparent 1px)',
-          backgroundSize: '56px 56px',
-        }} />
-        <div className="absolute -top-40 -right-40 w-[40rem] h-[40rem] rounded-full bg-emerald-400/20 blur-3xl" />
-        <div className="absolute top-20 -left-40 w-[32rem] h-[32rem] rounded-full bg-teal-400/15 blur-3xl" />
+        <motion.div
+          className="absolute -top-40 -right-40 w-[40rem] h-[40rem] rounded-full bg-emerald-400/20 blur-3xl"
+          animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.3, 0.2] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          className="absolute top-20 -left-40 w-[32rem] h-[32rem] rounded-full bg-teal-400/15 blur-3xl"
+          animate={{ scale: [1, 1.15, 1], opacity: [0.15, 0.25, 0.15] }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+        />
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 w-[30rem] h-[30rem] rounded-full bg-purple-400/8 blur-3xl"
+          animate={{ scale: [1, 1.2, 1], opacity: [0.05, 0.12, 0.05] }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+        />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-16 lg:pt-20 lg:pb-24">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
