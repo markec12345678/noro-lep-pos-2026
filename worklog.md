@@ -978,3 +978,18 @@ Work Log:
   * "glassmorphism header feels premium"
 - 0 console errors, lint 0
 - Push na GitHub: commit 568c151 na nextjs-landing
+
+---
+Task ID: 45
+Agent: main (Z.ai Code)
+Task: Card-tilt + animated gradient text + smoother stagger
+
+Work Log:
+- Applied 3 visual effects:
+  1. card-tilt class on feature cards (3D perspective hover z emerald glow shadow)
+  2. animate-gradient-text on 12 gradient text spans (6 section headings, color shift 3s infinite)
+  3. Smoother stagger: 0.1s → 0.08s delay between cards v grid-ih
+- 12 animate-gradient-text instances (emerald, cyan, purple, blue, slate gradients)
+- 1 card-tilt instance (feature cards)
+- 0 console errors, lint 0
+- Push na GitHub: commit 68271fd na nextjs-landing
