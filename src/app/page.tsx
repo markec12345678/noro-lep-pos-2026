@@ -3786,6 +3786,207 @@ function ReservationsSection() {
 }
 
 /* ============================================================
+   INTEGRATIONS MARKETPLACE — ekosistem integracij (network effect)
+   ============================================================ */
+const INTEGRATION_CATEGORIES = [
+  {
+    name: 'Dostava',
+    icon: '🛵',
+    color: 'bg-cyan-50 border-cyan-200 text-cyan-700',
+    integrations: [
+      { name: 'Wolt', emoji: '🟡', desc: 'Dostava hrane' },
+      { name: 'Glovo', emoji: '🟠', desc: 'Dostava & pickup' },
+      { name: 'Uber Eats', emoji: '🟢', desc: 'Globalna dostava' },
+      { name: 'Jäger', emoji: '🔴', desc: 'Lokalna dostava SI' },
+    ],
+  },
+  {
+    name: 'Plačila',
+    icon: '💳',
+    color: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+    integrations: [
+      { name: 'Stripe', emoji: '💠', desc: 'Kartice, Apple/Google Pay' },
+      { name: 'Braintree', emoji: '🔷', desc: 'PayPal, kartice' },
+      { name: 'FURS', emoji: '🏛️', desc: 'Davčna blagajna SI' },
+      { name: 'CBUS', emoji: '🟦', desc: 'Slovenske kartice' },
+    ],
+  },
+  {
+    name: 'Računovodstvo',
+    icon: '📊',
+    color: 'bg-purple-50 border-purple-200 text-purple-700',
+    integrations: [
+      { name: 'Pantheon', emoji: '🔶', desc: 'Računovodstvo SI' },
+      { name: 'Minimax', emoji: '🔴', desc: 'ERP & finance' },
+      { name: 'DRS', emoji: '🟢', desc: 'Davčno svetovanje' },
+      { name: 'Datec', emoji: '🟡', desc: 'Fiskalni sistemi' },
+    ],
+  },
+  {
+    name: 'CRM & Marketing',
+    icon: '📧',
+    color: 'bg-rose-50 border-rose-200 text-rose-700',
+    integrations: [
+      { name: 'Mailchimp', emoji: '🟡', desc: 'Email kampanje' },
+      { name: 'Brevo', emoji: '🔵', desc: 'SMS & email' },
+      { name: 'Viber', emoji: '🟣', desc: 'Biz SMS Slovenija' },
+      { name: 'Google Reviews', emoji: '⭐', desc: 'Ocene & feedback' },
+    ],
+  },
+  {
+    name: 'Rezervacije',
+    icon: '📅',
+    color: 'bg-amber-50 border-amber-200 text-amber-700',
+    integrations: [
+      { name: 'OpenTable', emoji: '🔴', desc: 'Globalne rezervacije' },
+      { name: 'Eat App', emoji: '🟠', desc: 'Rezervacije & waitlist' },
+      { name: 'Resy', emoji: '⚫', desc: 'Restavracije rezerve' },
+      { name: 'TableCheck', emoji: '🔵', desc: 'Mize & rezervacije' },
+    ],
+  },
+  {
+    name: 'Analitika',
+    icon: '📈',
+    color: 'bg-indigo-50 border-indigo-200 text-indigo-700',
+    integrations: [
+      { name: 'Google Analytics', emoji: '🟠', desc: 'Spletna analitika' },
+      { name: 'Mixpanel', emoji: '🟣', desc: 'Product analytics' },
+      { name: 'Power BI', emoji: '🟡', desc: 'BI dashboardi' },
+      { name: 'Looker', emoji: '🔵', desc: 'Data studio' },
+    ],
+  },
+] as const
+
+function IntegrationsSection() {
+  const [activeCat, setActiveCat] = useState<number | null>(null)
+  const allIntegrations = INTEGRATION_CATEGORIES.flatMap(c => c.integrations)
+  const shown = activeCat !== null ? INTEGRATION_CATEGORIES[activeCat].integrations : allIntegrations.slice(0, 12)
+
+  return (
+    <section id="integracije" className="py-16 lg:py-20 bg-slate-50/40 border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <Badge className="mb-3 bg-indigo-100 text-indigo-800 hover:bg-indigo-100">
+            <LayoutGrid className="h-3.5 w-3.5 mr-1.5" />
+            Integrations & API
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            Poveži <span className="bg-gradient-to-r from-indigo-600 to-cyan-600 bg-clip-text text-transparent animate-gradient-text">vse</span>. Vsi sistemi na enem mestu.
+          </h2>
+          <p className="mt-2 text-base text-slate-600">24+ integracij v 6 kategorijah. Od dostave do računovodstva — tvoji podatki tečejo samodejno.</p>
+        </div>
+
+        {/* Kategorije filter */}
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          <button
+            onClick={() => setActiveCat(null)}
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${activeCat === null ? 'bg-slate-900 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:border-slate-300'}`}
+          >
+            Vse ({allIntegrations.length})
+          </button>
+          {INTEGRATION_CATEGORIES.map((cat, i) => (
+            <button
+              key={cat.name}
+              onClick={() => setActiveCat(activeCat === i ? null : i)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${activeCat === i ? cat.color + ' ring-2 ring-offset-1 ring-indigo-300' : 'bg-white border border-slate-200 text-slate-600 hover:border-slate-300'}`}
+            >
+              <span>{cat.icon}</span>
+              {cat.name}
+              <span className="text-[10px] opacity-70">({cat.integrations.length})</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Integrations grid */}
+        <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <AnimatePresence mode="popLayout">
+            {shown.map((int, i) => (
+              <motion.div
+                key={int.name}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.25, delay: i * 0.03 }}
+                className="p-4 rounded-xl bg-white border border-slate-200/70 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all card-tilt"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-xl shrink-0">
+                    {int.emoji}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-bold text-slate-900 truncate">{int.name}</div>
+                    <div className="text-[11px] text-slate-500 leading-tight mt-0.5">{int.desc}</div>
+                  </div>
+                </div>
+                <div className="mt-3 pt-2.5 border-t border-slate-50 flex items-center justify-between">
+                  <span className="text-[9px] text-emerald-600 font-bold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    Povezano
+                  </span>
+                  <button className="text-[10px] text-indigo-600 font-semibold hover:text-indigo-800 transition-colors">
+                    Konfiguriraj →
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* API callout */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mt-8 p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-3xl rounded-full" />
+          <div className="relative flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <Zap className="h-4 w-4 text-indigo-400" />
+                <span className="text-xs font-bold uppercase tracking-wider text-indigo-300">REST API & Webhooks</span>
+              </div>
+              <h3 className="text-lg font-bold mb-1">Manjka integracija? Zgradi svojo.</h3>
+              <p className="text-sm text-slate-300">Odprti REST API z webhook podporo. JavaScript SDK, PHP SDK, Python wrapper. Full docs na <span className="font-mono text-indigo-300">docs.norolep-pos.si</span></p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <code className="px-3 py-1.5 rounded-lg bg-slate-950/60 border border-slate-700 text-xs font-mono text-emerald-400">
+                POST /api/v1/orders
+              </code>
+              <button className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors shrink-0">
+                API docs →
+              </button>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Stat bar */}
+        <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center">
+            <div className="text-2xl font-bold text-indigo-600 tabular-nums">24+</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">integracij</div>
+          </div>
+          <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center">
+            <div className="text-2xl font-bold text-emerald-600 tabular-nums">6</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">kategorij</div>
+          </div>
+          <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center">
+            <div className="text-2xl font-bold text-cyan-600 tabular-nums">99,9%</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">API uptime</div>
+          </div>
+          <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center">
+            <div className="text-2xl font-bold text-purple-600 tabular-nums">&lt; 50ms</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">odzivni čas</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    COMMAND CENTER — Unified dashboard vseh sistemov
    ============================================================ */
 interface DashboardData {
@@ -4565,6 +4766,9 @@ export default function Home() {
 
       {/* ===== RESERVATIONS & WAITLIST ===== */}
       <ReservationsSection />
+
+      {/* ===== INTEGRATIONS MARKETPLACE ===== */}
+      <IntegrationsSection />
 
       {/* ===== INTERACTIVE PRODUCT TOUR ===== */}
       <section id="demo" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/40 to-white border-y border-slate-100">

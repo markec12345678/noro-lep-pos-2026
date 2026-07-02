@@ -1825,3 +1825,65 @@ Stage Summary:
 - VSE 4 prioritete iz runde 5 realizirane (Loyalty + MenuEng + Staff + Reservations)
 - 0 napak (1 obstoječa hydration), 0 lint errors
 - Commit/push next
+
+---
+Task ID: 64
+Agent: main (Z.ai Code)
+Task: Web raziskava runda 6 (onboarding/integrations/sandbox/email) + v6.7 Integrations
+
+Work Log:
+- 4 web iskanja (z-ai web_search):
+  1. SaaS onboarding flow setup wizard
+  2. Restaurant POS integrations marketplace
+  3. Interactive product demo sandbox
+  4. SaaS email capture newsletter lead magnet
+
+Ključna odkritja:
+- INTEGRATIONS MARKETPLACE: velika vrzel!
+  * Vodilni POS imajo ekosistem integracij (accounting, payroll, delivery, CRM)
+  * Mi omenjamo Wolt/Glovo/Stripe a brez lastne integrations sekcije
+  * Network effect — več integracij = večji zaznani value
+- Onboarding wizard: setup pod 5 koraki
+- Interactive sandbox: "frictionless quick try" pred signup
+- Email capture: brezplačni vodič kot lead magnet
+
+v6.7 IMPLEMENTACIJA (Integrations Marketplace):
+- NOVA IntegrationsSection komponenta (~200 vrstic)
+- 6 kategorij, 24 integracij:
+  * Dostava (4): Wolt, Glovo, Uber Eats, Jäger
+  * Plačila (4): Stripe, Braintree, FURS, CBUS
+  * Računovodstvo (4): Pantheon, Minimax, DRS, Datec
+  * CRM & Marketing (4): Mailchimp, Brevo, Viber, Google Reviews
+  * Rezervacije (4): OpenTable, Eat App, Resy, TableCheck
+  * Analitika (4): Google Analytics, Mixpanel, Power BI, Looker
+- Interaktivni category filter (Vse + 6 kategorij, toggle)
+- AnimatePresence mode="popLayout" za smooth filtriranje
+- Vsaka kartica: emoji logo, ime, opis, "Povezano" badge, "Konfiguriraj →"
+- card-tilt hover efekt
+- REST API callout (dark gradient):
+  * "Manjka integracija? Zgradi svojo."
+  * Code snippet: POST /api/v1/orders (emerald)
+  * SDK-ji: JavaScript, PHP, Python
+  * docs.norolep-pos.si
+  * "API docs →" button
+- 4 stat kartice: 24+ integracij, 6 kategorij, 99,9% uptime, <50ms
+- Layout: med ReservationsSection in Demo
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 22 sekcij (+1), HTTP 200
+  * IntegrationsSection: OK
+  * Wolt/Pantheon/REST API/code snippet: vsi OK
+  * Filter deluje (Računovodstvo → Minimax prikazan)
+- VLM audit:
+  * "integration cards with emoji, names, Povezano badges"
+  * "category filter: Dostava/Plačila/Računovodstvo/CRM/Rezervacije/Analitika"
+  * API callout + stat cards potrjeni (scroll screenshot)
+  * 7/10 visual polish
+
+Stage Summary:
+- 22 sekcij (integracije dodana)
+- 35 komponent (IntegrationsSection)
+- Network effect: 24+ integracij poveča zaznani value
+- REST API callout pokaže developer-friendly
+- 0 napak (1 obstoječa hydration), 0 lint errors
+- Commit/push next
