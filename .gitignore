@@ -83,3 +83,4 @@ db/*.db
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+tool-results/
