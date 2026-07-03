@@ -2446,3 +2446,39 @@ Stage Summary:
 - VLM: 9/10 trust-building
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 75
+Agent: main (Z.ai Code)
+Task: v7.8 — Posodobljena navigacija (header + mobile + footer) za 30 sekcij
+
+Work Log:
+- Po lastni logiki: 30 sekcij a header/mobile nav sta imeli zastarele linke
+  (Vmesniki, ROI) ki ne odražajo novih ključnih sekcij (Varnost, Verige)
+
+v7.8 IMPLEMENTACIJA:
+1. Desktop header nav (8 linkov):
+   Prej: Demo, Funkcije, Primerjava, Vmesniki, Mnenja, ROI, Cene, FAQ
+   Sedaj: Demo, Funkcije, Varnost, Verige, Primerjava, Mnenja, Cene, FAQ
+   (Vmesniki + ROI zamenjana z Varnost + Verige — nove B2B ključne sekcije)
+
+2. Mobile menu (8 linkov):
+   Ista posodobitev kot desktop
+
+3. Footer Product column (4 → 9 linkov):
+   Prej: Demo, Funkcije, Cene, FAQ
+   Sedaj: Demo, Funkcije, Varnost, Verige, Integracije, Podpora, Roadmap, Cene, FAQ
+   (+5 novih sekcij linkov za boljši footer sitemap)
+
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 0 napak
+  * Nav text: "Demo, Funkcije, Varnost, Verige, Primerjava, Mnenja, Cene, FAQ" ✓
+  * Footer Product links: 9 (prej 4) ✓
+  * Roadmap + Integracije v footer: OK
+
+Stage Summary:
+- Navigacija sinhronizirana z 30 sekcijami
+- Footer sitemap razširjen (4→9 product linkov)
+- 0 napak, 0 lint errors
+- Commit/push next

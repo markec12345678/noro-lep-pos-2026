@@ -2926,10 +2926,10 @@ function MobileMenu() {
   const items = [
     { label: 'Demo', href: '#demo' },
     { label: 'Funkcije', href: '#funkcije' },
+    { label: 'Varnost', href: '#varnost' },
+    { label: 'Verige', href: '#verige' },
     { label: 'Primerjava', href: '#primerjava' },
-    { label: 'Vmesniki', href: '#vmesniki' },
     { label: 'Mnenja', href: '#mnenja' },
-    { label: 'ROI', href: '#roi' },
     { label: 'Cene', href: '#cene' },
     { label: 'FAQ', href: '#faq' },
   ]
@@ -6095,10 +6095,10 @@ export default function Home() {
             {[
               { label: 'Demo', href: '#demo' },
               { label: 'Funkcije', href: '#funkcije' },
+              { label: 'Varnost', href: '#varnost' },
+              { label: 'Verige', href: '#verige' },
               { label: 'Primerjava', href: '#primerjava' },
-              { label: 'Vmesniki', href: '#vmesniki' },
               { label: 'Mnenja', href: '#mnenja' },
-              { label: 'ROI', href: '#roi' },
               { label: 'Cene', href: '#cene' },
               { label: 'FAQ', href: '#faq' },
             ].map((item) => (
@@ -6795,6 +6795,11 @@ export default function Home() {
               <ul className="space-y-2.5 text-sm">
                 <li><a href="#demo" className="hover:text-emerald-400 transition">Demo</a></li>
                 <li><a href="#funkcije" className="hover:text-emerald-400 transition">Funkcije</a></li>
+                <li><a href="#varnost" className="hover:text-emerald-400 transition">Varnost</a></li>
+                <li><a href="#verige" className="hover:text-emerald-400 transition">Verige</a></li>
+                <li><a href="#integracije" className="hover:text-emerald-400 transition">Integracije</a></li>
+                <li><a href="#podpora" className="hover:text-emerald-400 transition">Podpora</a></li>
+                <li><a href="#roadmap" className="hover:text-emerald-400 transition">Roadmap</a></li>
                 <li><a href="#cene" className="hover:text-emerald-400 transition">Cene</a></li>
                 <li><a href="#faq" className="hover:text-emerald-400 transition">FAQ</a></li>
               </ul>
