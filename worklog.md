@@ -2563,3 +2563,31 @@ Stage Summary:
 - Robots.txt z explicit bot allow + sitemap reference
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 78
+Agent: main (Z.ai Code)
+Task: v8.1 — Prisma query logging production fix (performance)
+
+Work Log:
+- Performance audit odkritje:
+  * PrismaClient log: ['query'] logira VSE queryje v console
+  * To je performance hit v production (I/O overhead na vsak query)
+  * V dev mode OK za debugging, v production nezaželeno
+
+v8.1 IMPLEMENTACIJA:
+- src/lib/db.ts posodobljen:
+  * isDev = process.env.NODE_ENV !== 'production'
+  * log: isDev ? ['query', 'warn', 'error'] : ['warn', 'error']
+  * globalForPrisma cache samo v dev (production vedno fresh client)
+  
+- Lint: 0 errors
+- Verifikacija:
+  * HTTP 200, API /api/leads vrača podatke ✓
+  * 0 napak, 30 sekcij
+  * Query logging še vedno v dev (za debugging)
+
+Stage Summary:
+- Production performance fix (ne logira query v prod)
+- 0 napak, 0 lint errors
+- Commit/push next
