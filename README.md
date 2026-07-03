@@ -3,7 +3,7 @@
 > AI-poganjana POS blagajna z avtomatskim FURS, AI predikcijo prometa, kuhinjskim zaslonom (KDS) in real-time sync med 4 moduli. Zgrajena z ljubeznijo za slovenske gostince. 🇸🇮
 
 [![VLM Score](https://img.shields.io/badge/VLM%20Score-9%2F10-brightgreen?style=flat-square)](#vmesniki-v-primerjavi)
-[![Version](https://img.shields.io/badge/Version-5.3-blue?style=flat-square)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-8.5-blue?style=flat-square)](CHANGELOG.md)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38BDF8?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
@@ -53,22 +53,42 @@
 | **Mize** | Tloris restavracije z 12 mizami, 4 statusi | **8.5/10** 🏆 |
 | **Analitika** | AI dashboard z grafi, KPI, menu engineering | 8/10 |
 
-### 🎨 Landing page (14 sekcij)
+### 🎨 Landing page (30 sekcij)
 
 1. **Hero** z AI lifestyle sliko + floating cards + video demo modal
-2. **Stats bar** z animated counters
-3. **4-module Product Tour** z real-time sync
-4. **Features grid** (9 modulov)
-5. **Competition Comparison** (vs Toast/Square/Lightspeed/Shopify)
-6. **Interface Comparison** (4 VLM primerjave z screenshoti)
-7. **Testimonials** (3 slovenske restavracije)
-8. **ROI kalkulator** (interaktivni drsniki)
-9. **Pricing** (3-tier: Starter 0€, Pro 49€, Enterprise)
-10. **FAQ accordion**
-11. **CTA + sticky footer**
-12. **Language switcher** (SLO/EN/DE/IT)
-13. **PWA manifest** (namestitev na domači zaslon)
-14. **Dark mode** podpora
+2. **Live sales ticker** (rotating sporočila v realnem času)
+3. **Stats bar** z animated counters
+4. **Trust bar** (FURS ZDavP-2P, GDPR, ISO, PCI DSS, SOC 2)
+5. **Security & compliance** (AES-256, MFA, backup, offline, RBAC)
+6. **Multi-location & mobile** (chain management + owner app)
+7. **Sustainability & cost control** (CO₂ tracking, DDV, P&L)
+8. **Command Center** (living dashboard z real-time simulacijo)
+9. **Payments** (Stripe demo, Apple/Google Pay)
+10. **Loyalty & CRM** (3 tierji, CRM profili, avtomatske akcije)
+11. **Inventory** (232 artiklov, AI predikcija)
+12. **Delivery** (Wolt/Glovo/Uber Eats)
+13. **QR Ordering & Kiosk** (interaktivni demo)
+14. **AI Prediction** (weather-aware, Deloitte statistike)
+15. **Menu Engineering** (4 kvadranti: Zvezde/Konji/Uganke/Psi)
+16. **Staff & Shift** (scheduling, labor cost, AI priporočila)
+17. **Reservations** (3 tabi: danes/waitlist/tloris miz)
+18. **Integrations marketplace** (24+ integracij, 6 kategorij)
+19. **Onboarding wizard** (5 korakov, 15 min time-to-value)
+20. **Support & training** (4 kanali, 47 video, garancija)
+21. **Roadmap & changelog** (shipped/next/planned + voting)
+22. **4-module Product Tour** z real-time sync
+23. **Features grid** (9 modulov)
+24. **Competition Comparison** (vs slovenske blagajne)
+25. **Interface Comparison** (4 VLM primerjave)
+26. **Testimonials** (3 slovenske restavracije)
+27. **Case Studies** (3 restavracije s pred/po metrikami)
+28. **ROI kalkulator** (interaktivni drsniki)
+29. **Z-Report** (FURS dnevno zaključevanje)
+30. **Email capture** (brezplačni vodič lead magnet)
+31. **Pricing** (3-tier: Starter 0€, Pro 49€, Enterprise)
+32. **FAQ accordion**
+33. **Decision Hub** (3 poti + 6 ugodnosti + comparison)
+34. **Section dots navigator** (29 pik za hiter skip)
 
 ---
 
@@ -154,7 +174,7 @@ bun run db:generate
 noro-lep-pos-2026/
 ├── src/
 │   ├── app/
-│   │   ├── page.tsx          # Landing page (14 sekcij, ~2500 vrstic)
+│   │   ├── page.tsx          # Landing page (30+ sekcij, ~6900 vrstic)
 │   │   ├── layout.tsx        # Root layout z metadata
 │   │   ├── globals.css       # Tailwind + CSS variables
 │   │   └── api/
@@ -264,7 +284,7 @@ MIT License — glej [LICENSE](LICENSE).
 
 **Zgrajeno v Sloveniji** 🇸🇮 z ❤️
 
-VLM 9/10 · 25 komponent · 8 vizualnih efektov · 11 APIjev · 3426 vrstic TypeScript
+VLM 9/10 · 45 komponent · 16 vizualnih efektov · 12 APIjev · 6933 vrstic TypeScript · 30 sekcij
 
 [🌐 Spletna stran](https://chat.z.ai) · [📧 Kontakt](mailto:info@norolep-pos.si) · [🐛 Prijavi napako](https://github.com/markec12345678/noro-lep-pos-2026/issues)
 
