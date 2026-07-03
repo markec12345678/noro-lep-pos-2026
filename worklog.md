@@ -2482,3 +2482,44 @@ Stage Summary:
 - Footer sitemap razširjen (4→9 product linkov)
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 76
+Agent: main (Z.ai Code)
+Task: v7.9 — Cookie Consent banner (GDPR compliance)
+
+Work Log:
+- Po lastni logiki: GDPR compliance omenjen povsod (TrustBar, Security section)
+  a BREZ cookie consentja — real compliance vrzel!
+
+v7.9 IMPLEMENTACIJA:
+- NOVA CookieConsent komponenta (~80 vrstic)
+- Bottom fixed banner (z-[80])
+- AnimatePresence (y: 50→0, 0.4s easeOut)
+- 1.5s delay po load (ne moti takoj)
+- localStorage persistanca:
+  * 'cookie-consent' = 'accept' | 'reject'
+  * 'cookie-consent-date' = ISO timestamp
+- Shield icon (emerald) + GDPR badge
+- "Piškotki & zasebnost" heading
+- Privacy policy link
+- 2 gumba:
+  * "Samo nujni" (reject — slate)
+  * "Sprejmi vse" (accept — emerald, primary)
+- Responsive (flex-col na mobile, flex-row na sm+)
+- mounted pattern (SSR-safe, ne flicker)
+- Click accept/reject → localStorage set + banner hide
+
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 0 napak
+  * Banner prikaže po clear storage ✓
+  * Accept/Reject button prisotna ✓
+  * Click Accept → banner hidden + localStorage='accept' ✓
+- VLM audit: "Yes, cookie consent banner present" 8/10 polish
+
+Stage Summary:
+- 44 komponent (CookieConsent)
+- GDPR compliance zaprta (ne samo omenjena)
+- 0 napak, 0 lint errors
+- Commit/push next

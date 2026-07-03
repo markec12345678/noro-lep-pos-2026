@@ -2223,6 +2223,87 @@ function SectionDots() {
 }
 
 /* ============================================================
+   COOKIE CONSENT — GDPR compliance banner
+   ============================================================ */
+function CookieConsent() {
+  const [visible, setVisible] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => setMounted(true), [])
+
+  useEffect(() => {
+    if (!mounted) return
+    try {
+      const consent = localStorage.getItem('cookie-consent')
+      if (!consent) {
+        const timer = setTimeout(() => setVisible(true), 1500)
+        return () => clearTimeout(timer)
+      }
+    } catch {}
+  }, [mounted])
+
+  const handleAction = (action: 'accept' | 'reject') => {
+    try {
+      localStorage.setItem('cookie-consent', action)
+      localStorage.setItem('cookie-consent-date', new Date().toISOString())
+    } catch {}
+    setVisible(false)
+  }
+
+  if (!visible) return null
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 50 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="fixed bottom-0 left-0 right-0 z-[80] p-4"
+      >
+        <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+          <div className="flex flex-col sm:flex-row items-start gap-4 p-4">
+            {/* Icon */}
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+              <Shield className="h-5 w-5 text-emerald-600" />
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-sm font-bold text-slate-900">Piškotki & zasebnost</h3>
+                <Badge variant="outline" className="text-[9px] text-emerald-700 border-emerald-200">GDPR</Badge>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Uporabljamo piškotke za analitiko in izboljšanje uporabniške izkušnje. Z obiskom te strani soglašaš z našo{' '}
+                <a href="#" className="text-emerald-600 font-semibold hover:text-emerald-700 underline">politiko zasebnosti</a>.
+                Brez nujnih piškotkov stran ne deluje. Analitične so opcijske.
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+              <button
+                onClick={() => handleAction('reject')}
+                className="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+              >
+                Samo nujni
+              </button>
+              <button
+                onClick={() => handleAction('accept')}
+                className="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-sm"
+              >
+                Sprejmi vse
+              </button>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
+/* ============================================================
    TRUST BAR — certifications & compliance badges
    ============================================================ */
 function TrustBar() {
@@ -6069,6 +6150,7 @@ export default function Home() {
       <CursorGlow />
       <LiveSocialProof />
       <SectionDots />
+      <CookieConsent />
 
       {/* Skip to content — accessibility */}
       <a
