@@ -2523,3 +2523,43 @@ Stage Summary:
 - GDPR compliance zaprta (ne samo omenjena)
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 77
+Agent: main (Z.ai Code)
+Task: v8.0 — Dynamic sitemap.ts + robots.ts (Next.js native SEO)
+
+Work Log:
+- Odkritje: statični public/sitemap.xml je imel samo 8 sekcij (zastarelo),
+  Google ignorira #anchor URL-je kot separate pages
+- Next.js 16 App Router podpira native sitemap.ts + robots.ts (dynamic)
+
+v8.0 IMPLEMENTACIJA:
+1. src/app/sitemap.ts (Next.js MetadataRoute.Sitemap):
+   - Root URL z priority 1.0, weekly changefreq
+   - hreflang alternates: sl-SI, en-US, de-DE, it-IT
+   - lastModified = dynamic (now)
+   - API health endpoint (priority 0.3)
+   - BASE_URL iz NEXT_PUBLIC_APP_URL env (fallback norolep-pos.si)
+
+2. src/app/robots.ts (Next.js MetadataRoute.Robots):
+   - Universal rules: allow /, disallow /api/ /_next/ /admin/ *.json$
+   - 7 specifičnih botov z eksplicitnim allow (Google, Bing, Twitter, Facebook, LinkedIn, Slack, Apple)
+   - sitemap link + host
+
+3. Odstranjeni:
+   - public/sitemap.xml (zastarel, 8 sekcij z #anchors)
+   - public/robots.txt (statičen)
+
+- Lint: 0 errors
+- Verifikacija (curl):
+  * /sitemap.xml: pravilen XML, norolep-pos.si, hreflang, lastmod 2026-07-03 ✓
+  * /robots.txt: pravilen format, 7 botov, disallow /api/, sitemap link ✓
+  * Page: 0 napak, 30 sekcij
+
+Stage Summary:
+- SEO posodobljen na Next.js native (dynamic, ne statičen)
+- Sitemap pravilen za single-page app (root + hreflang, ne #anchors)
+- Robots.txt z explicit bot allow + sitemap reference
+- 0 napak, 0 lint errors
+- Commit/push next
