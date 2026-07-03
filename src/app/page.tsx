@@ -4888,6 +4888,184 @@ function OnboardingWizardSection() {
 }
 
 /* ============================================================
+   SUPPORT & TRAINING — multi-channel podpora + učenje
+   ============================================================ */
+const SUPPORT_CHANNELS = [
+  {
+    icon: '💬',
+    title: 'Live chat',
+    desc: 'Odgovor v < 2 min v delovnem času. Slovenski agenti, ne bot.',
+    availability: 'Pon-Pet 8-22',
+    color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    badge: '< 2min',
+  },
+  {
+    icon: '📞',
+    title: 'Telefon',
+    desc: 'Direktna številka za nujne primere. Brez čakalne vrste.',
+    availability: '24/7 za kritične',
+    color: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+    badge: '24/7',
+  },
+  {
+    icon: '📧',
+    title: 'Email',
+    desc: 'Podroben odgovor z dokumentacijo v < 4 urah.',
+    availability: 'Pon-Pet',
+    color: 'bg-purple-50 text-purple-700 border-purple-200',
+    badge: '< 4h',
+  },
+  {
+    icon: '🎓',
+    title: '1:1 onboarding',
+    desc: 'Osebna video seja z našim specialistom. Brezplačno.',
+    availability: 'Po dogovoru',
+    color: 'bg-amber-50 text-amber-700 border-amber-200',
+    badge: 'Brezplačno',
+  },
+] as const
+
+const TRAINING_RESOURCES = [
+  { icon: '📹', title: 'Video vadnica', desc: '47 video vodnikov v slovenščini', count: '47', color: 'text-rose-600' },
+  { icon: '📚', title: 'Dokumentacija', desc: 'Step-by-step članki z screenshots', count: '180+', color: 'text-emerald-600' },
+  { icon: '🎓', title: 'Webinarji', desc: 'Tedenski live webinarji + Q&A', count: 'tedensko', color: 'text-cyan-600' },
+  { icon: '👥', title: 'Skupnost', desc: 'Forum lastnikov restavracij', count: '542', color: 'text-purple-600' },
+] as const
+
+const SLA_STATS = [
+  { value: '99.9%', label: 'uptime SLA', sub: 'garancija v pogodbi' },
+  { value: '< 2min', label: 'chat odgovor', sub: 'povprečno' },
+  { value: '4.8/5', label: 'CSAT ocena', sub: 'zadovoljstvo' },
+  { value: '24/7', label: 'kritična podpora', sub: 'tudi vikendi' },
+] as const
+
+function SupportSection() {
+  return (
+    <section id="podpora" className="py-16 lg:py-20 bg-white border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <Badge className="mb-3 bg-cyan-100 text-cyan-800 hover:bg-cyan-100">
+            <Heart className="h-3.5 w-3.5 mr-1.5" />
+            Podpora & učenje
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            Nikoli ne <span className="bg-gradient-to-r from-cyan-600 to-emerald-600 bg-clip-text text-transparent animate-gradient-text">zaideš</span>. Vedno smo tu.
+          </h2>
+          <p className="mt-2 text-base text-slate-600">Live chat, telefon, email, 1:1 onboarding. 47 video vodnikov, 180+ člankov, tedenski webinarji. Slovenski agenti, ne bot.</p>
+        </div>
+
+        {/* SLA stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+          {SLA_STATS.map((s, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
+              className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 text-center"
+            >
+              <div className="text-2xl lg:text-3xl font-bold text-cyan-600 tabular-nums">{s.value}</div>
+              <div className="text-xs font-semibold text-slate-700 mt-0.5">{s.label}</div>
+              <div className="text-[10px] text-slate-500 mt-0.5">{s.sub}</div>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* LEVO: Support channels */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Bell className="h-4 w-4 text-cyan-600" />
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">4 kanali podpore</h3>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {SUPPORT_CHANNELS.map((ch, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: i * 0.06 }}
+                  className={`p-4 rounded-2xl border-2 ${ch.color}`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-2xl">{ch.icon}</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/70">{ch.badge}</span>
+                  </div>
+                  <div className="text-sm font-bold text-slate-900">{ch.title}</div>
+                  <div className="text-[11px] text-slate-600 mt-1 leading-relaxed">{ch.desc}</div>
+                  <div className="text-[10px] text-slate-500 mt-2 pt-2 border-t border-current/10 font-semibold">{ch.availability}</div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* DESNO: Training resources */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="h-4 w-4 text-purple-600" />
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Učni viri</h3>
+            </div>
+            <Card className="overflow-hidden border-slate-200/70 shadow-sm">
+              <div className="divide-y divide-slate-50">
+                {TRAINING_RESOURCES.map((r, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: 8 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.25, delay: i * 0.05 }}
+                    className="px-4 py-3 flex items-center gap-3 hover:bg-slate-50/60 transition-colors"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-slate-50 flex items-center justify-center text-lg shrink-0">{r.icon}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold text-slate-900">{r.title}</div>
+                      <div className="text-[11px] text-slate-500 leading-tight mt-0.5">{r.desc}</div>
+                    </div>
+                    <div className={`text-sm font-bold tabular-nums shrink-0 ${r.color}`}>{r.count}</div>
+                  </motion.div>
+                ))}
+              </div>
+              <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-100 text-center">
+                <span className="text-[11px] text-cyan-600 font-semibold hover:text-cyan-800">Odpri help center →</span>
+              </div>
+            </Card>
+          </div>
+        </div>
+
+        {/* Trust guarantee */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+          className="mt-6 p-5 rounded-2xl bg-gradient-to-br from-cyan-50 to-emerald-50 border border-cyan-200 flex flex-col sm:flex-row items-center justify-between gap-4"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center shrink-0">
+              <ShieldCheck className="h-6 w-6 text-cyan-600" />
+            </div>
+            <div>
+              <div className="text-sm font-bold text-slate-900">Garancija zadovoljstva</div>
+              <div className="text-xs text-slate-600">Če v 30 dneh nisi zadovoljen — denar nazaj, brez vprašanj.</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 text-xs text-slate-600">
+            <span className="flex items-center gap-1">
+              {[...Array(5)].map((_, i) => <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />)}
+              <span className="font-bold text-slate-900 ml-1">4.8/5</span>
+            </span>
+            <span>·</span>
+            <span>2.847 rešenih ticketov</span>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    COMMAND CENTER — Unified dashboard vseh sistemov
    ============================================================ */
 interface DashboardData {
@@ -5904,6 +6082,9 @@ export default function Home() {
 
       {/* ===== ONBOARDING WIZARD ===== */}
       <OnboardingWizardSection />
+
+      {/* ===== SUPPORT & TRAINING ===== */}
+      <SupportSection />
 
       {/* ===== INTERACTIVE PRODUCT TOUR ===== */}
       <section id="demo" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/40 to-white border-y border-slate-100">

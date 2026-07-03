@@ -2339,3 +2339,53 @@ Stage Summary:
 - Accessibility: aria-label, aria-current
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 73
+Agent: main (Z.ai Code)
+Task: Web raziskava runda 10 (support/training) + v7.6 Support section
+
+Work Log:
+- 3 web iskanja (z-ai web_search):
+  1. SaaS customer support section landing page chat phone docs 2026
+  2. Restaurant POS customer training onboarding video tutorial 2026
+  3. SaaS help center knowledge base self-service 2026
+
+Ključna odkritja:
+- Support: 8 omenitev (24/7 v CTA), BREZ dedicated sekcije
+- Multi-channel: chat (<2min), phone (24/7 critical), email (<4h), 1:1 onboarding
+- Training: video tutorials, docs/knowledge base, webinarji, community forum
+- SLA guarantee: uptime, CSAT, response time
+- Self-service: knowledge base + community
+
+v7.6 IMPLEMENTACIJA:
+- NOVA SupportSection komponenta (~175 vrstic)
+- 4 SLA stat kartice: 99.9% uptime, <2min chat, 4.8/5 CSAT, 24/7 kritična
+- 4 support channel kartice (colored borders + badges):
+  * 💬 Live chat (<2min, Pon-Pet 8-22, emerald)
+  * 📞 Telefon (24/7 kritične, cyan)
+  * 📧 Email (<4h, Pon-Pet, purple)
+  * 🎓 1:1 onboarding (brezplačno, po dogovoru, amber)
+- Training resources list (4):
+  * 📹 Video vadnica (47 vodnikov)
+  * 📚 Dokumentacija (180+ člankov)
+  * 🎓 Webinarji (tedensko)
+  * 👥 Skupnost (542 lastnikov)
+- Satisfaction guarantee card (gradient cyan→emerald):
+  * "Garancija zadovoljstva — 30 dni denar nazaj"
+  * 4.8/5 CSAT + 2.847 rešenih ticketov
+- Layout: med OnboardingWizardSection in Demo
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 29 sekcij (+1), 0 napak
+  * Podpora/Live chat/Video/Garancija/CSAT: vsi OK
+- VLM audit:
+  * "4 SLA stat cards, 4 support channels with badges, training list with counts, satisfaction guarantee 4.8/5"
+  * 8/10 visual polish
+
+Stage Summary:
+- 29 sekcij (podpora dodana)
+- 42 komponent (SupportSection)
+- Zapre "24/7 podpora" obljubo iz Decision Hub z dejansko sekcijo
+- 0 napak, 0 lint errors
+- Commit/push next
