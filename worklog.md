@@ -2617,3 +2617,33 @@ Stage Summary:
 - SectionDots full coverage (29/30 sekcij, main-content izvzeto kot skip link)
 - 0 napak, 0 lint errors, 0 broken links
 - Commit/push next
+
+---
+Task ID: 80
+Agent: main (Z.ai Code)
+Task: v8.3 — Mobile horizontal overflow fix (130px → 0px)
+
+Work Log:
+- Mobile responsiveness audit odkritje:
+  * 375px viewport: horizontal overflow 130px!
+  * Vzrok: decorative orbs (w-[60rem], w-[50rem]) + whitespace-nowrap gumbi
+  * SecuritySection in CommandCenter imata overflow-hidden, a body ne
+
+v8.3 IMPLEMENTACIJA:
+- src/app/globals.css @layer base:
+  * html, body: overflow-x: hidden + max-width: 100vw
+  * Prepreči horizontal scroll od absolute decorative elementov
+
+- Lint: 0 errors
+- Mobile verifikacija (375px):
+  * Overflow: 130px → 0px ✓
+  * Scroll through 5 positions: vse 0px ✓
+  * 0 napak
+- Desktop verifikacija (1440px):
+  * Overflow: 0px ✓
+  * 30 sekcij ✓
+
+Stage Summary:
+- Mobile horizontal overflow popolnoma odstranjen
+- 0 napak, 0 lint errors
+- Commit/push next
