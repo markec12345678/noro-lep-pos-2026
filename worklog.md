@@ -2647,3 +2647,37 @@ Stage Summary:
 - Mobile horizontal overflow popolnoma odstranjen
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 81
+Agent: main (Z.ai Code)
+Task: v8.4 — Canonical/OG/JSON-LD URL fix (chat.z.ai → norolep-pos.si)
+
+Work Log:
+- Lighthouse-style audit odkritje:
+  * canonical URL = https://chat.z.ai (placeholder!)
+  * OG URL = https://chat.z.ai
+  * JSON-LD vse @id in url reference = chat.z.ai
+  * To je SEO problem — Google bi indeksiral napačen domain
+
+v8.4 IMPLEMENTACIJA:
+- src/app/layout.tsx: 13 zamenjav chat.z.ai → norolep-pos.si
+  * metadataBase
+  * alternates.canonical
+  * openGraph.url
+  * JSON-LD: @id (organization, software, website, localbusiness)
+  * JSON-LD: url (organization, website, localbusiness)
+  * JSON-LD: searchAction target
+
+- Lint: 0 errors
+- Verifikacija (curl):
+  * Canonical: https://norolep-pos.si ✓
+  * OG URL: https://norolep-pos.si ✓
+  * JSON-LD url: https://norolep-pos.si (3x) ✓
+  * 0 napak, 30 sekcij
+
+Stage Summary:
+- Vsi production URL-ji pravilni (ne placeholder)
+- SEO consistency: canonical = OG = JSON-LD = sitemap
+- 0 napak, 0 lint errors
+- Commit/push next

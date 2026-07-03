@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Noro Lep POS" }],
   creator: "Noro Lep POS Team",
   publisher: "Noro Lep POS",
-  metadataBase: new URL("https://chat.z.ai"),
+  metadataBase: new URL("https://norolep-pos.si"),
   alternates: {
     canonical: "/",
     languages: {
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Noro Lep POS — Najlepša slovenska restavracijska blagajna",
     description: "AI-poganjana POS blagajna z avtomatskim FURS in kuhinjskim zaslonom. 542 restavracij že zaupa nam.",
-    url: "https://chat.z.ai",
+    url: "https://norolep-pos.si",
     siteName: "Noro Lep POS",
     type: "website",
     locale: "sl_SI",
@@ -89,9 +89,9 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "Organization",
-      "@id": "https://chat.z.ai/#organization",
+      "@id": "https://norolep-pos.si/#organization",
       name: "Noro Lep POS",
-      url: "https://chat.z.ai",
+      url: "https://norolep-pos.si",
       logo: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
       description: "Najlepša slovenska restavracijska blagajna z avtomatskim FURS in AI predikcijo prometa.",
       foundingDate: "2026",
@@ -110,7 +110,7 @@ const jsonLd = {
     },
     {
       "@type": "SoftwareApplication",
-      "@id": "https://chat.z.ai/#software",
+      "@id": "https://norolep-pos.si/#software",
       name: "Noro Lep POS",
       applicationCategory: "BusinessApplication",
       operatingSystem: "Web, Android, iOS, Windows, macOS",
@@ -157,22 +157,22 @@ const jsonLd = {
     },
     {
       "@type": "WebSite",
-      "@id": "https://chat.z.ai/#website",
-      url: "https://chat.z.ai",
+      "@id": "https://norolep-pos.si/#website",
+      url: "https://norolep-pos.si",
       name: "Noro Lep POS",
-      publisher: { "@id": "https://chat.z.ai/#organization" },
+      publisher: { "@id": "https://norolep-pos.si/#organization" },
       potentialAction: {
         "@type": "SearchAction",
-        target: "https://chat.z.ai/search?q={search_term_string}",
+        target: "https://norolep-pos.si/search?q={search_term_string}",
         "query-input": "required name=search_term_string",
       },
     },
     {
       "@type": "LocalBusiness",
-      "@id": "https://chat.z.ai/#localbusiness",
+      "@id": "https://norolep-pos.si/#localbusiness",
       name: "Noro Lep POS",
       description: "Najlepša slovenska restavracijska blagajna z avtomatskim FURS in AI predikcijo prometa.",
-      url: "https://chat.z.ai",
+      url: "https://norolep-pos.si",
       telephone: "+386-1-234-5678",
       priceRange: "€€",
       address: {
@@ -194,7 +194,7 @@ const jsonLd = {
       },
       areaServed: { "@type": "Country", name: "Slovenija" },
       knowsAbout: ["POS sistemi", "FURS davčna blagajna", "restavracijsko poslovanje", "AI predikcija prometa"],
-      parentOrganization: { "@id": "https://chat.z.ai/#organization" },
+      parentOrganization: { "@id": "https://norolep-pos.si/#organization" },
     },
     {
       "@type": "FAQPage",
