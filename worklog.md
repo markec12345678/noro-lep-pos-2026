@@ -2681,3 +2681,52 @@ Stage Summary:
 - SEO consistency: canonical = OG = JSON-LD = sitemap
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 82
+Agent: main (Z.ai Code)
+Task: Web raziskava runda 12 (allergen/tip/KDS) + v8.6 Allergen section
+
+Work Log:
+- 3 web iskanja (z-ai web_search):
+  1. Restaurant POS tip gratuity split bill 2026
+  2. Restaurant POS allergen tracking nutritional ADDE Act 2026
+  3. Restaurant POS KDS kitchen display order routing 2026
+
+Ključna odkritja:
+- Allergen tracking: rastoč regulativni trend (ADDE Act 2026)
+  * EU 14 alergenov mora biti označenih
+  * Restaurant allergen compliance je obvezen
+  * 0 alergenov omenitev v kodi (velika vrzel!)
+- Tip/gratuity: tip pooling, same-day payout
+- KDS: order routing to prep stations (že imamo)
+
+v8.6 IMPLEMENTACIJA:
+- NOVA AllergenSection komponenta (~190 vrstic)
+- 14 EU alergenov grid (interaktivni filter):
+  * Gluten, Raki, Jajca, Ribe, Arašidi, Soja, Mleko, Oreški,
+  * Zeler, Gorčica, Sezam, Žvepleni, Volčji, Mehkužci
+  * Klik alergena → filtrira meni items
+- 6 meni artiklov z alergeni + vegan/vegetarian badge
+- Real-time KDS alert card (rose):
+  * "⚠ KDS ALERT — Miza 7"
+  * "Čevapi s kajmakom — GLUTEN, MLEKO"
+  * "Gost alergičen na arašide. Preveri kontaminacijo."
+- Compliance badges (4): EU 14 alergenov, ADDE Act 2026, ZNPP, QR meni labels
+- 3 statistike: 14 alergenov, 100% označenih, 0 incidentov
+- Layout: med InventoryPreview in DeliverySection
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 31 sekcij (+1), 0 napak
+  * Alergeni/ADDE Act/Gluten/KDS ALERT: vsi OK
+- VLM audit:
+  * "14 allergen buttons grid, menu with colored badges, KDS alert card, compliance + stats"
+  * 9/10 visual polish
+
+Stage Summary:
+- 31 sekcij (alergeni dodana)
+- 46 komponent (AllergenSection)
+- ADDE Act 2026 compliance pokrita
+- VLM: 9/10 polish
+- 0 napak, 0 lint errors
+- Commit/push next

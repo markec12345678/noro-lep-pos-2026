@@ -76,3 +76,626 @@ model LeadCapture {
   @@index([email])
   @@index([source])
 }
+
+model Table {
+  id        String   @id @default(cuid())
+  number    Int      @unique
+  seats     Int      @default(4)
+  status    String   @default("free") // free | occupied | reserved | payment
+  location  String?  // npr. "Terasa", "Notranjost", "Bar"
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders    Order[]
+  reservations Reservation[]
+  waitlist  Waitlist[]
+
+  @@index([status])
+  @@index([number])
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  orderNumber String   @unique // npr. ORD-2026-0001
+  tableId     String?
+  table       Table?   @relation(fields: [tableId], references: [id])
+  tableNumber Int?     // denormalized za hitre queryje
+  status      String   @default("open") // open | sent | preparing | ready | served | paid | canceled
+  channel     String   @default("dine_in") // dine_in | takeaway | delivery | qr
+  items       OrderItem[]
+  subtotal    Float    @default(0)
+  tax         Float    @default(0) // 22% ali 9.5%
+  total       Float    @default(0)
+  tip         Float    @default(0) // napojnina
+  tipMethod   String?  // card | cash | separate
+  paymentMethod String? // card | cash | apple_pay | google_pay | gift_card
+  paymentRef  String?  // Stripe payment intent ID
+  serverName  String?  // natakar ki je oddal naročilo
+  notes       String?  // alergeni, posebne želje
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  paidAt      DateTime?
+
+  @@index([status])
+  @@index([tableId])
+  @@index([channel])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  itemName    String   // denormalized za case kaj je izbrisano iz menija
+  itemId      String?  // referenca na InventoryItem (če obstaja)
+  qty         Int      @default(1)
+  unitPrice   Float    // cena v času naročila
+  totalPrice  Float    // qty * unitPrice
+  taxRate     Float    @default(22) // 22 | 9.5 | 5
+  status      String   @default("new") // new | preparing | ready | served | canceled
+  notes       String?  // "brez čebule", "alergija na oreške"
+  createdAt   DateTime @default(now())
+
+  @@index([orderId])
+  @@index([status])
+}
+
+model Reservation {
+  id          String   @id @default(cuid())
+  resNumber   String   @unique // RES-2026-0001
+  guestName   String
+  phone       String
+  email       String?
+  guests      Int      @default(2)
+  date        DateTime // datum + čas rezervacije
+  duration    Int      @default(120) // minute
+  tableId     String?  // dodeljena miza (null = čaka)
+  table       Table?   @relation(fields: [tableId], references: [id])
+  tableNumber Int?     // denormalized
+  customerId  String?  // povezava s CRM (null = walk-in brez profila)
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  status      String   @default("confirmed") // confirmed | seated | completed | canceled | no_show | late
+  source      String   @default("phone") // phone | online | walk_in
+  notes       String?  // "otroški stol", "rojstni dan", alergeni
+  reminderSent Boolean @default(false) // SMS opomnik poslan
+  seatedAt    DateTime?
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([date])
+  @@index([phone])
+}
+
+model Waitlist {
+  id          String   @id @default(cuid())
+  position    Int      // 1, 2, 3... vrstni red
+  guestName   String
+  phone       String
+  guests      Int      @default(2)
+  joinedAt    DateTime @default(now())
+  seatedAt    DateTime?
+  tableId     String?
+  table       Table?   @relation(fields: [tableId], references: [id])
+  estimatedWait Int    @default(15) // minute
+  notified    Boolean  @default(false) // SMS "miza prosta" poslan
+  status      String   @default("waiting") // waiting | notified | seated | left
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([position])
+}
+
+model Staff {
+  id          String   @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String?  @unique
+  phone       String?
+  role        String   @default("server") // server | cook | bartender | manager | dishwasher | sommelier
+  hourlyRate  Float    @default(9.50)
+  hireDate    DateTime @default(now())
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  shifts      Shift[]
+  attendance  Attendance[]
+  tips        TipDistribution[]
+
+  @@index([role])
+  @@index([active])
+}
+
+model Shift {
+  id          String   @id @default(cuid())
+  staffId     String
+  staff       Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  date        DateTime // datum izmene
+  startTime   DateTime
+  endTime     DateTime?
+  breakMinutes Int     @default(30)
+  station     String?  // "Mize 1-6", "Vroče", "Bar"
+  status      String   @default("scheduled") // scheduled | active | completed | canceled
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([staffId])
+  @@index([date])
+  @@index([status])
+}
+
+model Attendance {
+  id          String   @id @default(cuid())
+  staffId     String
+  staff       Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  date        DateTime
+  clockIn     DateTime
+  clockOut    DateTime?
+  totalHours  Float?   // izračunano ob clockOut
+  status      String   @default("active") // active | completed | late | absent
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  @@index([staffId])
+  @@index([date])
+  @@index([status])
+}
+model ZReport {
+  id            String   @id @default(cuid())
+  reportNumber  String   @unique // ZR-2026-0001
+  date          DateTime // datum zaključka
+  cashier       String?  // ime blagajnika
+  location      String?  // lokacija
+  // Totals
+  totalRevenue  Float    @default(0)
+  totalOrders   Int      @default(0)
+  avgCheck      Float    @default(0)
+  subtotal      Float    @default(0)
+  totalTax      Float    @default(0)
+  // VAT breakdown (JSON string)
+  vatBreakdown  String   // JSON: [{rate, base, vat, total}, ...]
+  // Payment methods breakdown
+  paymentBreakdown String // JSON: [{method, count, amount}, ...]
+  // Returns/cancellations
+  returns       Int      @default(0)
+  returnsValue  Float    @default(0)
+  // Status
+  status        String   @default("open") // open | closed | archived
+  closedAt      DateTime?
+  // FURS
+  fursEOR       String?  // Enkratna identifikacija odgovora
+  fursZOI       String?  // Zaščitna oznaka izdajatelja
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([date])
+  @@index([status])
+}
+
+model InventoryTransaction {
+  id          String   @id @default(cuid())
+  itemId      String?  // referenca na InventoryItem (null = ročno)
+  itemName    String   // denormalized
+  type        String   // order | delivery | waste | adjustment | transfer | return
+  direction   String   // in | out
+  quantity    Float    // količina (pozitivna)
+  unit        String   @default("kos")
+  unitCost    Float    @default(0) // nabavna cena
+  totalCost   Float    @default(0) // quantity * unitCost
+  reason      String?  // "order ORD-2026-0001", "iztek roka", "inventura"
+  orderId     String?  // referenca na Order (če je order consumption)
+  staffId     String?  // kdo je naredil transakcijo
+  staffName   String?  // denormalized
+  balanceAfter Float   @default(0) // stanje zaloge po transakciji
+  createdAt   DateTime @default(now())
+
+  @@index([itemId])
+  @@index([type])
+  @@index([createdAt])
+  @@index([direction])
+}
+
+model BillSplit {
+  id          String   @id @default(cuid())
+  splitNumber String   @unique // BS-2026-0001
+  orderId     String   // referenca na original Order
+  totalAmount Float    // skupni znesek originalnega računa
+  guestCount  Int      // število gostov
+  splitType   String   // equal | items | custom
+  status      String   @default("open") // open | partial | completed | canceled
+  shares      BillSplitShare[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([status])
+}
+
+model BillSplitShare {
+  id          String   @id @default(cuid())
+  splitId     String
+  split       BillSplit @relation(fields: [splitId], references: [id], onDelete: Cascade)
+  guestLabel  String   // "Gost 1", "Maja", etc.
+  amount      Float    // znesek za tega gosta
+  items       String   // JSON: [{itemId, itemName, qty, price}] (za items split type)
+  paymentMethod String? // card | cash | apple_pay | google_pay | gift_card
+  paymentStatus String @default("pending") // pending | paid
+  paidAt      DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([splitId])
+  @@index([paymentStatus])
+}
+
+model Customer {
+  id            String   @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String?  @unique
+  phone         String?  @unique
+  birthday      DateTime?
+  // Loyalty
+  points        Int      @default(0)
+  totalVisits   Int      @default(0)
+  totalSpent    Float    @default(0)
+  tier          String   @default("bronze") // bronze | silver | gold
+  // Preferences
+  favoriteItem  String?
+  allergens     String?  // JSON: ["G", "M", ...] — alergeni gosta
+  vegan         Boolean  @default(false)
+  vegetarian    Boolean  @default(false)
+  // Marketing
+  consent       Boolean  @default(true) // GDPR
+  lastVisit     DateTime?
+  notes         String?
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  loyaltyTransactions LoyaltyTransaction[]
+  reservations  Reservation[]
+
+  @@index([tier])
+  @@index([phone])
+  @@index([active])
+}
+
+model LoyaltyTransaction {
+  id          String   @id @default(cuid())
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  type        String   // earn | redeem | bonus | adjust
+  points      Int      // pozitivni za earn, negativni za redeem
+  reason      String?  // "order ORD-2026-0001", "birthday bonus", "referral"
+  orderId     String?  // referenca na order (če je earn ob nakupu)
+  balanceAfter Int     @default(0) // stanje točk po transakciji
+  createdAt   DateTime @default(now())
+
+  @@index([customerId])
+  @@index([type])
+}
+
+model Promotion {
+  id            String   @id @default(cuid())
+  name          String
+  type          String   // happy_hour | bogo | coupon | seasonal | flash
+  discountType  String   // percentage | fixed | bogo
+  discountValue Float    @default(0) // 30 = 30%, 10 = €10, 1 = BOGO
+  // Scope
+  scope         String   @default("all") // all | category | item
+  scopeValue    String?  // npr. "pijace" ali item ID
+  // Schedule
+  startTime     DateTime?
+  endTime       DateTime?
+  daysOfWeek    String?  // JSON: [1,2,3,4,5] = Pon-Pet
+  // Coupon
+  code          String?  @unique // "NOVO10", null = auto-apply
+  minOrder      Float    @default(0) // minimalni znesek za veljavnost
+  maxUses       Int      @default(0) // 0 = unlimited
+  perCustomer   Int      @default(0) // 0 = unlimited
+  // Status
+  status        String   @default("active") // active | paused | expired | archived
+  uses          Int      @default(0) // koliko krat uporabljeno
+  revenue       Float    @default(0) // koliko prihodka generiralo
+  discountGiven Float    @default(0) // koliko popusta dalo
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  usages        PromotionUsage[]
+
+  @@index([status])
+  @@index([type])
+  @@index([code])
+}
+
+model PromotionUsage {
+  id            String   @id @default(cuid())
+  promotionId   String
+  promotion     Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  orderId       String?
+  customerId    String?
+  customerName  String?
+  originalAmount Float
+  discountAmount Float
+  finalAmount   Float
+  createdAt     DateTime @default(now())
+
+  @@index([promotionId])
+  @@index([orderId])
+  @@index([customerId])
+}
+
+model GiftCard {
+  id            String   @id @default(cuid())
+  cardNumber    String   @unique // GC-2026-0001
+  design        String   @default("universal") // christmas | birthday | valentine | universal
+  // Purchaser
+  buyerName     String?
+  buyerEmail    String?
+  // Recipient
+  recipientName String?
+  recipientEmail String?
+  recipientPhone String?
+  // Balance
+  initialAmount Float    // začetni znesek
+  balance       Float    @default(0) // trenutno stanje
+  // Status
+  status        String   @default("active") // active | redeemed | expired | canceled
+  purchasedAt   DateTime @default(now())
+  expiresAt     DateTime? // null = ne poteče
+  deliveredVia  String?  // email | sms | physical
+  deliveredAt   DateTime?
+  // Payment
+  purchasePaymentMethod String? // card | cash | apple_pay
+  purchaseOrderId String? // order ID ob nakupu
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  transactions  GiftCardTransaction[]
+
+  @@index([status])
+  @@index([cardNumber])
+  @@index([recipientEmail])
+}
+
+model GiftCardTransaction {
+  id          String   @id @default(cuid())
+  giftCardId  String
+  giftCard    GiftCard @relation(fields: [giftCardId], references: [id], onDelete: Cascade)
+  type        String   // purchase | redeem | reload | refund | expire
+  amount      Float    // pozitivni za reload, negativni za redeem
+  balanceAfter Float   @default(0) // stanje po transakciji
+  orderId     String?  // order pri katerem je bila uporabljena
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  @@index([giftCardId])
+  @@index([type])
+}
+
+model MenuCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  icon        String?  // emoji
+  color       String?  // tailwind color class
+  sortOrder   Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items       MenuItem[]
+
+  @@index([active])
+  @@index([sortOrder])
+}
+
+model MenuItem {
+  id            String   @id @default(cuid())
+  categoryId    String
+  category      MenuCategory @relation(fields: [categoryId], references: [id])
+  name          String
+  description   String?
+  price         Float
+  // Tax
+  taxRate       Float    @default(22) // 22 | 9.5 | 5
+  // Images
+  imageUrl      String?
+  emoji         String?  // fallback za brez slike
+  // Dietary
+  vegan         Boolean  @default(false)
+  vegetarian    Boolean  @default(false)
+  spicy         Boolean  @default(false)
+  glutenFree    Boolean  @default(false)
+  // Allergens (JSON array of codes: ["G", "M", "A"])
+  allergens     String?  // JSON
+  // Inventory link
+  inventoryItemId String? // povezava z InventoryItem za stock tracking
+  // Modifiers
+  modifiers     MenuItemModifier[]
+  // Status
+  popular       Boolean  @default(false)
+  active        Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([active])
+  @@index([popular])
+  @@index([sortOrder])
+}
+
+model MenuItemModifier {
+  id          String   @id @default(cuid())
+  itemId      String
+  item        MenuItem  @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  name        String   // "Velikost", "Dodatki", "Omaka"
+  type        String   // single | multiple
+  required    Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  // Options (JSON: [{name, price, default}])
+  options     String   // JSON
+  createdAt   DateTime @default(now())
+
+  @@index([itemId])
+}
+
+model TipDistribution {
+  id          String   @id @default(cuid())
+  date        DateTime // datum za katerega velja
+  staffId     String
+  staff       Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  staffName   String   // denormalized
+  role        String   // server | cook | bartender | manager | dishwasher
+  // Tip sources
+  tipsFromOrders Float  @default(0) // neposredno od naročil
+  tipsFromPool   Float  @default(0) // iz skupnega pool-a
+  totalTips      Float  @default(0) // vsota
+  // Pool info
+  poolType    String   @default("individual") // individual | shared | pooled
+  poolShare   Float    @default(0) // % delež (0-100)
+  hoursWorked Float    @default(0) // ur delano tisti dan
+  status      String   @default("pending") // pending | approved | paid
+  approvedBy  String?
+  approvedAt  DateTime?
+  paidAt      DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([date])
+  @@index([staffId])
+  @@index([status])
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  paymentRef    String?  @unique // Stripe payment intent ID
+  orderId       String?  // referenca na Order
+  orderNumber   String?  // denormalized
+  // Amounts
+  amount        Float    // znesek brez DDV
+  tax           Float    @default(0)
+  tip           Float    @default(0)
+  total         Float    // skupaj z DDV + tip
+  currency      String   @default("EUR")
+  // Payment details
+  method        String   // card | cash | apple_pay | google_pay | gift_card | split
+  status        String   @default("pending") // pending | processing | succeeded | failed | refunded | partially_refunded
+  // Stripe
+  stripeEventId String?  // Stripe event ID (idempotency)
+  stripeChargeId String? // Stripe charge ID
+  // Customer
+  customerId    String?  // Customer ID (če je CRM povezan)
+  customerName  String?
+  // Refund
+  refundAmount  Float    @default(0)
+  refundReason  String?
+  refundedAt    DateTime?
+  // Timestamps
+  initiatedAt   DateTime @default(now())
+  processedAt   DateTime?
+  failedAt      DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([status])
+  @@index([method])
+  @@index([createdAt])
+}
+
+model RestaurantSettings {
+  id              String   @id @default(cuid())
+  // Osnovni podatki
+  name            String   @default("Noro Lep POS")
+  legalName       String?  // pravno ime družbe
+  taxNumber       String?  // davčna številka (FURS)
+  address         String?
+  city            String?
+  postalCode      String?
+  country         String   @default("Slovenija")
+  phone           String?
+  email           String?
+  website         String?
+  // FURS
+  fursEnvironment String   @default("test") // test | production
+  fursCertPath    String?
+  // Valuta
+  currency        String   @default("EUR")
+  currencySymbol  String   @default("€")
+  // DDV stopnje
+  vatStandard     Float    @default(22)
+  vatReduced      Float    @default(9.5)
+  vatSpecial      Float    @default(5)
+  // Račun
+  receiptHeader   String?  // tekst na vrhu računa
+  receiptFooter   String?  // tekst na dnu računa
+  receiptQrCode   Boolean  @default(true) // FURS QR koda na računu
+  // Lokacija
+  timezone        String   @default("Europe/Ljubljana")
+  locale          String   @default("sl-SI")
+  // Nastavitve
+  defaultTaxRate  Float    @default(22)
+  autoPrintReceipt Boolean @default(true)
+  autoSendToFurs  Boolean  @default(true)
+  lowStockThreshold Float  @default(10)
+  tipEnabled      Boolean  @default(true)
+  tipDefaultPct   Float    @default(10)
+  // Status
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  businessHours   BusinessHours[]
+}
+
+model BusinessHours {
+  id          String   @id @default(cuid())
+  settingsId  String
+  settings    RestaurantSettings @relation(fields: [settingsId], references: [id], onDelete: Cascade)
+  dayOfWeek   Int      // 0=ned, 1=pon, ..., 6=sob
+  dayName     String   // "Nedelja", "Ponedeljek", ...
+  isOpen      Boolean  @default(true)
+  openTime    String?  // "08:00"
+  closeTime   String?  // "22:00"
+  breakStart  String?  // "14:00"
+  breakEnd    String?  // "16:00"
+  notes       String?  // "Zaprto za praznik"
+
+  @@index([settingsId])
+  @@index([dayOfWeek])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  // Entity
+  entityType  String   // order | table | reservation | staff | customer | payment | zreport | inventory | promotion | giftcard | settings | billsplit | tip | waitlist | shift | menu
+  entityId    String?
+  entityName  String?  // denormalized (npr. orderNumber, guestName)
+  // Action
+  action      String   // create | update | delete | status_change | login | logout | payment | refund | print | export
+  // Who
+  performedBy String?  // staff name ali ID
+  staffId     String?
+  // What
+  changes     String?  // JSON: { field: { before, after } }
+  metadata    String?  // JSON: additional context (IP, userAgent, amount, etc.)
+  // Severity
+  severity    String   @default("info") // info | warning | critical
+  // Timestamp
+  createdAt   DateTime @default(now())
+
+  @@index([entityType])
+  @@index([entityId])
+  @@index([action])
+  @@index([performedBy])
+  @@index([severity])
+  @@index([createdAt])
+}

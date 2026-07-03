@@ -3538,6 +3538,510 @@ function InventoryPreview() {
 }
 
 /* ============================================================
+   ALLERGEN & COMPLIANCE — 14 alergenov, ADDE Act 2026
+   ============================================================ */
+const ALLERGENS = [
+  { icon: '🌾', name: 'Gluten', code: 'G', color: 'bg-amber-100 text-amber-800 border-amber-300' },
+  { icon: '🦐', name: 'Raki', code: 'R', color: 'bg-rose-100 text-rose-800 border-rose-300' },
+  { icon: '🥚', name: 'Jajca', code: 'J', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
+  { icon: '🐟', name: 'Ribe', code: 'F', color: 'bg-cyan-100 text-cyan-800 border-cyan-300' },
+  { icon: '🥜', name: 'Arašidi', code: 'A', color: 'bg-orange-100 text-orange-800 border-orange-300' },
+  { icon: '🌰', name: 'Soja', code: 'S', color: 'bg-green-100 text-green-800 border-green-300' },
+  { icon: '🥛', name: 'Mleko', code: 'M', color: 'bg-blue-100 text-blue-800 border-blue-300' },
+  { icon: '🥜', name: 'Oreški', code: 'O', color: 'bg-amber-100 text-amber-800 border-amber-300' },
+  { icon: '🌱', name: 'Zeler', code: 'Z', color: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+  { icon: '🌶️', name: 'Gorčica', code: 'GO', color: 'bg-red-100 text-red-800 border-red-300' },
+  { icon: '🔵', name: 'Sezam', code: 'SE', color: 'bg-purple-100 text-purple-800 border-purple-300' },
+  { icon: '🫛', name: 'Žvepleni', code: 'Ž', color: 'bg-slate-100 text-slate-800 border-slate-300' },
+  { icon: '🐺', name: 'Volčji', code: 'V', color: 'bg-indigo-100 text-indigo-800 border-indigo-300' },
+  { icon: '🦑', name: 'Mehkužci', code: 'ME', color: 'bg-pink-100 text-pink-800 border-pink-300' },
+] as const
+
+const ALLERGEN_MENU_ITEMS = [
+  { name: 'Čevapi s kajmakom', allergens: ['G', 'M'], vegan: false, vegetarian: false, spicy: false },
+  { name: 'Pizza Margherita', allergens: ['G', 'M'], vegan: false, vegetarian: true, spicy: false },
+  { name: 'Beef Burger Deluxe', allergens: ['G', 'M', 'SE'], vegan: false, vegetarian: false, spicy: false },
+  { name: 'Cezar solata', allergens: ['G', 'M', 'A', 'F'], vegan: false, vegetarian: false, spicy: false },
+  { name: 'Trški pršut', allergens: [], vegan: false, vegetarian: false, spicy: false },
+  { name: 'Rižota s morskimi sadeži', allergens: ['M', 'R', 'F', 'ME'], vegan: false, vegetarian: false, spicy: false },
+] as const
+
+function AllergenSection() {
+  const [filterAllergen, setFilterAllergen] = useState<string | null>(null)
+
+  const filteredItems = filterAllergen
+    ? ALLERGEN_MENU_ITEMS.filter(i => i.allergens.includes(filterAllergen))
+    : ALLERGEN_MENU_ITEMS
+
+  return (
+    <section id="alergeni" className="py-16 lg:py-20 bg-white border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <Badge className="mb-3 bg-rose-100 text-rose-800 hover:bg-rose-100">
+            <Shield className="h-3.5 w-3.5 mr-1.5" />
+            Alergeni & skladnost
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            14 alergenov <span className="bg-gradient-to-r from-rose-500 to-amber-500 bg-clip-text text-transparent animate-gradient-text">sledljivih</span>. ADDE Act 2026 compliant.
+          </h2>
+          <p className="mt-2 text-base text-slate-600">EU 14 alergenov označenih na vsakem artiklu. Gost vidi alergene v QR meniju. Kuhinja dobi alert ob naročilu z alergenom.</p>
+        </div>
+
+        {/* 14 alergenov grid */}
+        <div className="grid grid-cols-4 sm:grid-cols-7 lg:grid-cols-14 gap-2 mb-8">
+          {ALLERGENS.map((a, i) => (
+            <motion.button
+              key={i}
+              onClick={() => setFilterAllergen(filterAllergen === a.code ? null : a.code)}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.2, delay: i * 0.03 }}
+              className={`p-2 rounded-lg border-2 text-center transition-all ${filterAllergen === a.code ? a.color + ' ring-2 ring-offset-1 ring-rose-300' : 'border-slate-200 bg-white hover:border-slate-300'}`}
+              title={a.name}
+            >
+              <div className="text-xl">{a.icon}</div>
+              <div className="text-[9px] font-bold text-slate-700 mt-0.5 truncate">{a.name}</div>
+            </motion.button>
+          ))}
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* LEVO: Menu items z alergeni */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Meni z alergeni</h3>
+              {filterAllergen && (
+                <button onClick={() => setFilterAllergen(null)} className="text-[10px] text-rose-600 font-semibold hover:text-rose-800">
+                  Počisti filter ×
+                </button>
+              )}
+            </div>
+            <Card className="overflow-hidden border-slate-200/70 shadow-sm">
+              <div className="divide-y divide-slate-50">
+                {filteredItems.map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -8 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.25, delay: i * 0.04 }}
+                    className="px-4 py-3 hover:bg-slate-50/60 transition-colors"
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <span className="text-sm font-semibold text-slate-900">{item.name}</span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {item.vegan && <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-bold">VEGAN</span>}
+                        {item.vegetarian && <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 font-bold">VEGE</span>}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <span className="text-[10px] text-slate-400 mr-1">Alergeni:</span>
+                      {item.allergens.length === 0 ? (
+                        <span className="text-[10px] text-emerald-600 font-semibold">Brez alergenov ✓</span>
+                      ) : (
+                        item.allergens.map(code => {
+                          const a = ALLERGENS.find(al => al.code === code)
+                          return (
+                            <span key={code} className={`text-[9px] px-1.5 py-0.5 rounded border font-bold ${a?.color || 'bg-slate-100'}`}>
+                              {a?.name || code}
+                            </span>
+                          )
+                        })
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+              {filterAllergen && (
+                <div className="px-4 py-2.5 bg-rose-50 border-t border-rose-100 text-center">
+                  <span className="text-[11px] text-rose-700">⚠ {filteredItems.length} artiklov vsebuje ta alergen</span>
+                </div>
+              )}
+            </Card>
+          </div>
+
+          {/* DESNO: Compliance features */}
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-3">Kuhinjski alerti</h3>
+              <Card className="p-4 border-slate-200/70 shadow-sm">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-9 h-9 rounded-lg bg-rose-50 flex items-center justify-center shrink-0">
+                    <Bell className="h-4 w-4 text-rose-600" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-semibold text-slate-900">Real-time KDS alert</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">Ko gost z alergijo naroči, KDS prikaže rdeči alert z alergeni in navodili.</div>
+                  </div>
+                </div>
+                <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200">
+                  <div className="text-[10px] font-bold text-rose-700 uppercase">⚠ KDS ALERT — Miza 7</div>
+                  <div className="text-xs text-slate-700 mt-1">Čevapi s kajmakom — <span className="font-bold text-rose-700">GLUTEN, MLEKO</span></div>
+                  <div className="text-[10px] text-slate-500 mt-0.5">Gost alergičen na arašide. Preveri kontaminacijo.</div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Compliance badges */}
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-rose-50 to-amber-50 border border-rose-200">
+              <div className="text-xs font-bold text-slate-900 uppercase tracking-wide mb-3">Skladnost</div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex items-center gap-2 text-xs">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span className="text-slate-700">EU 14 alergenov</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span className="text-slate-700">ADDE Act 2026</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span className="text-slate-700">Slovenski ZNPP</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span className="text-slate-700">QR meni labels</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-center">
+                <div className="text-xl font-bold text-rose-600 tabular-nums">14</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">alergenov</div>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-center">
+                <div className="text-xl font-bold text-emerald-600 tabular-nums">100%</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">označenih</div>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-center">
+                <div className="text-xl font-bold text-amber-600 tabular-nums">0</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">incidentov</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
+   PROMOTIONS & MARKETING — happy hour, BOGO, coupons, seasonal
+   ============================================================ */
+const PROMO_TYPES = [
+  {
+    icon: '🕐',
+    name: 'Happy Hour',
+    desc: 'Avtomatski popust v izbranem času (npr. −30% pijače 16-18h)',
+    example: 'Pon-Pet 16-18h · −30% vse pijače',
+    color: 'bg-amber-50 border-amber-200 text-amber-700',
+    badge: 'Časovno',
+  },
+  {
+    icon: '🎁',
+    name: 'Buy 1 Get 1',
+    desc: 'Kupi eno, dobi drugo brezplačno. Samodejno v košarici.',
+    example: '2x Pizza Margherita = plačaj 1',
+    color: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+    badge: 'BOGO',
+  },
+  {
+    icon: '🎫',
+    name: 'Coupon kodi',
+    desc: 'QR/tekst kodi za popust. Sledi kdo, kdaj, koliko.',
+    example: 'NOVO10 → 10€ popust za nove goste',
+    color: 'bg-cyan-50 border-cyan-200 text-cyan-700',
+    badge: 'Kodirano',
+  },
+  {
+    icon: '🍂',
+    name: 'Sezonske akcije',
+    desc: 'Časovno omejene akcije (prazniki, festival, tekma). Auto start/stop.',
+    example: 'Oktoberfest · 1-31 okt · jurki −20%',
+    color: 'bg-purple-50 border-purple-200 text-purple-700',
+    badge: 'Sezonsko',
+  },
+] as const
+
+const ACTIVE_PROMOS = [
+  { name: 'Happy Hour Pijače', type: 'Časovno', discount: '−30%', scope: 'Vse pijače', period: 'Pon-Pet 16-18h', used: 47, revenue: 1240, color: 'text-amber-600' },
+  { name: 'Pizza BOGO', type: 'BOGO', discount: '2=1', scope: 'Pizza Margherita', period: 'Cel teden', used: 89, revenue: 2106, color: 'text-emerald-600' },
+  { name: 'NOVO10', type: 'Kodirano', discount: '10€', scope: 'Novi gostje', period: '1x na gost', used: 23, revenue: 690, color: 'text-cyan-600' },
+  { name: 'Oktoberfest', type: 'Sezonsko', discount: '−20%', scope: 'Vsi jurki', period: '1-31 okt', used: 156, revenue: 4368, color: 'text-purple-600' },
+] as const
+
+function PromotionsSection() {
+  return (
+    <section id="akcije" className="py-16 lg:py-20 bg-slate-50/40 border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <Badge className="mb-3 bg-amber-100 text-amber-800 hover:bg-amber-100">
+            <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+            Akcije & marketing
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            Več gostov. <span className="bg-gradient-to-r from-amber-500 to-rose-500 bg-clip-text text-transparent animate-gradient-text">Večji račun</span>. Manj admin.
+          </h2>
+          <p className="mt-2 text-base text-slate-600">Happy Hour, BOGO, coupon kodi, sezonske akcije. Samodejno v POS, QR meniju in online naročanju. Sledi ROI vsake akcije.</p>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* LEVO: 4 promo tipi */}
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-3">4 tipi promocij</h3>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {PROMO_TYPES.map((p, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: i * 0.06 }}
+                  className={`p-4 rounded-2xl border-2 ${p.color}`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-2xl">{p.icon}</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/70">{p.badge}</span>
+                  </div>
+                  <div className="text-sm font-bold text-slate-900">{p.name}</div>
+                  <div className="text-[11px] text-slate-600 mt-1 leading-relaxed">{p.desc}</div>
+                  <div className="text-[10px] text-slate-500 mt-2 pt-2 border-t border-current/10 font-mono">{p.example}</div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* DESNO: Active promos + ROI */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">Aktivne akcije</h3>
+              <Badge variant="outline" className="text-[10px]">{ACTIVE_PROMOS.length} aktivnih</Badge>
+            </div>
+            <Card className="overflow-hidden border-slate-200/70 shadow-sm">
+              <div className="divide-y divide-slate-50">
+                {ACTIVE_PROMOS.map((promo, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: 8 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.25, delay: i * 0.05 }}
+                    className="px-4 py-3 hover:bg-slate-50/60 transition-colors"
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-slate-900">{promo.name}</span>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-bold">{promo.type}</span>
+                      </div>
+                      <span className={`text-sm font-bold tabular-nums ${promo.color}`}>{promo.discount}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px] text-slate-500">
+                      <span>{promo.scope} · {promo.period}</span>
+                      <span className="tabular-nums">{promo.used}× uporabljeno</span>
+                    </div>
+                    <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-50">
+                      <span className="text-[10px] text-slate-400">ROI promet</span>
+                      <span className="text-xs font-bold text-emerald-600 tabular-nums">€{promo.revenue.toLocaleString('sl-SI')}</span>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+              <div className="px-4 py-2.5 bg-emerald-50 border-t border-emerald-100 flex items-center justify-between">
+                <span className="text-[11px] text-emerald-700 font-semibold">Skupni ROI vseh akcij</span>
+                <span className="text-sm font-bold text-emerald-700 tabular-nums">€{ACTIVE_PROMOS.reduce((s, p) => s + p.revenue, 0).toLocaleString('sl-SI')}</span>
+              </div>
+            </Card>
+          </div>
+        </div>
+
+        {/* Bottom: marketing automation */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+          className="mt-6 p-5 rounded-2xl bg-gradient-to-br from-amber-50 to-rose-50 border border-amber-200"
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <Bell className="h-4 w-4 text-amber-600" />
+            <span className="text-xs font-bold text-slate-900 uppercase tracking-wide">Samodejno trženje</span>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-3">
+            <div className="flex items-start gap-2 text-xs">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+              <span className="text-slate-700"><strong>CRM trigger:</strong> Gost ni bil tu 30 dni → SMS s 15% popustom</span>
+            </div>
+            <div className="flex items-start gap-2 text-xs">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+              <span className="text-slate-700"><strong>Sezonski auto:</strong> Deževna sobota → AI predlaga juhe akcijo</span>
+            </div>
+            <div className="flex items-start gap-2 text-xs">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+              <span className="text-slate-700"><strong>Roject analytics:</strong> ROI vsake akcije v realnem času</span>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
+   GIFT CARDS & VOUCHERS — digital/physical, balance, Wallet
+   ============================================================ */
+const GIFT_CARD_TEMPLATES = [
+  { design: '🎄', name: 'Božična', color: 'from-red-500 to-green-600', amount: 50 },
+  { design: '🎂', name: 'Rojsdani', color: 'from-purple-500 to-pink-500', amount: 25 },
+  { design: '❤️', name: 'Valentinovo', color: 'from-rose-500 to-red-500', amount: 30 },
+  { design: '🎉', name: 'Univerzalna', color: 'from-emerald-500 to-teal-500', amount: 100 },
+] as const
+
+const GIFT_CARD_STATS = [
+  { value: '€12.847', label: 'prodano letos', sub: '+34% vs lani', color: 'text-emerald-600' },
+  { value: '847', label: 'aktivnih kartic', sub: 'z aktivnim saldom', color: 'text-cyan-600' },
+  { value: '68%', label: 'redeem rate', sub: 'prevzete v 90 dneh', color: 'text-purple-600' },
+  { value: '€15,20', label: 'povp. nakup', sub: 'nad vrednostjo kartice', color: 'text-amber-600' },
+] as const
+
+function GiftCardsSection() {
+  return (
+    <section id="darilne" className="py-16 lg:py-20 bg-white border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <Badge className="mb-3 bg-purple-100 text-purple-800 hover:bg-purple-100">
+            <CreditCard className="h-3.5 w-3.5 mr-1.5" />
+            Darilne kartice & vavčerji
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            Darilo, ki <span className="bg-gradient-to-r from-purple-600 to-rose-500 bg-clip-text text-transparent animate-gradient-text">vedno pristane</span>. Prihodki zdaj.
+          </h2>
+          <p className="mt-2 text-base text-slate-600">Digitalne in fizične darilne kartice. Apple/Google Wallet ready. Sledi balance, redeem, renewal. 68% prevzeto v 90 dneh.</p>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+          {GIFT_CARD_STATS.map((s, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
+              className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 text-center"
+            >
+              <div className={`text-2xl font-bold tabular-nums ${s.color}`}>{s.value}</div>
+              <div className="text-xs font-semibold text-slate-700 mt-0.5">{s.label}</div>
+              <div className="text-[10px] text-slate-500 mt-0.5">{s.sub}</div>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* LEVO: Gift card templates */}
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-3">4 dizajni kartic</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {GIFT_CARD_TEMPLATES.map((card, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: i * 0.08 }}
+                  whileHover={{ scale: 1.03 }}
+                  className="relative rounded-2xl overflow-hidden shadow-lg cursor-pointer"
+                >
+                  <div className={`bg-gradient-to-br ${card.color} p-4 text-white h-32 flex flex-col justify-between`}>
+                    <div className="flex items-start justify-between">
+                      <span className="text-2xl">{card.design}</span>
+                      <span className="text-[9px] font-bold uppercase tracking-wider opacity-80">Noro Lep</span>
+                    </div>
+                    <div>
+                      <div className="text-[10px] opacity-80">{card.name}</div>
+                      <div className="text-2xl font-bold tabular-nums">€{card.amount}</div>
+                    </div>
+                  </div>
+                  <div className="p-2 bg-white text-center">
+                    <span className="text-[10px] text-slate-500 font-medium">Kupi za €{card.amount} →</span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            <div className="mt-3 flex items-center gap-2 text-[11px] text-slate-500">
+              <Smartphone className="h-3.5 w-3.5 text-purple-600" />
+              <span>Apple Wallet + Google Wallet ready · QR koda za instant redeem</span>
+            </div>
+          </div>
+
+          {/* DESNO: Features + balance tracking */}
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-3">Kako deluje</h3>
+              <Card className="overflow-hidden border-slate-200/70 shadow-sm">
+                <div className="divide-y divide-slate-50">
+                  {[
+                    { step: '1', title: 'Kupi online ali na blagajni', desc: 'Gost izbere dizajn + znesek. Plačilo kartica/Apple Pay/gotovina.' },
+                    { step: '2', title: 'Prejme digitalno kartico', desc: 'Email/SMS z QR kodo. Add to Apple/Google Wallet z 1 klikom.' },
+                    { step: '3', title: 'Redeem v POS ali QR meniju', desc: 'Skeniraj QR → samodejno odšteje. Sledi balance v realnem času.' },
+                    { step: '4', title: 'Re-new ali cash-out', desc: 'Napolni znova ali izplačaj ostanek. 0 admin za lastnika.' },
+                  ].map((item, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -8 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.25, delay: i * 0.05 }}
+                      className="px-4 py-3 flex items-center gap-3 hover:bg-slate-50/60 transition-colors"
+                    >
+                      <div className="w-7 h-7 rounded-full bg-purple-100 flex items-center justify-center text-xs font-bold text-purple-700 shrink-0">{item.step}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold text-slate-900">{item.title}</div>
+                        <div className="text-[11px] text-slate-500 leading-tight mt-0.5">{item.desc}</div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+
+            {/* Balance tracking demo */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+              className="p-4 rounded-2xl bg-gradient-to-br from-purple-50 to-rose-50 border border-purple-200"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle2 className="h-4 w-4 text-purple-600" />
+                <span className="text-xs font-bold text-slate-900 uppercase tracking-wide">Balance tracking</span>
+              </div>
+              <div className="flex items-center justify-between text-xs mb-2">
+                <span className="text-slate-600">Kartica #GC-2026-0847</span>
+                <span className="font-bold text-purple-700 tabular-nums">€17,50 / €50,00</span>
+              </div>
+              <div className="h-2 bg-white/60 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  whileInView={{ width: '35%' }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: 0.3 }}
+                  className="h-full bg-gradient-to-r from-purple-500 to-rose-500 rounded-full"
+                />
+              </div>
+              <div className="text-[10px] text-slate-500 mt-1.5">€32,50 porabljeno · 3 transakcije · zadnja: pred 2 dneh</div>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    DELIVERY — Wolt, Uber Eats, Glovo, Lastmin, QR
    ============================================================ */
 function DeliverySection() {
@@ -6361,6 +6865,15 @@ export default function Home() {
 
       {/* ===== INVENTORY PREVIEW ===== */}
       <InventoryPreview />
+
+      {/* ===== ALLERGEN & COMPLIANCE ===== */}
+      <AllergenSection />
+
+      {/* ===== PROMOTIONS & MARKETING ===== */}
+      <PromotionsSection />
+
+      {/* ===== GIFT CARDS & VOUCHERS ===== */}
+      <GiftCardsSection />
 
       {/* ===== DELIVERY ===== */}
       <DeliverySection />
