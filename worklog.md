@@ -2591,3 +2591,29 @@ Stage Summary:
 - Production performance fix (ne logira query v prod)
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 79
+Agent: main (Z.ai Code)
+Task: v8.2 — SectionDots full coverage (21 → 29 sekcij)
+
+Work Log:
+- Final quality audit odkritje:
+  * 30 sekcij a SectionDots navigator je imel samo 21
+  * 8 sekcij manjkalo: funkcije, podpora, primerjava, roadmap, vmesniki, vodnik, z-report, cta
+  * 0 broken links (vsi anchor linki delujejo)
+
+v8.2 IMPLEMENTACIJA:
+- NAV_SECTIONS razširjen z 8 novimi sekcijami (21 → 29 dots):
+  + Funkcije, Podpora, Roadmap, Vmesniki, Z-Report, Vodič, Začni zdaj
+  + Pravilna Chronicleska pozicija v layout orderju
+- Lint: 0 errors
+- Verifikacija:
+  * 0 napak
+  * 29 dots (od 21)
+  * Vse 8 prej manjkajočih: OK
+
+Stage Summary:
+- SectionDots full coverage (29/30 sekcij, main-content izvzeto kot skip link)
+- 0 napak, 0 lint errors, 0 broken links
+- Commit/push next

@@ -2137,6 +2137,7 @@ function BackToTop() {
    ============================================================ */
 const NAV_SECTIONS = [
   { id: 'demo', label: 'Demo' },
+  { id: 'funkcije', label: 'Funkcije' },
   { id: 'command-center', label: 'Dashboard' },
   { id: 'placila', label: 'Plačila' },
   { id: 'loyalty', label: 'Vernostni' },
@@ -2149,14 +2150,21 @@ const NAV_SECTIONS = [
   { id: 'rezervacije', label: 'Rezervacije' },
   { id: 'integracije', label: 'Integracije' },
   { id: 'onboarding', label: 'Hitri začetek' },
+  { id: 'podpora', label: 'Podpora' },
+  { id: 'roadmap', label: 'Roadmap' },
   { id: 'varnost', label: 'Varnost' },
   { id: 'verige', label: 'Verige' },
   { id: 'eko', label: 'Eko & stroški' },
+  { id: 'vmesniki', label: 'Vmesniki' },
   { id: 'mnenja', label: 'Mnenja' },
   { id: 'case-studies', label: 'Študije primerov' },
+  { id: 'primerjava', label: 'Primerjava' },
   { id: 'roi', label: 'ROI Kalkulator' },
+  { id: 'z-report', label: 'Z-Report' },
+  { id: 'vodnik', label: 'Vodič' },
   { id: 'cene', label: 'Cene' },
   { id: 'faq', label: 'FAQ' },
+  { id: 'cta', label: 'Začni zdaj' },
 ] as const
 
 function SectionDots() {
