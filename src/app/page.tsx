@@ -5066,6 +5066,219 @@ function SupportSection() {
 }
 
 /* ============================================================
+   ROADMAP & CHANGELOG — transparentnost razvoja
+   ============================================================ */
+const CHANGELOG_ENTRIES = [
+  {
+    version: 'v7.7',
+    date: 'Jul 2026',
+    tag: 'shipped',
+    title: 'Roadmap & Changelog sekcija',
+    items: ['Public roadmap z v3 statusi', 'Changelog timeline', 'Feedback voting'],
+  },
+  {
+    version: 'v7.6',
+    date: 'Jul 2026',
+    tag: 'shipped',
+    title: 'Support & Training',
+    items: ['Live chat < 2min', '1:1 onboarding brezplačno', '47 video vodnikov', '30-dnevna garancija'],
+  },
+  {
+    version: 'v7.4',
+    date: 'Jul 2026',
+    tag: 'shipped',
+    title: 'Sustainability & Cost Control',
+    items: ['CO₂ tracking (−12.600kg/leto)', 'DDV avtomatski export', 'Energy optimization (−18%)'],
+  },
+  {
+    version: 'v7.0',
+    date: 'Jul 2026',
+    tag: 'shipped',
+    title: 'Decision Hub + 26 sekcij',
+    items: ['3 buyer poti (demo/vodič/signup)', '6 ugodnosti grid', 'Comparison recap'],
+  },
+] as const
+
+const ROADMAP_NEXT = [
+  { icon: '🤖', title: 'AI glasilni asistent', desc: 'Glasovno naročanje v slovenščini, naravni jezik', votes: 89, eta: 'Q3 2026' },
+  { icon: '🔮', title: 'Predictive menu pricing', desc: 'AI predlaga cene glede na povpraševanje in sezonost', votes: 67, eta: 'Q3 2026' },
+  { icon: '📦', title: 'Dobavitelj B2B portal', desc: 'Samodejne dobavnice direktno dobaviteljem', votes: 54, eta: 'Q4 2026' },
+  { icon: '🌐', title: 'Multi-currency (CHF, USD)', desc: 'Za turistične lokacije — Bled, Portorož', votes: 41, eta: 'Q4 2026' },
+] as const
+
+const ROADMAP_PLANNED = [
+  { icon: '👔', title: 'Payroll integracija (Pantheon)', eta: 'Q1 2027' },
+  { icon: '🍽️', title: 'Recipe costing module', eta: 'Q1 2027' },
+  { icon: '📱', title: 'Gost app (loyalty mobile)', eta: 'Q2 2027' },
+  { icon: '🔌', title: 'Open API v2 + GraphQL', eta: 'Q2 2027' },
+] as const
+
+function RoadmapSection() {
+  const [tab, setTab] = useState<'shipped' | 'next' | 'planned'>('shipped')
+
+  return (
+    <section id="roadmap" className="py-16 lg:py-20 bg-slate-50/40 border-y border-slate-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <Badge className="mb-3 bg-indigo-100 text-indigo-800 hover:bg-indigo-100">
+            <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
+            Roadmap & changelog
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            Nenehno se <span className="bg-gradient-to-r from-indigo-600 to-emerald-600 bg-clip-text text-transparent animate-gradient-text">razvijamo</span>. Ti odločaš kaj naslednje.
+          </h2>
+          <p className="mt-2 text-base text-slate-600">Transparenten razvoj. Vidi kaj smo dodali, kaj prihaja in kaj načrtujemo. Glasuj za naslednje funkcije.</p>
+        </div>
+
+        {/* Tab selector */}
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex items-center bg-white rounded-xl p-1 gap-1 border border-slate-200 shadow-sm">
+            <button onClick={() => setTab('shipped')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5 ${tab === 'shipped' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+              <CheckCircle2 className="h-3.5 w-3.5" /> Dobljeno ({CHANGELOG_ENTRIES.length})
+            </button>
+            <button onClick={() => setTab('next')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5 ${tab === 'next' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+              <Zap className="h-3.5 w-3.5" /> Naslednje ({ROADMAP_NEXT.length})
+            </button>
+            <button onClick={() => setTab('planned')} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5 ${tab === 'planned' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+              <Clock className="h-3.5 w-3.5" /> Načrtovano ({ROADMAP_PLANNED.length})
+            </button>
+          </div>
+        </div>
+
+        <AnimatePresence mode="wait">
+          {tab === 'shipped' && (
+            <motion.div key="shipped" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
+              <div className="relative max-w-3xl mx-auto">
+                {/* Timeline line */}
+                <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-emerald-200" />
+                <div className="space-y-5">
+                  {CHANGELOG_ENTRIES.map((entry, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.3, delay: i * 0.08 }}
+                      className="relative pl-12"
+                    >
+                      {/* Timeline dot */}
+                      <div className="absolute left-2 top-1 w-5 h-5 rounded-full bg-emerald-500 border-4 border-white shadow-md flex items-center justify-center">
+                        <CheckCircle2 className="h-2.5 w-2.5 text-white" />
+                      </div>
+                      <Card className="p-4 border-slate-200/70 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">{entry.version}</span>
+                            <span className="text-sm font-bold text-slate-900">{entry.title}</span>
+                          </div>
+                          <span className="text-[10px] text-slate-400">{entry.date}</span>
+                        </div>
+                        <ul className="space-y-1">
+                          {entry.items.map((item, j) => (
+                            <li key={j} className="text-xs text-slate-600 flex items-start gap-1.5">
+                              <span className="text-emerald-500 mt-0.5">+</span>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {tab === 'next' && (
+            <motion.div key="next" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
+              <div className="grid sm:grid-cols-2 gap-4 max-w-4xl mx-auto">
+                {ROADMAP_NEXT.map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: i * 0.08 }}
+                    className="group p-5 rounded-2xl bg-white border-2 border-indigo-100 hover:border-indigo-300 transition-all card-tilt"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <span className="text-3xl">{item.icon}</span>
+                      <Badge variant="outline" className="text-[10px] text-indigo-700 border-indigo-200">{item.eta}</Badge>
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-900 mb-1">{item.title}</h3>
+                    <p className="text-xs text-slate-500 leading-relaxed mb-3">{item.desc}</p>
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                      <button className="flex items-center gap-1.5 text-xs text-indigo-600 font-semibold hover:text-indigo-800 group-hover:scale-105 transition-transform">
+                        <span className="w-4 h-4 rounded border-2 border-indigo-300 group-hover:border-indigo-500 flex items-center justify-center">▲</span>
+                        Glasuj ({item.votes})
+                      </button>
+                      <span className="text-[10px] text-slate-400">{item.votes} glasov</span>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+              <div className="text-center mt-6">
+                <p className="text-xs text-slate-500">Tvoja ideja manjka? <button className="text-indigo-600 font-semibold hover:text-indigo-800">Predlagaj funkcijo →</button></p>
+              </div>
+            </motion.div>
+          )}
+
+          {tab === 'planned' && (
+            <motion.div key="planned" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 max-w-5xl mx-auto">
+                {ROADMAP_PLANNED.map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: i * 0.06 }}
+                    className="p-4 rounded-2xl bg-white border border-slate-200/70 text-center"
+                  >
+                    <div className="text-3xl mb-2">{item.icon}</div>
+                    <div className="text-sm font-bold text-slate-900 leading-tight">{item.title}</div>
+                    <div className="text-[10px] text-purple-600 font-semibold mt-2">{item.eta}</div>
+                  </motion.div>
+                ))}
+              </div>
+              <div className="text-center mt-6">
+                <p className="text-xs text-slate-500">Dolgoročni načrt — subjekt sprememb glede na feedback skupnosti.</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Bottom: development stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+          className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-3xl mx-auto"
+        >
+          <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center">
+            <div className="text-xl font-bold text-emerald-600 tabular-nums">14</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">release-ov v 2026</div>
+          </div>
+          <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center">
+            <div className="text-xl font-bold text-indigo-600 tabular-nums">47</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">novih funkcij</div>
+          </div>
+          <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center">
+            <div className="text-xl font-bold text-purple-600 tabular-nums">251</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">community glasov</div>
+          </div>
+          <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-center">
+            <div className="text-xl font-bold text-cyan-600 tabular-nums">2 tedna</div>
+            <div className="text-[10px] text-slate-500 mt-0.5">povprečni release cikel</div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
    COMMAND CENTER — Unified dashboard vseh sistemov
    ============================================================ */
 interface DashboardData {
@@ -6085,6 +6298,9 @@ export default function Home() {
 
       {/* ===== SUPPORT & TRAINING ===== */}
       <SupportSection />
+
+      {/* ===== ROADMAP & CHANGELOG ===== */}
+      <RoadmapSection />
 
       {/* ===== INTERACTIVE PRODUCT TOUR ===== */}
       <section id="demo" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50/40 to-white border-y border-slate-100">

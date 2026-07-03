@@ -2389,3 +2389,60 @@ Stage Summary:
 - Zapre "24/7 podpora" obljubo iz Decision Hub z dejansko sekcijo
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 74
+Agent: main (Z.ai Code)
+Task: Web raziskava runda 11 (roadmap/changelog) + v7.7 Roadmap section
+
+Work Log:
+- 3 web iskanja (z-ai web_search):
+  1. SaaS public roadmap changelog landing page transparency 2026
+  2. Product changelog release notes what is new section 2026
+  3. Restaurant POS feature roadmap future updates 2026
+
+Ključna odkritja:
+- Public roadmap: 0 omenitev v kodi (velika vrzel!)
+- Public roadmap gradi trust + zbere feedback (AnnounceKit, ProductLift)
+- Changelog pokaže aktivni razvoj (release notes best practices)
+- Future features: AI voice, predictive pricing, B2B portal, multi-currency
+
+v7.7 IMPLEMENTACIJA:
+- NOVA RoadmapSection komponenta (~215 vrstic)
+- 3 tabi (interaktivno, AnimatePresence):
+  1. DOBLJENO (4) — changelog timeline:
+     * v7.7 Roadmap & Changelog sekcija
+     * v7.6 Support & Training
+     * v7.4 Sustainability & Cost Control
+     * v7.0 Decision Hub + 26 sekcij
+     Timeline z emerald dots, version badge, items list
+  2. NASLEDNJE (4) — voting cards:
+     * 🤖 AI glasilni asistent (89 glasov, Q3 2026)
+     * 🔮 Predictive menu pricing (67 glasov, Q3 2026)
+     * 📦 Dobavitelj B2B portal (54 glasov, Q4 2026)
+     * 🌐 Multi-currency CHF/USD (41 glasov, Q4 2026)
+     "Glasuj" button, "Predlagaj funkcijo" link
+  3. NAČRTOVANO (4) — planned grid:
+     * 👔 Payroll integracija (Q1 2027)
+     * 🍽️ Recipe costing module (Q1 2027)
+     * 📱 Gost app loyalty mobile (Q2 2027)
+     * 🔌 Open API v2 + GraphQL (Q2 2027)
+
+- Development stats (4): 14 releasov, 47 funkcij, 251 glasov, 2 tedna cikel
+- Layout: med SupportSection in Demo
+- Lint: 0 errors
+- Agent-browser verifikacija:
+  * 30 sekcij (+1), 0 napak
+  * Vsi 3 tabi prisotni, Vote button OK
+- VLM audit:
+  * "3 tabs with counts, vertical timeline v7.7/v7.6/v7.4, dev stats"
+  * 8/10 visual polish, 9/10 trust-building
+  * "transparent roadmap, version history build credibility"
+
+Stage Summary:
+- 30 sekcij (roadmap dodana) — MILESTONE 30!
+- 43 komponent (RoadmapSection)
+- Transparentnost razvoja + community feedback
+- VLM: 9/10 trust-building
+- 0 napak, 0 lint errors
+- Commit/push next
