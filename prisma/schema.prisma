@@ -733,3 +733,52 @@ model CashDrawerSession {
   @@index([openedAt])
   @@index([openedById])
 }
+
+model Printer {
+  id          String   @id @default(cuid())
+  name        String   // "Kuhinja 1", "Blagajna", "Bar printer"
+  type        String   @default("esc_pos") // esc_pos | star | network
+  connection  String   @default("network") // network | usb | bluetooth
+  ipAddress   String?  // za network printerje
+  port        Int      @default(9100)
+  // Settings
+  width       Int      @default(80) // 58mm ali 80mm
+  encoding    String   @default("cp852") // slovenski znaki
+  autoPrint   Boolean  @default(true)
+  // Station routing
+  station     String?  // hot | cold | bar | dessert | receipt | all
+  // Status
+  online      Boolean  @default(true)
+  lastSeen    DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  printJobs   PrintJob[]
+
+  @@index([station])
+  @@index([online])
+}
+
+model PrintJob {
+  id          String   @id @default(cuid())
+  printerId   String
+  printer     Printer  @relation(fields: [printerId], references: [id], onDelete: Cascade)
+  // Content
+  type        String   // receipt | kitchen_order | kitchen_bump | z_report | bar_order
+  orderId     String?  // referenca na order (če je receipt/kitchen)
+  orderNumber String?  // denormalized
+  content     String   // ESC/POS encoded content (hex ali base64)
+  // Status
+  status      String   @default("pending") // pending | printing | printed | failed
+  attempts    Int      @default(0)
+  maxAttempts Int      @default(3)
+  error       String?
+  // Timestamps
+  queuedAt    DateTime @default(now())
+  printedAt   DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([printerId])
+  @@index([status])
+  @@index([type])
+}
