@@ -782,3 +782,54 @@ model PrintJob {
   @@index([status])
   @@index([type])
 }
+
+model PurchaseOrder {
+  id              String   @id @default(cuid())
+  poNumber        String   @unique // PO-2026-0001
+  supplierId      String?
+  supplierName    String   // denormalized
+  // Status
+  status          String   @default("draft") // draft | sent | partial | received | canceled
+  // Items
+  items           PurchaseOrderItem[]
+  // Totals
+  totalItems      Int      @default(0)
+  totalCost       Float    @default(0)
+  // Delivery
+  expectedDate    DateTime?
+  receivedDate    DateTime?
+  // Who
+  orderedBy       String?
+  receivedBy      String?
+  // Notes
+  notes           String?
+  invoiceNumber   String?  // račun dobavitelja
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status])
+  @@index([supplierId])
+  @@index([createdAt])
+}
+
+model PurchaseOrderItem {
+  id              String   @id @default(cuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  // Item
+  inventoryItemId String?  // link to InventoryItem
+  itemName        String   // denormalized
+  // Order details
+  orderedQty      Float    // naročena količina
+  receivedQty     Float    @default(0) // prejeta količina
+  unit            String   @default("kos")
+  unitCost        Float    // nabavna cena
+  totalCost       Float    @default(0) // orderedQty * unitCost
+  // Status
+  status          String   @default("pending") // pending | partial | received
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  @@index([purchaseOrderId])
+  @@index([status])
+}
