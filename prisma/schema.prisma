@@ -699,3 +699,37 @@ model AuditLog {
   @@index([severity])
   @@index([createdAt])
 }
+
+model CashDrawerSession {
+  id              String   @id @default(cuid())
+  sessionNumber   String   @unique // CD-2026-0001
+  // Opening
+  openedBy        String   // staff name
+  openedById      String?  // staff ID
+  openedAt        DateTime @default(now())
+  openingFloat    Float    // začetni znesek v blagajni
+  // Cash movements during session
+  cashIn          Float    @default(0) // gotovina sprejeta (od plačil)
+  cashOut         Float    @default(0) // gotovina izdana (vračila, izplen)
+  payIns          Float    @default(0) // ročni vplačili
+  payOuts         Float    @default(0) // ročni izplačili
+  // Expected vs counted
+  expectedCash    Float    @default(0) // openingFloat + cashIn - cashOut + payIns - payOuts
+  countedCash     Float?   // štetje ob zaprtju
+  discrepancy     Float?   // countedCash - expectedCash
+  // Closing
+  closedBy        String?
+  closedById      String?
+  closedAt        DateTime?
+  // Status
+  status          String   @default("open") // open | closed | reconciled
+  notes           String?
+  // Denominations (JSON: [{denomination: 50, count: 10, total: 500}, ...])
+  denominationBreakdown String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status])
+  @@index([openedAt])
+  @@index([openedById])
+}
