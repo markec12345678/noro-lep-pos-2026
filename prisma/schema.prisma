@@ -896,3 +896,65 @@ model Notification {
   @@index([scheduledFor])
   @@index([createdAt])
 }
+
+model ExpenseCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique // "Najemnina", "Komunalne", "Plače", "Marketing"
+  type        String   // fixed | variable | semi_variable
+  icon        String?  // emoji
+  color       String?  // tailwind color
+  sortOrder   Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  expenses    Expense[]
+
+  @@index([active])
+}
+
+model Expense {
+  id            String   @id @default(cuid())
+  expenseNumber String   @unique // EXP-2026-0001
+  // Category
+  categoryId    String
+  category      ExpenseCategory @relation(fields: [categoryId], references: [id])
+  categoryName  String   // denormalized
+  // Amount
+  amount        Float    // znesek
+  currency      String   @default("EUR")
+  // VAT
+  vatAmount     Float    @default(0) // DDV znesek
+  totalAmount   Float    @default(0) // amount + vatAmount
+  vatRate       Float    @default(22) // 22 | 9.5 | 0
+  // Description
+  description   String   // "Najemnina julij 2026"
+  // Supplier (optional)
+  supplierName  String?  // dobavitelj storitve
+  invoiceNumber String?  // račun dobavitelja
+  // Date
+  expenseDate   DateTime // datum stroška
+  // Recurring
+  isRecurring   Boolean  @default(false)
+  recurringType String?  // monthly | quarterly | yearly | weekly
+  recurringDay  Int?     // dan v mesecu/tednu za ponavljajoče
+  // Status
+  status        String   @default("pending") // pending | approved | paid | rejected
+  // Who
+  createdBy     String?  // staff name
+  createdById   String?
+  approvedBy    String?
+  approvedAt    DateTime?
+  paidAt        DateTime?
+  // Payment
+  paymentMethod String?  // bank_transfer | card | cash | check
+  paymentRef    String?  // referenca plačila
+  // Notes
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([expenseDate])
+  @@index([isRecurring])
+}
