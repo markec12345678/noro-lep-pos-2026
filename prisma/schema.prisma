@@ -200,15 +200,43 @@ model Staff {
   hourlyRate  Float    @default(9.50)
   hireDate    DateTime @default(now())
   active      Boolean  @default(true)
+  // Auth
+  pin         String?  // hashed 4-digit PIN (bcrypt-like)
+  passwordHash String? // za email/password login (optional)
+  // Permissions
+  permissions String?  // JSON: ["orders.create", "reports.view", "settings.edit", ...]
+  lastLogin   DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   shifts      Shift[]
   attendance  Attendance[]
   tips        TipDistribution[]
+  sessions    SessionLog[]
 
   @@index([role])
   @@index([active])
+  @@index([pin])
+}
+
+model SessionLog {
+  id          String   @id @default(cuid())
+  staffId     String
+  staff       Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  token       String   @unique // JWT token
+  // Context
+  ipAddress   String?
+  userAgent   String?
+  device      String?  // "POS-iPad", "Kuhinja-PC", "Manager-iPhone"
+  // Status
+  status      String   @default("active") // active | expired | logged_out
+  expiresAt   DateTime
+  loggedOutAt DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([staffId])
+  @@index([status])
+  @@index([token])
 }
 
 model Shift {
