@@ -833,3 +833,38 @@ model PurchaseOrderItem {
   @@index([purchaseOrderId])
   @@index([status])
 }
+
+model Notification {
+  id            String   @id @default(cuid())
+  // Recipient
+  channel       String   // sms | email | push | in_app
+  recipient     String   // phone, email, customer ID, or staff ID
+  recipientName String?  // denormalized
+  // Content
+  template      String   // template name (reservation_reminder, waitlist_ready, etc.)
+  subject       String?
+  body          String   // message content
+  // Context
+  entityType    String?  // reservation | waitlist | order | customer | staff | promotion
+  entityId      String?  // related entity ID
+  // Status
+  status        String   @default("pending") // pending | sent | delivered | failed | read
+  scheduledFor  DateTime? // za scheduled notifications
+  sentAt        DateTime?
+  deliveredAt   DateTime?
+  readAt        DateTime?
+  // Error tracking
+  error         String?
+  attempts      Int      @default(0)
+  // Metadata
+  metadata      String?  // JSON: additional context
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([channel])
+  @@index([status])
+  @@index([recipient])
+  @@index([entityType])
+  @@index([scheduledFor])
+  @@index([createdAt])
+}
