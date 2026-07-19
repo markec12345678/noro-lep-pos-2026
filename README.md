@@ -1,13 +1,14 @@
 # Noro Lep POS — Najlepša slovenska restavracijska blagajna 2026
 
-> AI-poganjana POS blagajna z avtomatskim FURS, AI predikcijo prometa, kuhinjskim zaslonom (KDS), real-time WebSocket sync in 31 Prisma modeli. Zgrajena z ljubeznijo za slovenske gostince. 🇸🇮
+> AI-poganjana POS blagajna z avtomatskim FURS, AI predikcijo prometa, kuhinjskim zaslonom (KDS), real-time WebSocket sync, PIN-based auth z RBAC, P&L finančnim izpavkom in 40 Prisma modeli. Zgrajena z ljubeznijo za slovenske gostince. 🇸🇮
 
-[![Version](https://img.shields.io/badge/Version-9.0-blue?style=flat-square)](#)
+[![Version](https://img.shields.io/badge/Version-10.0-blue?style=flat-square)](#)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38BDF8?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat-square&logo=prisma)](https://prisma.io)
 [![Socket.io](https://img.shields.io/badge/Socket.io-realtime-010101?style=flat-square&logo=socket.io)](https://socket.io)
+[![JWT](https://img.shields.io/badge/JWT-auth-000000?style=flat-square&logo=jsonwebtokens)](https://jwt.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 
 ---
@@ -17,11 +18,10 @@
 - [Pregled](#pregled)
 - [Backend POS sistem](#backend-pos-sistem)
 - [Landing page](#landing-page)
-- [Ključne funkcije](#ključne-funkcije)
 - [Hitri začetek](#hitri-zacetek)
+- [API dokumentacija](#api-dokumentacija)
 - [Tehnologije](#tehnologije)
 - [Struktura projekta](#struktura-projekta)
-- [API dokumentacija](#api-dokumentacija)
 - [Prispevanje](#prispevanje)
 - [Licenca](#licenca)
 
@@ -29,105 +29,119 @@
 
 ## Pregled
 
-**Noro Lep POS** je najlepša slovenska restavracijska blagajna zgrajena na Next.js 16. Vključuje **celovit backend POS sistem** z 31 Prisma modeli, 36 API routes in real-time WebSocket komunikacijo.
+**Noro Lep POS** je najlepša slovenska restavracijska blagajna zgrajena na Next.js 16. Vključuje **celovit backend POS sistem** z 40 Prisma modeli, 55 API routes, PIN-based avtentikacijo z RBAC, real-time WebSocket komunikacijo in P&L finančni izpavek.
 
 ### 🎯 Zakaj Noro Lep?
 
 - ✅ **FURS ZDavP-2P 2025** — avtomatski ZOI, EOR, QR koda, Z-Report
-- ✅ **AI predikcija** — promet, zaloge, menu engineering, weather-aware
-- ✅ **Real-time WebSocket** — POS → KDS → Dashboard v realnem času
-- ✅ **31 Prisma modelov** — Orders, Tables, Reservations, Staff, Customers, Promotions, Gift Cards, Menu, Tips, Payments, Audit Log
-- ✅ **Slovenski jezik** — native SLO podpora z lokalnim kontekstom
-- ✅ **Offline-first** — deluje brez interneta, sinhronizira ko je povezava nazaj
-- ✅ **GDPR compliant** — cookie consent, audit log, data masking
+- ✅ **PIN-based auth** — 4-digit PIN login, JWT, RBAC (6 role-ov)
+- ✅ **P&L (Profit & Loss)** — Revenue, COGS, Labor, OpEx, Net Profit z benchmarki
+- ✅ **Real-time WebSocket** — POS → KDS → Dashboard z station routing
+- ✅ **40 Prisma modelov** — Orders, Tables, Reservations, Staff, Customers, Promotions, Gift Cards, Menu, Tips, Payments, Expenses, Printers, Notifications, Audit Log, Cash Drawer, Purchase Orders, Suppliers
+- ✅ **ESC/POS printing** — receipt + kitchen order z auto station routing
+- ✅ **Supply chain** — Purchase Orders z auto stock update na receive
+- ✅ **GDPR compliant** — cookie consent, audit log, data export (11 CSV tipov)
 
 ---
 
 ## Backend POS sistem
 
-Celovit POS backend z **real DB persistence** (Prisma + SQLite), ne le mock podatki.
+Celovit POS backend z **real DB persistence** (Prisma + SQLite), PIN-based avtentikacijo in 27 sistemov.
 
-### 🗄️ 31 Prisma modelov
+### 🗄️ 40 Prisma modelov v 27 sistemih
 
-| Sistem | Modeli | Ključna funkcionalnost |
-|---|---|---|
-| **Orders** | Order, OrderItem | CRUD + auto stock deduction + tip |
-| **Tables** | Table | CRUD + auto status (free/occupied/reserved/payment) |
-| **Reservations** | Reservation | CRUD + auto table release + Customer link |
-| **Waitlist** | Waitlist | Auto-renumber + SMS notify + AI wait estimate |
-| **Staff** | Staff, Shift, Attendance | Scheduling + clock in/out + labor cost tracking |
-| **Z-Report** | ZReport | FURS dnevno zaključevanje + VAT breakdown |
-| **Inventory** | InventoryItem, InventoryTransaction | Stock movements + auto deduction na order |
-| **Bill Split** | BillSplit, BillSplitShare | Equal / items / custom delitev + auto paid |
-| **Customer** | Customer, LoyaltyTransaction | CRM + točke + auto tier (bronze→silver→gold) |
-| **Promotions** | Promotion, PromotionUsage | Happy hour / BOGO / coupon + auto-apply + ROI |
-| **Gift Cards** | GiftCard, GiftCardTransaction | Issue / redeem / reload + audit trail |
-| **Menu** | MenuCategory, MenuItem, MenuItemModifier | Kategorije + artikli + modifierji + allergens |
-| **Tips** | TipDistribution | 3 pool tipi (individual/shared/pooled) + approval |
-| **Payments** | Payment | Stripe webhook → auto order paid + loyalty earn |
-| **Settings** | RestaurantSettings, BusinessHours | DDV stopnje, delovni čas, FURS, receipt config |
-| **Audit** | AuditLog | FURS compliance + entity trail + security |
-| **Reports** | — | Agregacija vseh POS podatkov v BI poročila |
+| # | Sistem | Modeli | API | Ključna funkcionalnost |
+|---|---|---|---|---|
+| 1 | **Auth** | SessionLog | login/me/logout/set-pin | PIN + JWT + RBAC (6 roles) |
+| 2 | **Orders** | Order, OrderItem | GET/POST/PATCH | CRUD + auto stock deduction + tip |
+| 3 | **Tables** | Table | GET/PATCH/POST + seed | CRUD + auto status |
+| 4 | **Reservations** | Reservation | GET/POST/PATCH/DELETE | CRUD + auto table + Customer link |
+| 5 | **Waitlist** | Waitlist | GET/POST/PATCH | Auto-renumber + SMS notify |
+| 6 | **Staff & Shifts** | Staff, Shift, Attendance | GET/POST/PATCH/DELETE | Labor cost + clock in/out + PIN |
+| 7 | **KDS** | — | GET/PATCH + WebSocket | Board + station routing |
+| 8 | **Z-Report** | ZReport | GET/POST/PATCH | FURS + VAT breakdown |
+| 9 | **Inventory** | InventoryItem, InventoryTransaction | GET/POST | Stock movements + auto deduction |
+| 10 | **Purchase Orders** | PurchaseOrder, PurchaseOrderItem | GET/POST/PATCH | Supply chain + auto stock on receive |
+| 11 | **Suppliers** | Supplier | GET/POST/PATCH/DELETE | CRUD + search |
+| 12 | **Menu** | MenuCategory, MenuItem, MenuItemModifier | GET/POST/PATCH/DELETE + seed | Kategorije/artikli/modifierji + allergens |
+| 13 | **Customer** | Customer, LoyaltyTransaction | GET/POST/PATCH | CRM + točke + auto tier (bronze→silver→gold) |
+| 14 | **Promotions** | Promotion, PromotionUsage | GET/POST/PATCH/DELETE + apply | Happy hour/BOGO/coupon + auto-apply |
+| 15 | **Gift Cards** | GiftCard, GiftCardTransaction | GET/POST/PATCH | Issue/redeem/reload + audit trail |
+| 16 | **Bill Split** | BillSplit, BillSplitShare | GET/POST/PATCH | Equal/items/custom + auto paid |
+| 17 | **Tips** | TipDistribution | GET/POST/PATCH | 3 pool tipi + approval workflow |
+| 18 | **Payments** | Payment | webhook + list | Stripe → auto order paid + loyalty |
+| 19 | **Cash Drawer** | CashDrawerSession | GET/POST/PATCH | Open/close/reconcile + discrepancy |
+| 20 | **Printers** | Printer, PrintJob | GET/POST/PATCH/DELETE + print + seed | ESC/POS receipt + kitchen + station routing |
+| 21 | **Notifications** | Notification | GET/POST/PATCH + helper | 9 templates (SMS/email/push/in_app) |
+| 22 | **Expenses & P&L** | ExpenseCategory, Expense | GET/POST/PATCH/DELETE + pnl + seed | Stroški + Profit & Loss |
+| 23 | **Reports** | — | GET | 5 agregirana poročila (sales/labor/inventory/tables) |
+| 24 | **Settings** | RestaurantSettings, BusinessHours | GET/PATCH + seed | DDV, delovni čas, FURS, receipt |
+| 25 | **Audit** | AuditLog | GET/POST + helper | FURS compliance + entity trail |
+| 26 | **Export** | — | GET | 11 CSV tipov za računovodstvo/FURS |
+| 27 | **System** | — | health + dashboard/stats + index | Health check + Command Center + API docs |
 
-### 🔌 36 API routes
+### 🔐 Authentication (PIN-based + JWT + RBAC)
 
+```bash
+# Login s 4-digit PIN
+POST /api/auth/login
+{ "pin": "1234", "device": "POS-iPad" }
+# Returns: { token, staff: { name, role, permissions } }
+
+# Protected routes require:
+Authorization: Bearer <token>
 ```
-src/app/api/
-├── orders/              GET, POST, PATCH (CRUD + auto stock + tip)
-├── tables/              GET, POST, PATCH + seed
-├── reservations/        GET, POST, PATCH, DELETE
-├── waitlist/            GET, POST, PATCH (auto-renumber)
-├── staff/               GET, POST, PATCH, DELETE
-├── shifts/              GET, POST, PATCH (clock in/out + labor cost)
-├── z-report/            GET, POST, PATCH (FURS + VAT breakdown)
-├── inventory/
-│   ├── items/           GET, POST, PATCH, DELETE
-│   ├── list/            GET
-│   ├── transactions/    GET, POST (stock movements)
-│   ├── delivery/        POST
-│   └── seed/            POST
-├── reports/             GET (agregacija vseh — sales/labor/inventory/tables)
-├── bill-split/          GET, POST, PATCH (equal/items/custom)
-├── customers/           GET, POST, PATCH (CRM + loyalty earn/redeem)
-├── promotions/
-│   ├── route.ts         GET, POST, PATCH, DELETE
-│   └── apply/           POST (auto-apply na order items)
-├── gift-cards/          GET, POST, PATCH (issue/redeem/reload)
-├── menu/
-│   ├── route.ts         GET, POST, PATCH, DELETE
-│   └── seed/            POST
-├── tips/                GET, POST, PATCH (pool + approval)
-├── payments/
-│   ├── create-intent/   POST (Stripe)
-│   ├── webhook/         POST (Stripe → auto order paid)
-│   └── list/            GET (payment history + stats)
-├── kds/                 GET, PATCH (kitchen board + item lifecycle)
-├── settings/            GET, PATCH + seed (DDV, delovni čas, FURS)
-├── audit/               GET, POST (entity trail + stats)
-├── leads/               GET, POST (email capture + GDPR)
-├── analytics/           POST
-├── dashboard/overview/  GET
-├── ai/predict/          GET
-└── delivery/orders/     GET
+
+**6 role-ov z permissions:**
+- **manager** — full access (`*.*`)
+- **server** — orders, tables, reservations, customers, payments
+- **cook** — KDS (view+update), inventory (read)
+- **bartender** — orders, tables, payments, KDS
+- **dishwasher** — KDS (read only)
+- **sommelier** — orders, tables, customers, inventory
+
+### 📊 P&L (Profit & Loss)
+
+```bash
+GET /api/expenses/pnl?month=7&year=2026
 ```
+
+Celovit finančni izpavek:
+- **Revenue** (od paid Orders) — netRevenue, VAT, tips, byChannel
+- **COGS** (od InventoryTransactions) — foodCost, waste, adjustments
+- **Gross Profit** — Revenue - COGS z margin %
+- **Labor Cost** (od Shifts) — cost, hours, laborPct
+- **Operating Expenses** (od Expense model) — byCategory, deliveryCommissions, paymentFees
+- **Prime Cost** — COGS + Labor z benchmark (healthy/warning/critical)
+- **Net Profit** z benchmark (excellent/good/fair/poor)
 
 ### 📡 WebSocket (mini-service na portu 3003)
 
-Real-time komunikacija z **typed events** in **room-based routing**:
-
+Real-time komunikacija z typed events in room-based routing:
 - **KDS Rooms**: `kds:all`, `kds:hot`, `kds:cold`, `kds:bar`, `kds:dessert`
-- **POS Rooms**: `pos:all`
+- **POS Room**: `pos:all`
 - **Dashboard**: `dashboard`
 
-Eventi: `kds:new_order`, `kds:station_order` (auto station routing), `kds:item_status`, `pos:order_paid`, `pos:table_status`, `dashboard:kpis`
+### 🖨️ ESC/POS Printing
 
-### 📊 Reports API — 5 agregiranih poročil
+```bash
+# Print receipt (auto-route to receipt printer)
+POST /api/printers/print
+{ "type": "receipt", "orderId": "xxx" }
 
-1. **Sales**: revenue, orders, avgCheck, top 10 items, channel/payment breakdown, hourly distribution
-2. **Labor**: shifts, hours, labor cost, laborPct, staff performance
-3. **Inventory**: total value, low stock, transactions summary
-4. **Tables**: occupancy rate, revenue per table
-5. **Reservations + Z-Reports**: summary stats
+# Print kitchen order (auto-detect stations, separate job per station!)
+POST /api/printers/print
+{ "type": "kitchen_order", "orderId": "xxx" }
+```
+
+### 📤 Data Export (11 CSV tipov)
+
+```bash
+GET /api/export?type=orders&from=2026-01-01&to=2026-12-31
+# Returns: CSV file download (Content-Type: text/csv)
+```
+
+Tipi: orders, z_reports, inventory, customers, staff_shifts, payments, tips, audit, purchase_orders, reservations, gift_cards
 
 ---
 
@@ -135,22 +149,9 @@ Eventi: `kds:new_order`, `kds:station_order` (auto station routing), `kds:item_s
 
 ### 🎨 33 sekcij z 48 komponentami
 
-**Hero** z AI sliko · **Live sales ticker** · **Stats bar** · **Trust bar** (FURS ZDavP-2P) · **Security & compliance** (AES-256, MFA, RBAC) · **Multi-location & mobile** · **Sustainability** (CO₂ tracking) · **Command Center** (living dashboard) · **Payments** · **Loyalty & CRM** · **Allergen & compliance** (14 alergenov) · **Promotions** (Happy Hour, BOGO) · **Gift Cards** · **Inventory** · **Delivery** (Wolt/Glovo/Uber Eats) · **QR Ordering & Kiosk** · **AI Prediction** (weather-aware) · **Menu Engineering** (4 kvadranti) · **Staff & Shift** · **Reservations** (3 tabi) · **Integrations** (24+) · **Onboarding Wizard** (5 korakov) · **Support & Training** · **Roadmap & Changelog** · **Product Tour** (4 moduli) · **Competition Comparison** (slovenske blagajne) · **Interface Comparison** (VLM) · **Testimonials** · **Case Studies** · **ROI Kalkulator** · **Z-Report** · **Email Capture** (lead magnet) · **Pricing** · **FAQ** · **Decision Hub** · **Section Dots Navigator**
+Hero · Live ticker · Stats bar · Trust bar · Security · Multi-location · Sustainability · Command Center · Payments · Loyalty · Allergens · Promotions · Gift Cards · Inventory · Delivery · QR Ordering · AI Prediction · Menu Engineering · Staff · Reservations · Integrations · Onboarding · Support · Roadmap · Product Tour · Comparison · Interface · Testimonials · Case Studies · ROI · Z-Report · Email Capture · Pricing · FAQ · Decision Hub · Section Dots
 
-**16 vizualnih efektov**: gradient mesh, glassmorphism, card-tilt 3D, animated gradient text, stagger, dark mode toggle, parallax hero, cursor glow, magnetic buttons, shimmer, glow-pulse, live ticker, living dashboard, social proof toast, weather widget, cookie consent
-
----
-
-## Ključne funkcije
-
-### 🖥️ 4 moduli z real-time sync
-
-| Modul | Opis | VLM ocena |
-|-------|------|-----------|
-| **POS Blagajna** | Natakar (TEXT gumbi) + Gost (SLIKE artiklov) | 8/10 |
-| **Kuhinja (KDS)** | 3-column kanban z station routing | **9/10** 🏆 |
-| **Mize** | Tloris restavracije z 12 mizami, 4 statusi | **8.5/10** 🏆 |
-| **Analitika** | AI dashboard z grafi, KPI, menu engineering | 8/10 |
+**16 vizualnih efektov**: gradient mesh, glassmorphism, card-tilt 3D, animated gradient text, stagger, dark mode, parallax, cursor glow, magnetic buttons, shimmer, glow-pulse, live ticker, living dashboard, social proof toast, weather widget, cookie consent
 
 ---
 
@@ -164,30 +165,28 @@ Eventi: `kds:new_order`, `kds:station_order` (auto station routing), `kds:item_s
 ### Namestitev
 
 ```bash
-# Kloniraj repo
 git clone https://github.com/markec12345678/noro-lep-pos-2026.git
 cd noro-lep-pos-2026
-
-# Namesti odvisnosti
 bun install
+
+# Database
+bun run db:push
+
+# Seed podatki
+curl -X POST http://localhost:3000/api/tables/seed
+curl -X POST http://localhost:3000/api/menu/seed
+curl -X POST http://localhost:3000/api/settings/seed
+curl -X POST http://localhost:3000/api/expenses/seed
+curl -X POST http://localhost:3000/api/printers/seed
+
+# Set PIN za staff (prvi login)
+# Najprej ustvari staff, nato nastavi PIN preko DB ali API-ja
 
 # Zaženi dev server
 bun run dev
 ```
 
 Aplikacija teče na `http://localhost:3000`.
-
-### Database (Prisma + SQLite)
-
-```bash
-# Push schema v SQLite
-bun run db:push
-
-# Seed testne podatke (mize, meni, nastavitve)
-curl -X POST http://localhost:3000/api/tables/seed
-curl -X POST http://localhost:3000/api/menu/seed
-curl -X POST http://localhost:3000/api/settings/seed
-```
 
 ### WebSocket (mini-service)
 
@@ -197,62 +196,20 @@ bun install
 bun run dev  # Port 3003
 ```
 
----
+### API pregled
 
-## Tehnologije
+```bash
+# Seznam vseh API-jev
+curl http://localhost:3000/api
 
-| Kategorija | Tehnologija |
-|-----------|-------------|
-| **Framework** | Next.js 16 (App Router, Turbopack) |
-| **Jezik** | TypeScript 5 |
-| **Styling** | Tailwind CSS 4 + shadcn/ui |
-| **Animacije** | Framer Motion |
-| **Grafi** | Recharts |
-| **Database** | Prisma ORM + SQLite |
-| **Real-time** | Socket.io (mini-service, port 3003) |
-| **Plačila** | Stripe SDK |
-| **Auth** | NextAuth.js v4 (available) |
-| **SEO** | Dynamic sitemap.ts + robots.ts + JSON-LD |
-| **Icons** | Lucide React |
+# Health check
+curl http://localhost:3000/api/health
 
----
+# Unified dashboard (Command Center)
+curl http://localhost:3000/api/dashboard/stats
 
-## Struktura projekta
-
-```
-noro-lep-pos-2026/
-├── src/
-│   ├── app/
-│   │   ├── page.tsx              # Landing page (33 sekcij, ~7400 vrstic)
-│   │   ├── layout.tsx            # Root layout z metadata + JSON-LD
-│   │   ├── globals.css           # Tailwind + CSS variables + a11y
-│   │   ├── sitemap.ts            # Dynamic sitemap (Next.js native)
-│   │   ├── robots.ts             # Dynamic robots.txt
-│   │   └── api/                  # 36 API routes (POS backend)
-│   ├── components/ui/            # shadcn/ui komponente
-│   ├── hooks/                    # Custom hooks
-│   └── lib/
-│       ├── db.ts                 # Prisma client (dev/prod logging)
-│       ├── audit.ts              # Audit log helper
-│       ├── stripe.ts             # Stripe integration
-│       ├── ai-prediction.ts      # AI prediction logic
-│       ├── delivery.ts           # Delivery logic
-│       ├── analytics.ts          # Analytics tracking
-│       ├── seed-data.ts          # Seed data
-│       └── utils.ts              # Utilities
-├── prisma/
-│   └── schema.prisma             # 31 Prisma modelov
-├── mini-services/
-│   ├── pos-realtime/             # WebSocket (socket.io, port 3003)
-│   ├── furs-service/             # FURS integration
-│   └── pos-public/               # Public API
-├── public/
-│   ├── pos-brand/                # AI-generirane slike
-│   ├── pos-demo/                 # Demo screenshots
-│   ├── og/                       # Open Graph image
-│   └── manifest.json             # PWA manifest
-├── .github/                      # CI/CD, Issue/PR templates
-└── package.json
+# P&L (Profit & Loss)
+curl "http://localhost:3000/api/expenses/pnl?month=7&year=2026"
 ```
 
 ---
@@ -270,9 +227,6 @@ POST /api/orders
 # Posodobi status (KDS flow + payment + tip)
 PATCH /api/orders
 { "id": "xxx", "status": "paid", "paymentMethod": "card", "tip": 5 }
-
-# Filtriraj po statusu
-GET /api/orders?status=paid
 ```
 
 ### KDS (Kitchen Display)
@@ -280,7 +234,7 @@ GET /api/orders?status=paid
 ```bash
 # KDS board z active orders
 GET /api/kds
-GET /api/kds?station=hot    # samo vroča postaja
+GET /api/kds?station=hot
 
 # Item lifecycle: new → preparing → ready → served
 PATCH /api/kds
@@ -292,53 +246,106 @@ PATCH /api/kds
 ### Customer & Loyalty
 
 ```bash
-# Ustvari gosta
-POST /api/customers
-{ "firstName": "Maja", "lastName": "Kralj", "phone": "+38641234567" }
-
-# Earn točke (auto tier upgrade)
+# Earn točke (auto tier upgrade!)
 PATCH /api/customers
 { "id": "xxx", "action": "earn", "amount": 520 }  # → silver tier + 50 bonus
-
-# Redeem točke
-PATCH /api/customers
-{ "id": "xxx", "action": "redeem", "points": 200 }
 ```
 
-### Promotions (auto-apply)
+### P&L
 
 ```bash
-# Apply promocije na items (stackable)
-POST /api/promotions/apply
-{ "items": [{ "itemName": "Pizza", "qty": 2, "unitPrice": 11, "category": "pice" }],
-  "code": "NOVO10", "orderTime": "2026-07-03T17:00:00" }
-# Returns: originalTotal, discountAmount, finalTotal, appliedPromotions[]
+GET /api/expenses/pnl?month=7&year=2026
+# Revenue, COGS, Gross Profit, Labor, OpEx, Net Profit z benchmarki
 ```
 
-### Z-Report (FURS)
+---
 
-```bash
-# Generiraj dnevni Z-report iz paid orders
-POST /api/z-report
-{ "date": "2026-07-03", "cashier": "Maja K." }
-# Auto: subtotal, tax, VAT breakdown (22%/9.5%/5%), payment breakdown
+## Tehnologije
 
-# Zaključi (FURS EOR/ZOI)
-PATCH /api/z-report
-{ "id": "xxx", "action": "close", "fursEOR": "EOR-xxx", "fursZOI": "ZOI-xxx" }
+| Kategorija | Tehnologija |
+|-----------|-------------|
+| **Framework** | Next.js 16 (App Router, Turbopack) |
+| **Jezik** | TypeScript 5 |
+| **Styling** | Tailwind CSS 4 + shadcn/ui |
+| **Animacije** | Framer Motion |
+| **Database** | Prisma ORM + SQLite |
+| **Real-time** | Socket.io (mini-service, port 3003) |
+| **Auth** | PIN-based + JWT + RBAC (jsonwebtoken) |
+| **Plačila** | Stripe SDK |
+| **Printing** | ESC/POS (receipt-builder lib) |
+| **SEO** | Dynamic sitemap.ts + robots.ts + JSON-LD |
+| **Icons** | Lucide React |
+
+---
+
+## Struktura projekta
+
 ```
-
-### Reports
-
-```bash
-# Dnevno poročilo (vsi sistemi agregirani)
-GET /api/reports?range=today
-
-# Tedensko
-GET /api/reports?range=week
-
-# Samo prodaja
-GET /api/reports?type=sales&range=month
+noro-lep-pos-2026/
+├── src/
+│   ├── app/
+│   │   ├── page.tsx              # Landing page (33 sekcij, ~7400 vrstic)
+│   │   ├── layout.tsx            # Root layout z metadata + JSON-LD
+│   │   ├── globals.css           # Tailwind + CSS variables + a11y
+│   │   ├── sitemap.ts            # Dynamic sitemap
+│   │   ├── robots.ts             # Dynamic robots.txt
+│   │   └── api/                  # 55 API routes (27 sistemov)
+│   │       ├── auth/             # login, me, logout, set-pin
+│   │       ├── orders/           # CRUD + auto stock + tip
+│   │       ├── tables/           # CRUD + seed
+│   │       ├── reservations/     # CRUD + auto table
+│   │       ├── waitlist/         # Auto-renumber + SMS
+│   │       ├── staff/            # CRUD + PIN + RBAC
+│   │       ├── shifts/           # Scheduling + clock in/out
+│   │       ├── kds/              # Kitchen board + station routing
+│   │       ├── z-report/         # FURS + VAT breakdown
+│   │       ├── inventory/        # Items + transactions + delivery
+│   │       ├── purchase-orders/  # Supply chain + auto stock
+│   │       ├── suppliers/        # CRUD
+│   │       ├── menu/             # Categories + items + modifiers
+│   │       ├── customers/        # CRM + loyalty + auto tier
+│   │       ├── promotions/       # CRUD + auto-apply
+│   │       ├── gift-cards/       # Issue/redeem/reload
+│   │       ├── bill-split/       # Equal/items/custom
+│   │       ├── tips/             # 3 pool tipi + approval
+│   │       ├── payments/         # Stripe webhook + list
+│   │       ├── cash-drawer/      # Open/close/reconcile
+│   │       ├── printers/         # ESC/POS + station routing
+│   │       ├── notifications/    # 9 templates
+│   │       ├── expenses/         # CRUD + P&L + seed
+│   │       ├── reports/          # 5 agregirana poročila
+│   │       ├── settings/         # DDV, delovni čas, FURS
+│   │       ├── audit/            # Entity trail + stats
+│   │       ├── export/           # 11 CSV tipov
+│   │       ├── health/           # System status
+│   │       ├── dashboard/        # Command Center + overview
+│   │       └── route.ts          # API Index (27 sistemov)
+│   ├── components/ui/            # shadcn/ui komponente
+│   ├── hooks/                    # Custom hooks
+│   └── lib/
+│       ├── db.ts                 # Prisma client
+│       ├── auth.ts               # PIN login + JWT + RBAC
+│       ├── audit.ts              # Audit log helper
+│       ├── notifications.ts      # Notification templates + sender
+│       ├── receipt-builder.ts    # ESC/POS receipt/kitchen builder
+│       ├── stripe.ts             # Stripe integration
+│       ├── ai-prediction.ts      # AI prediction logic
+│       ├── delivery.ts           # Delivery logic
+│       ├── analytics.ts          # Analytics tracking
+│       ├── seed-data.ts          # Seed data
+│       └── utils.ts              # Utilities
+├── prisma/
+│   └── schema.prisma             # 40 Prisma modelov
+├── mini-services/
+│   ├── pos-realtime/             # WebSocket (socket.io, port 3003)
+│   ├── furs-service/             # FURS integration
+│   └── pos-public/               # Public API
+├── public/
+│   ├── pos-brand/                # AI-generirane slike
+│   ├── og/                       # Open Graph image
+│   └── manifest.json             # PWA manifest
+├── .github/                      # CI/CD, Issue/PR templates
+└── package.json
 ```
 
 ---
@@ -348,16 +355,9 @@ GET /api/reports?type=sales&range=month
 Prispevki so dobrodošli! Preberi [CONTRIBUTING.md](CONTRIBUTING.md) za smernice.
 
 ```bash
-# Fork + clone
 git checkout -b feature/nova-funkcija
-
-# Preveri kodo
 bun run lint
-
-# Commit z conventional commits
 git commit -m "feat: opis nove funkcije"
-
-# Push + Pull Request
 git push origin feature/nova-funkcija
 ```
 
@@ -373,8 +373,8 @@ MIT License — glej [LICENSE](LICENSE).
 
 **Zgrajeno v Sloveniji** 🇸🇮 z ❤️
 
-31 Prisma modelov · 36 API routes · 33 sekcij · 48 komponent · 16 vizualnih efektov · WebSocket real-time · 7400+ vrstic TypeScript
+40 Prisma modelov · 55 API routes · 27 sistemov · 11 lib datotek · 33 sekcij · 48 komponent · 16 vizualnih efektov · WebSocket · ESC/POS · PIN auth + RBAC · P&L · 7400+ vrstic TypeScript
 
-[🌐 Spletna stran](https://norolep-pos.si) · [📧 Kontakt](mailto:info@norolep-pos.si) · [🐛 Prijavi napako](https://github.com/markec12345678/noro-lep-pos-2026/issues)
+[🌐 Spletna stran](https://norolep-pos.si) · [📧 Kontakt](mailto:info@norolep-pos.si) · [🐛 Prijavi napako](https://github.com/markec12345678/noro-lep-pos-2026/issues) · [📚 API docs](https://norolep-pos.si/api)
 
 </div>
