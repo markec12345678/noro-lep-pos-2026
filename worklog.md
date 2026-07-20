@@ -2730,3 +2730,46 @@ Stage Summary:
 - VLM: 9/10 polish
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 83
+Agent: main (Z.ai Code)
+Task: Interaktivni LivePOS terminal — real backend + WebSocket KDS demo
+
+Work Log:
+- Preverjeno stanje: 56 API rut, 333 zapisov, 36 sekcij, zdrav dev server
+- Dodanih 20 novih meni artiklov (4→24 artiklov, 5 kategorij, 7 TOP/popularnih)
+- Instaliran socket.io-client@4.8.3
+- Zgrajena LivePosDemo komponenta (~740 vrstic, src/components/live-pos-demo.tsx):
+  * Fetch menija iz GET /api/menu (24 artiklov, 5 kategorij)
+  * POS terminal z mizo selectorjem, kategorijami, artikal grid (emoji, TOP badge, alergeni, vegan/veg badge, F1-F9 bližnjice)
+  * Račun panel z avto DDV razčlenitvijo (22% in 9.5% z osnovami)
+  * POST /api/orders integracija (avto order number ORD-2026-XXXX, inventory deduction)
+  * WebSocket povezava s pos-realtime (port 3003, io('/?XTransformPort=3003'))
+  * KDS display z 4 postajami (vroče/hladno/bar/sladice), auto-detect station iz item name
+  * KDS ticket flow: NOVO → V PRIPRAVI → PRIPRAVLJENO → POSTREŽENO
+  * Real-time timer (timeAgo), connection status indicator, success toast
+  * Bottom info strip (DDV razčlenitev, TOP artikli, ESC/POS tisk, Socket.io)
+- Dodana nova sekcija #live-pos v page.tsx (~50 vrstic, med demo in funkcije)
+- Custom scrollbar CSS v globals.css (.custom-scroll)
+- Popravljen bug: tableNumber String→Int za Prisma
+- Popravljen bug: odstranjen kds:new_order listener (socket.io ne echo nazaj pošiljatelju)
+- Popravljen bug: useState(Date.now()) → useState(0) + useEffect (hydration mismatch)
+- Agent-browser end-to-end verifikacija:
+  * Klik 3 artikli → račun 31.03€ z DDV 22% (osnova 20.50€) + DDV 9.5% (osnova 5.50€)
+  * Klik "Pošlji v kuhinjo" → POST /api/orders 201, ORD-2026-0012 ustvarjen
+  * Success toast "Naročilo poslano v kuhinjo!" viden
+  * KDS ticket z NOVO badge, Miza 5, 3 artikli viden na desni
+  * VLM potrditev: zeleni toast + KDS panel z "Auto-print: Vroče + Bar" in "FURS EOR ready"
+- Lint: 0 errors
+
+Stage Summary:
+- 37 sekcij (+1 LivePOS terminal)
+- Nova komponenta: src/components/live-pos-demo.tsx (~740 vrstic)
+- End-to-end demo: meni iz baze → POS terminal → DDV račun → POST /api/orders → WebSocket emit → KDS live display
+- 24 meni artiklov (prej 4), 5 kategorij, 7 TOP/popularnih
+- socket.io-client@4.8.3 instaliran
+- Pravi orderji ustvarjeni v DB (ORD-2026-0006 do ORD-2026-0012 med testiranjem)
+- VLM: zeleni success toast + KDS panel potrjeni
+- 0 napak, 0 lint errors
+- Commit/push next

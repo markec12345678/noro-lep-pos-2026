@@ -60,6 +60,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { useAnalytics } from '@/hooks/use-analytics'
+import { LivePosDemo } from '@/components/live-pos-demo'
 
 /* ============================================================
    ANIMATED COUNTER
@@ -6962,6 +6963,57 @@ export default function Home() {
                 </div>
               </div>
             </Card>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ===== LIVE POS TERMINAL — real backend + WebSocket ===== */}
+      <section id="live-pos" className="py-20 lg:py-28 bg-gradient-to-b from-white via-slate-50/30 to-white border-y border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-10">
+            <Badge className="mb-4 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
+              <Zap className="h-3.5 w-3.5 mr-1.5" />
+              Interaktivni terminal · real backend
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+              Klikni, naroči,{' '}
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                pošlji v kuhinjo
+              </span>
+            </h2>
+            <p className="mt-4 text-lg text-slate-600">
+              To ni mockup. Artikli prihajajo iz <strong>prave baze</strong> (24 artiklov, 5 kategorij).
+              Naročilo se shrani preko <strong>POST /api/orders</strong> z avto DDV razčlenitvijo
+              in se v <strong>realnem času</strong> prikaže na KDS zaslonu preko WebSocket (socket.io).
+            </p>
+          </div>
+
+          <LivePosDemo />
+
+          {/* Tech badges */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="mt-10 flex flex-wrap justify-center gap-2"
+          >
+            {[
+              { label: 'GET /api/menu', desc: '24 artiklov iz Prisma DB' },
+              { label: 'POST /api/orders', desc: 'avto DDV + inventory deduction' },
+              { label: 'socket.io:3003', desc: 'kds:new_order event' },
+              { label: '4 postaje', desc: 'vroče / hladno / bar / sladice' },
+              { label: 'RBAC', desc: 'manager/server/cook/bartender' },
+            ].map((tech, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm"
+              >
+                <code className="text-xs font-mono font-bold text-emerald-600">{tech.label}</code>
+                <span className="text-[10px] text-slate-400">·</span>
+                <span className="text-[10px] text-slate-500">{tech.desc}</span>
+              </div>
+            ))}
           </motion.div>
         </div>
       </section>
