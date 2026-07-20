@@ -2773,3 +2773,41 @@ Stage Summary:
 - VLM: zeleni success toast + KDS panel potrjeni
 - 0 napak, 0 lint errors
 - Commit/push next
+
+---
+Task ID: 84
+Agent: main (Z.ai Code)
+Task: Live Orders Feed — real-time order feed iz baze z auto-refresh
+
+Work Log:
+- Zgrajena LiveOrdersFeed komponenta (~280 vrstic, src/components/live-orders-feed.tsx):
+  * Fetch recent orders iz GET /api/orders?limit=10
+  * Auto-refresh vsakih 5 sekund
+  * 4 statistične kartice: promet danes, naročila danes, povp. račun, skupno
+  * Order list z: order number, miza, channel ikona, status badge, item preview, total, time ago
+  * New order detection: flash animation + NOVO badge za nove orderje
+  * Channel meta (dine_in/takeaway/delivery/qr) z barvami in ikonami
+  * Status meta (open/sent/preparing/ready/served/paid/canceled) z barvnimi dot-imi
+  * Manual refresh button + live indicator z animirano piko
+  * Time ago timer (pred Xs/min/h) z vsako-sekundnim update-om
+  * Custom scrollbar, framer-motion AnimatePresence za smooth transitions
+- Dodana nova sekcija #orders-feed v page.tsx (~25 vrstic, med live-pos in funkcije)
+- Lint: 0 errors, 1 warning (unused eslint-disable — harmless)
+- Agent-browser end-to-end verifikacija:
+  * Odprta stran, 37 sekcij (+1)
+  * Zapri cookie banner → klik 2 artikla v LivePOS → Pošlji v kuhinjo
+  * POST /api/orders 201 → ORD-2026-0013 | €16.39 | 2 artiklov ustvarjen
+  * Scroll do Orders Feed → ORD-2026-0013 se pojavi kot #1 z NOVO badge-om
+  * DOM eval: hasOrder=true, hasLiveFeed=true, hasRevenue=true
+  * Stats: €229.35 promet danes, 8 naročil, €28.67 povp. račun, 10 vseh
+  * VLM potrditev: 4 stat kartice, live feed z ORD-2026-0013/0012/0011, auto-refresh indikator
+  * Real order details: Miza 5, artikli (Brusketa, Trški pršut), časi (pred 24s, pred 6h)
+
+Stage Summary:
+- 37 sekcij (+1 Live Orders Feed)
+- Nova komponenta: src/components/live-orders-feed.tsx (~280 vrstic)
+- End-to-end flow: LivePOS terminal → POST /api/orders → Orders Feed auto-refresh (5s)
+- Real orderji iz baze prikazani z auto-refresh in new-order flash animation
+- VLM: 4 stat kartice + live feed z real orderji potrjeni
+- 0 napak, 0 lint errors (1 harmless warning)
+- Commit/push next

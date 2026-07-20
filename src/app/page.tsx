@@ -61,6 +61,7 @@ import {
 } from '@/components/ui/accordion'
 import { useAnalytics } from '@/hooks/use-analytics'
 import { LivePosDemo } from '@/components/live-pos-demo'
+import { LiveOrdersFeed } from '@/components/live-orders-feed'
 
 /* ============================================================
    ANIMATED COUNTER
@@ -7015,6 +7016,30 @@ export default function Home() {
               </div>
             ))}
           </motion.div>
+        </div>
+      </section>
+
+      {/* ===== LIVE ORDERS FEED — real orders iz baze ===== */}
+      <section id="orders-feed" className="py-16 lg:py-20 bg-slate-50/50 border-y border-slate-100">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-8">
+            <Badge className="mb-3 bg-emerald-100 text-emerald-800 hover:bg-emerald-100">
+              <Receipt className="h-3.5 w-3.5 mr-1.5" />
+              Real-time iz baze · auto-refresh 5s
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+              Tvoja naročila{' '}
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                v živo na zaslonu
+              </span>
+            </h2>
+            <p className="mt-3 text-base text-slate-600">
+              Vsak order, ki ga pošlješ iz POS terminala zgoraj, se takoj shrani v bazo
+              in prikaže tukaj. <strong>Poizkusi — pošlji order in glej feed.</strong>
+            </p>
+          </div>
+
+          <LiveOrdersFeed />
         </div>
       </section>
 
