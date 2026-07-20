@@ -963,3 +963,52 @@ model Expense {
   @@index([expenseDate])
   @@index([isRecurring])
 }
+
+model Recipe {
+  id            String   @id @default(cuid())
+  menuItemId    String   @unique // 1 recipe per menu item
+  menuItemName  String   // denormalized
+  // Yield
+  yieldQty      Float    @default(1) // koliko porcij da ta recept
+  yieldUnit     String   @default("porcija")
+  // Cost (auto-calculated)
+  foodCost      Float    @default(0) // skupni cost ingredientov
+  costPerServing Float   @default(0) // foodCost / yieldQty
+  // Margin (auto-calculated from menu item price)
+  margin        Float    @default(0) // price - costPerServing
+  marginPct     Float    @default(0) // margin / price * 100
+  // Status
+  active        Boolean  @default(true)
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  ingredients   RecipeIngredient[]
+
+  @@index([menuItemId])
+  @@index([active])
+}
+
+model RecipeIngredient {
+  id              String   @id @default(cuid())
+  recipeId        String
+  recipe          Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  // Inventory link
+  inventoryItemId String?  // link to InventoryItem
+  ingredientName  String   // denormalized (za case ko inventory item ne obstaja)
+  // Quantity
+  quantity        Float    // količina za 1 recept
+  unit            String   @default("kos") // kg, l, kos, g...
+  // Cost
+  unitCost        Float    @default(0) // nabavna cena per unit
+  totalCost       Float    @default(0) // quantity * unitCost
+  // Waste factor (npr. 1.1 = 10% odpadka pri pripravi)
+  wasteFactor     Float    @default(1) // 1 = brez odpadka, 1.1 = 10% odpadka
+  // Prep notes
+  prepNotes       String?  // "nareži na kocke", "kuhaj 20 min"
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  @@index([recipeId])
+  @@index([inventoryItemId])
+}
